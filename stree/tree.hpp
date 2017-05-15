@@ -60,13 +60,11 @@ const char* type_to_string(Type type);
 
 
 // Bit field widths
-
 const std::uint8_t TypeWidth = 2;
 const std::uint8_t ArityWidth = STREE_ARITY_WIDTH;
 static_assert(TypeWidth + ArityWidth < sizeof(Index) * 8);
 static_assert(ArityWidth < sizeof(FunctionIndex) * 8);
 constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth);
-constexpr std::uint8_t FunctionIndexWidth = (sizeof(FunctionIndex) * 8 - ArityWidth);
 
 
 // Tree node ID
@@ -176,14 +174,18 @@ private:
 
 class NodeManager {
 public:
-    template<typename T>
-    Index alloc();
+    Id make(Type type, Arity arity = 0);
+
+    void destroy(Id id);
 
     template<typename T>
-    T& get(Index index);
+    Index alloc_node();
 
     template<typename T>
-    void free(Index index);
+    T& get_node(Index index);
+
+    template<typename T>
+    void free_node(Index index);
 
     STREE_TMP_MEMBER_DECL(Position, pos)
     STREE_TMP_MEMBER_DECL(Value, val)

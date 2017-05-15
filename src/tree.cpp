@@ -81,18 +81,18 @@ void Id::set_index(Index index) {
 
 // Node manager
 
-#define STREE_TMP_MEMBER_IMPL(_Type, _member)       \
-    template<>                                      \
-    Index NodeManager::alloc<_Type>() {             \
-        return _member.alloc();                     \
-    }                                               \
-    template<>                                      \
-    _Type& NodeManager::get<_Type>(Index index) {   \
-        return _member.get(index);                  \
-    }                                               \
-    template<>                                      \
-    void NodeManager::free<_Type>(Index index) {    \
-        _member.free(index);                        \
+#define STREE_TMP_MEMBER_IMPL(_Type, _member)           \
+    template<>                                          \
+    Index NodeManager::alloc_node<_Type>() {            \
+        return _member.alloc();                         \
+    }                                                   \
+    template<>                                          \
+    _Type& NodeManager::get_node<_Type>(Index index) {  \
+        return _member.get(index);                      \
+    }                                                   \
+    template<>                                          \
+    void NodeManager::free_node<_Type>(Index index) {   \
+        _member.free(index);                            \
     }
 
 #define STREE_TMP_MEMBER_FUN_IMPL(_arity) \
@@ -106,5 +106,62 @@ STREE_TMP_MEMBER_FUN_IMPL(2)
 
 #undef STREE_TMP_MEMBER_FUN_IMPL
 #undef STREE_TMP_MEMBER_IMPL
+
+
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)   \
+    else if (arity == _arity) {                 \
+        index = alloc_node<FunctionNode<_arity>>();   \
+    }
+
+Id NodeManager::make(Type type, Arity arity) {
+    Index index = Id::NoIndex;
+    switch (type) {
+        case TypeConst:
+            index = alloc_node<Value>();
+            break;
+        case TypePositional:
+            index = alloc_node<Position>();
+            break;
+        case TypeFunction:
+            if (false) {}
+            STREE_TMP_MAKE_FUN_ARITY_CASE(0)
+            STREE_TMP_MAKE_FUN_ARITY_CASE(1)
+            STREE_TMP_MAKE_FUN_ARITY_CASE(2)
+            break;
+        case TypeSelect:
+            // TODO
+            break;
+    }
+    return Id(type, arity, index);
+}
+#undef STREE_TMP_MAKE_FUN_ARITY_CASE
+
+
+#define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)   \
+    else if(id.arity() == _arity) {                     \
+        free_node<FunctionNode<_arity>>(id.index());    \
+    }
+
+void NodeManager::destroy(Id id) {
+    switch (id.type()) {
+        case TypeConst:
+            free_node<Value>(id.index());
+            break;
+        case TypePositional:
+            free_node<Position>(id.index());
+            break;
+        case TypeFunction:
+            if (false) {}
+            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(0)
+            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(1)
+            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(2)
+            break;
+        case TypeSelect:
+            // TODO
+            break;
+    }
+}
+#undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
+
 
 } // namespace stree
