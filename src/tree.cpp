@@ -13,17 +13,6 @@ std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     return os << ')';
 }
 
-std::ostream& operator<<(std::ostream& os, const stree::FunctionId& fid) {
-    os << '(';
-    if (!fid.empty()) {
-        os << "arity: " << static_cast<unsigned>(fid.arity())
-           << ", index: " << fid.index();
-    } else {
-        os << "empty";
-    }
-    return os << ')';
-}
-
 namespace {
 
 template<typename D, typename V>
@@ -88,26 +77,5 @@ void Id::set_index(Index index) {
     set(data_, IndexMask, 0, index);
 }
 
-
-FunctionId::FunctionId(Arity arity, FunctionIndex index) {
-    set_arity(arity);
-    set_index(index);
-}
-
-Arity FunctionId::arity() const {
-    return get<FunctionIndex, Arity>(data_, ArityMask, FunctionIndexWidth);
-}
-
-void FunctionId::set_arity(Arity arity) {
-    set(data_, ArityMask, FunctionIndexWidth, arity);
-}
-
-Index FunctionId::index() const {
-    return get<FunctionIndex, FunctionIndex>(data_, FunctionIndexMask, 0);
-}
-
-void FunctionId::set_index(FunctionIndex index) {
-    return set(data_, FunctionIndexMask, 0, index);
-}
 
 } // namespace stree
