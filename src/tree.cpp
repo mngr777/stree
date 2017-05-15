@@ -52,6 +52,7 @@ Id::Id(Type type, Arity arity, Index index) {
     set_index(index);
 }
 
+
 Type Id::type() const {
     return type_id_to_type(
         get<Index, TypeId>(data_, TypeMask, IndexWidth + ArityWidth));
@@ -77,5 +78,32 @@ void Id::set_index(Index index) {
     set(data_, IndexMask, 0, index);
 }
 
+
+// Node manager
+
+#define STREE_TMP_MEMBER_IMPL(_Type, _member)       \
+    template<>                                      \
+    Index NodeManager::alloc<_Type>() {             \
+        return _member.alloc();                     \
+    }                                               \
+    template<>                                      \
+    _Type& NodeManager::get<_Type>(Index index) {   \
+        return _member.get(index);                  \
+    }                                               \
+    template<>                                      \
+    void NodeManager::free<_Type>(Index index) {    \
+        _member.free(index);                        \
+    }
+
+#define STREE_TMP_MEMBER_FUN_IMPL(_arity) \
+    STREE_TMP_MEMBER_IMPL(FunctionNode<_arity>, fun ## _arity);
+
+STREE_TMP_MEMBER_IMPL(Position, pos)
+STREE_TMP_MEMBER_IMPL(Value, val)
+STREE_TMP_MEMBER_FUN_IMPL(0)
+STREE_TMP_MEMBER_FUN_IMPL(1)
+
+#undef STREE_TMP_MEMBER_FUN_IMPL
+#undef STREE_TMP_MEMBER_IMPL
 
 } // namespace stree

@@ -3,10 +3,12 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
 HEADER_FILES = \
+	stree/eval.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
 	src/main.cpp \
+	src/eval.cpp \
 	src/tree.cpp
 
 # lib_LTLIBRARIES = libstree.la

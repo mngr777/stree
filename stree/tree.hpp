@@ -3,11 +3,19 @@
 
 #include <cstdint>
 #include <limits>
+#include <mutex>
 #include <ostream>
+#include <queue>
+#include <vector>
 
 // Arity width in bits
 #ifndef STREE_ARITY_WIDTH
 # define STREE_ARITY_WIDTH (3)
+#endif
+
+// Value type
+#ifndef STREE_VALUE_TYPE
+# define STREE_VALUE_TYPE float;
 #endif
 
 // Output
@@ -16,6 +24,7 @@ class Id;
 }
 std::ostream& operator<<(std::ostream& os, const stree::Id& id);
 
+
 namespace stree {
 
 // Basic types
@@ -23,6 +32,8 @@ using TypeId = std::uint8_t;
 using Arity  = std::uint8_t;
 using Index  = std::uint32_t;
 using FunctionIndex = std::uint8_t;
+using Position = std::uint8_t;
+using Value = STREE_VALUE_TYPE;
 
 
 // Type enum and conversions
@@ -87,6 +98,96 @@ public:
 private:
     Index data_;
 };
+
+
+// Function tree node
+template<Arity A>
+class FunctionNode {
+public:
+public:
+    FunctionNode(FunctionIndex fid) : fid_(fid) {}
+
+    FunctionIndex fid() const {
+        return fid_;
+    }
+
+    Id& argument(Arity n) {
+        return arguments_[n];
+    }
+
+    const Id& child(Arity n) const {
+        return arguments_[n];
+    }
+
+private:
+    FunctionIndex fid_;
+    Id arguments_[A];
+};
+
+
+// Pool of nodes of specific type
+template<typename T>
+class NodePool {
+private:
+    using LockGuard = std::lock_guard<std::mutex>;
+public:
+    Index alloc() {
+        LockGuard lg(mtx_);
+        if (buffer_.empty()) {
+            nodes_.emplace_back(T());
+            return nodes_.size() - 1;
+        } else {
+            Index index = buffer_.front();
+            buffer_.pop();
+            return index;
+        }
+    }
+
+    T& get(Index index) {
+        LockGuard lg(mtx_);
+        return nodes_[index];
+    }
+
+    void free(Index index) {
+        LockGuard lg(mtx_);
+        buffer_.push(index);
+    }
+
+private:
+    std::vector<T> nodes_;
+    std::queue<Index> buffer_;
+    std::mutex mtx_;
+};
+
+
+// Node manager
+
+#define STREE_TMP_MEMBER_DECL(_Type, _member)   \
+    private:                                    \
+    NodePool<_Type> _member;                    \
+
+#define STREE_TMP_MEMBER_FUN_DECL(_arity)                       \
+    STREE_TMP_MEMBER_DECL(FunctionNode<_arity>, fun ## _arity);
+
+class NodeManager {
+public:
+    template<typename T>
+    Index alloc();
+
+    template<typename T>
+    T& get(Index index);
+
+    template<typename T>
+    void free(Index index);
+
+    STREE_TMP_MEMBER_DECL(Position, pos);
+    STREE_TMP_MEMBER_DECL(Value, val);
+    STREE_TMP_MEMBER_FUN_DECL(0);
+    STREE_TMP_MEMBER_FUN_DECL(1);
+};
+
+#undef STREE_TMP_MEMBER_FUN_DECL
+#undef STREE_TMP_MEMBER_DECL
 
 } // namespace stree
 
