@@ -5,15 +5,14 @@
 int main() {
     using namespace std;
     using namespace stree;
+    using FN0 = FunctionNode<0>;
+    using FN2 = FunctionNode<2>;
 
-    Id id1;
-    id1.set_type(TypeFunction);
-    id1.set_arity(3);
-    id1.set_index(93);
-    cout << id1 << endl;
+    NodeManager nm1;
+    Index i1 = nm1.alloc<FN2>();
+    Index i2 = nm1.alloc<FN0>();
+    Index i3 = nm1.alloc<FN0>();
 
-    Id id2;
-    cout << id2 << endl;
 
     return 0;
 }
