@@ -35,6 +35,9 @@ using FunctionIndex = std::uint8_t;
 using Position = std::uint8_t;
 using Value = STREE_VALUE_TYPE;
 
+// Function index "empty" value
+const FunctionIndex FunctionNoIndex = std::numeric_limits<FunctionIndex>::max();
+
 
 // Type enum and conversions
 
@@ -105,6 +108,8 @@ template<Arity A>
 class FunctionNode {
 public:
 public:
+    FunctionNode() : FunctionNode(FunctionNoIndex) {}
+
     FunctionNode(FunctionIndex fid) : fid_(fid) {}
 
     FunctionIndex fid() const {
@@ -115,7 +120,7 @@ public:
         return arguments_[n];
     }
 
-    const Id& child(Arity n) const {
+    const Id& argument(Arity n) const {
         return arguments_[n];
     }
 
@@ -180,10 +185,11 @@ public:
     template<typename T>
     void free(Index index);
 
-    STREE_TMP_MEMBER_DECL(Position, pos);
-    STREE_TMP_MEMBER_DECL(Value, val);
-    STREE_TMP_MEMBER_FUN_DECL(0);
-    STREE_TMP_MEMBER_FUN_DECL(1);
+    STREE_TMP_MEMBER_DECL(Position, pos)
+    STREE_TMP_MEMBER_DECL(Value, val)
+    STREE_TMP_MEMBER_FUN_DECL(0)
+    STREE_TMP_MEMBER_FUN_DECL(1)
+    STREE_TMP_MEMBER_FUN_DECL(2)
 };
 
 #undef STREE_TMP_MEMBER_FUN_DECL
