@@ -100,9 +100,7 @@ void Id::set_index(Index index) {
 
 STREE_TMP_MEMBER_IMPL(Position, pos)
 STREE_TMP_MEMBER_IMPL(Value, val)
-STREE_TMP_MEMBER_FUN_IMPL(0)
-STREE_TMP_MEMBER_FUN_IMPL(1)
-STREE_TMP_MEMBER_FUN_IMPL(2)
+STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 
 #undef STREE_TMP_MEMBER_FUN_IMPL
 #undef STREE_TMP_MEMBER_IMPL
@@ -124,9 +122,7 @@ Id NodeManager::make(Type type, Arity arity) {
             break;
         case TypeFunction:
             if (false) {}
-            STREE_TMP_MAKE_FUN_ARITY_CASE(0)
-            STREE_TMP_MAKE_FUN_ARITY_CASE(1)
-            STREE_TMP_MAKE_FUN_ARITY_CASE(2)
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
             break;
         case TypeSelect:
             // TODO
@@ -152,9 +148,7 @@ void NodeManager::destroy(Id id) {
             break;
         case TypeFunction:
             if (false) {}
-            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(0)
-            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(1)
-            SMTREE_TMP_DESTROY_FUN_ARITY_CASE(2)
+            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_DESTROY_FUN_ARITY_CASE)
             break;
         case TypeSelect:
             // TODO

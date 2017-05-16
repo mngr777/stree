@@ -4,6 +4,7 @@ AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
 HEADER_FILES = \
 	stree/eval.hpp \
+	stree/macro.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
