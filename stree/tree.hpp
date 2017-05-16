@@ -35,7 +35,7 @@
     BOOST_PP_LIST_FOR_EACH(                                             \
         STREE_FOR_EACH_WRAPPER, MACRO, BOOST_PP_TUPLE_TO_LIST(STREE_FUN_ARITY_TUPLE))
 
-// Apply MACRO to each index and value in ARITY_TUPLE
+// Apply MACRO to each index and value in ARITY_TUPLE:
 // MACRO(index, arity)
 //
 // May be used to map arity values stored in Id class to actual arity,
