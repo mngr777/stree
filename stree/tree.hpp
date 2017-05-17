@@ -49,7 +49,7 @@
 namespace stree {
 class Id;
 }
-std::ostream& operator<<(std::ostream& os, const stree::Id& id);
+std::ostream& operator<<(std::ostream& os, const stree::Id id);
 
 
 namespace stree {
@@ -141,12 +141,12 @@ public:
         return fid_;
     }
 
-    Id& argument(Arity n) {
+    Id argument(Arity n) const {
         return arguments_[n];
     }
 
-    const Id& argument(Arity n) const {
-        return arguments_[n];
+    void set_argument(Arity n, Id argument_id) {
+        arguments_[n] = argument_id;
     }
 
 private:
@@ -221,6 +221,20 @@ public:
 
 #undef STREE_TMP_MEMBER_FUN_DECL
 #undef STREE_TMP_MEMBER_DECL
+
+
+// Get Id of Nth argument of node
+Id nth_argument(NodeManager& nm, Id id, Arity n);
+
+// Set Id of Nth argument of node
+void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
+
+// Create shallow copy of node by Id, return new node Id
+Id copy(NodeManager& nm, Id id);
+
+// Create deep copy of node by Id, return subtree root Id
+Id copy_subtree(NodeManager& nm, Id root);
+
 
 } // namespace stree
 

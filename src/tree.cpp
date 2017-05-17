@@ -1,7 +1,7 @@
 #include <stree/tree.hpp>
 #include <cassert>
 
-std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
+std::ostream& operator<<(std::ostream& os, const stree::Id id) {
     os << '(';
     if (!id.empty()) {
         os << "type: " << type_to_string(id.type())
@@ -95,7 +95,7 @@ void Id::set_index(Index index) {
         _member.free(index);                            \
     }
 
-#define STREE_TMP_MEMBER_FUN_IMPL(_arity) \
+#define STREE_TMP_MEMBER_FUN_IMPL(_arity)                       \
     STREE_TMP_MEMBER_IMPL(FunctionNode<_arity>, fun ## _arity);
 
 STREE_TMP_MEMBER_IMPL(Position, pos)
@@ -106,9 +106,9 @@ STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 #undef STREE_TMP_MEMBER_IMPL
 
 
-#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)   \
-    else if (arity == _arity) {                 \
-        index = alloc_node<FunctionNode<_arity>>();   \
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)       \
+    else if (arity == _arity) {                     \
+        index = alloc_node<FunctionNode<_arity>>(); \
     }
 
 Id NodeManager::make(Type type, Arity arity) {
@@ -123,7 +123,7 @@ Id NodeManager::make(Type type, Arity arity) {
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
-            break;
+                break;
         case TypeSelect:
             // TODO
             break;
@@ -133,7 +133,7 @@ Id NodeManager::make(Type type, Arity arity) {
 #undef STREE_TMP_MAKE_FUN_ARITY_CASE
 
 
-#define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)   \
+#define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)       \
     else if(id.arity() == _arity) {                     \
         free_node<FunctionNode<_arity>>(id.index());    \
     }
@@ -149,6 +149,7 @@ void NodeManager::destroy(Id id) {
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_DESTROY_FUN_ARITY_CASE)
+            else { assert(false && "Invalid arity"); }
             break;
         case TypeSelect:
             // TODO
@@ -157,5 +158,66 @@ void NodeManager::destroy(Id id) {
 }
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
 
+
+#define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
+    else if (id.arity() == _arity) {                                     \
+        return nm.get_node<FunctionNode<_arity>>(id.index()).argument(n); \
+    }
+
+Id nth_argument(NodeManager& nm, Id id, Arity n) {
+    switch (id.type()) {
+        case TypeConst:
+        case TypePositional:
+            return Id(); // empty
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE)
+            else { assert(false && "Invalid arity"); }
+        case TypeSelect:
+            // TODO
+            return Id();
+    }
+    assert(false);
+}
+#undef SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE
+
+
+#define SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                  \
+    else if (id.arity() == _arity) {                                    \
+        nm.get_node<FunctionNode<_arity>>(id.index()).set_argument(n, argument_id); \
+    }
+
+void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id) {
+    switch (id.type()) {
+        case TypeConst:
+        case TypePositional:
+            assert(false && "Cannot set argument to leaf node");
+            break;
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE)
+            else { assert(false && "Invalid arity"); }
+        case TypeSelect:
+            // TODO
+            break;
+    }
+}
+#undef SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
+
+
+Id copy(NodeManager& nm, Id id) {
+    return nm.make(id.type(), id.arity());
+}
+
+Id copy_subtree(NodeManager& nm, Id root) {
+    Id root_copy = copy(nm, root);
+    for (Arity n = 0; n < root.arity(); ++n)
+        set_nth_argument(
+            nm, root, n,
+            copy_subtree(
+                nm,
+                nth_argument(nm, root, n)));
+    return root_copy;
+}
 
 } // namespace stree
