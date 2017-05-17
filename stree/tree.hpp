@@ -191,6 +191,7 @@ private:
 
 
 // Node manager
+// TODO: fix interface (see NodeManager methods and free functions)
 
 #define STREE_TMP_MEMBER_DECL(_Type, _member)   \
     private:                                    \
@@ -234,6 +235,9 @@ Id copy(NodeManager& nm, Id id);
 
 // Create deep copy of node by Id, return subtree root Id
 Id copy_subtree(NodeManager& nm, Id root);
+
+// Destroy subtree nodes
+void destroy_subtree(NodeManager& nm, Id root);
 
 
 } // namespace stree

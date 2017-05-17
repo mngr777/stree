@@ -220,4 +220,10 @@ Id copy_subtree(NodeManager& nm, Id root) {
     return root_copy;
 }
 
+void destroy_subtree(NodeManager& nm, Id root) {
+    for (Arity n = 0; n < root.arity(); ++ n)
+        destroy_subtree(nm, nth_argument(nm, root, n));
+    nm.destroy(root);
+}
+
 } // namespace stree
