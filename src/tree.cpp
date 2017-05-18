@@ -83,15 +83,15 @@ void Id::set_index(Index index) {
 
 #define STREE_TMP_MEMBER_IMPL(_Type, _member)           \
     template<>                                          \
-    Index NodeManager::alloc_node<_Type>() {            \
+    Index NodeManager::alloc<_Type>() {            \
         return _member.alloc();                         \
     }                                                   \
     template<>                                          \
-    _Type& NodeManager::get_node<_Type>(Index index) {  \
+    _Type& NodeManager::get<_Type>(Index index) {  \
         return _member.get(index);                      \
     }                                                   \
     template<>                                          \
-    void NodeManager::free_node<_Type>(Index index) {   \
+    void NodeManager::free<_Type>(Index index) {   \
         _member.free(index);                            \
     }
 
@@ -106,19 +106,21 @@ STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 #undef STREE_TMP_MEMBER_IMPL
 
 
-#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)       \
-    else if (arity == _arity) {                     \
-        index = alloc_node<FunctionNode<_arity>>(); \
+namespace id {
+
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)           \
+    else if (arity == _arity) {                         \
+        index = nm.alloc<FunctionNode<_arity>>();  \
     }
 
-Id NodeManager::make(Type type, Arity arity) {
+Id make(NodeManager& nm, Type type, Arity arity) {
     Index index = Id::NoIndex;
     switch (type) {
         case TypeConst:
-            index = alloc_node<Value>();
+            index = nm.alloc<Value>();
             break;
         case TypePositional:
-            index = alloc_node<Position>();
+            index = nm.alloc<Position>();
             break;
         case TypeFunction:
             if (false) {}
@@ -135,16 +137,16 @@ Id NodeManager::make(Type type, Arity arity) {
 
 #define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)       \
     else if(id.arity() == _arity) {                     \
-        free_node<FunctionNode<_arity>>(id.index());    \
+        nm.free<FunctionNode<_arity>>(id.index());    \
     }
 
-void NodeManager::destroy(Id id) {
+void destroy(NodeManager& nm, Id id) {
     switch (id.type()) {
         case TypeConst:
-            free_node<Value>(id.index());
+            nm.free<Value>(id.index());
             break;
         case TypePositional:
-            free_node<Position>(id.index());
+            nm.free<Position>(id.index());
             break;
         case TypeFunction:
             if (false) {}
@@ -159,9 +161,16 @@ void NodeManager::destroy(Id id) {
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
 
 
+void destroy_subtree(NodeManager& nm, Id root) {
+    for (Arity n = 0; n < root.arity(); ++ n)
+        destroy_subtree(nm, nth_argument(nm, root, n));
+    destroy(nm, root);
+}
+
+
 #define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
     else if (id.arity() == _arity) {                                     \
-        return nm.get_node<FunctionNode<_arity>>(id.index()).argument(n); \
+        return nm.get<FunctionNode<_arity>>(id.index()).argument(n); \
     }
 
 Id nth_argument(NodeManager& nm, Id id, Arity n) {
@@ -184,7 +193,7 @@ Id nth_argument(NodeManager& nm, Id id, Arity n) {
 
 #define SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                  \
     else if (id.arity() == _arity) {                                    \
-        nm.get_node<FunctionNode<_arity>>(id.index()).set_argument(n, argument_id); \
+        nm.get<FunctionNode<_arity>>(id.index()).set_argument(n, argument_id); \
     }
 
 void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id) {
@@ -206,7 +215,7 @@ void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id) {
 
 
 Id copy(NodeManager& nm, Id id) {
-    return nm.make(id.type(), id.arity());
+    return make(nm, id.type(), id.arity());
 }
 
 Id copy_subtree(NodeManager& nm, Id root) {
@@ -220,10 +229,5 @@ Id copy_subtree(NodeManager& nm, Id root) {
     return root_copy;
 }
 
-void destroy_subtree(NodeManager& nm, Id root) {
-    for (Arity n = 0; n < root.arity(); ++ n)
-        destroy_subtree(nm, nth_argument(nm, root, n));
-    nm.destroy(root);
-}
-
+} // namespace id
 } // namespace stree

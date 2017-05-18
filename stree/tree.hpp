@@ -191,7 +191,6 @@ private:
 
 
 // Node manager
-// TODO: fix interface (see NodeManager methods and free functions)
 
 #define STREE_TMP_MEMBER_DECL(_Type, _member)   \
     private:                                    \
@@ -202,18 +201,14 @@ private:
 
 class NodeManager {
 public:
-    Id make(Type type, Arity arity = 0);
-
-    void destroy(Id id);
+    template<typename T>
+    Index alloc();
 
     template<typename T>
-    Index alloc_node();
+    T& get(Index index);
 
     template<typename T>
-    T& get_node(Index index);
-
-    template<typename T>
-    void free_node(Index index);
+    void free(Index index);
 
     STREE_TMP_MEMBER_DECL(Position, pos)
     STREE_TMP_MEMBER_DECL(Value, val)
@@ -224,10 +219,16 @@ public:
 #undef STREE_TMP_MEMBER_DECL
 
 
-// Get Id of Nth argument of node
+namespace id {
+
+Id make(NodeManager& nm, Type type, Arity arity = 0);
+
+void destroy(NodeManager& nm, Id id);
+
+void destroy_subtree(NodeManager& nm, Id root);
+
 Id nth_argument(NodeManager& nm, Id id, Arity n);
 
-// Set Id of Nth argument of node
 void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
 
 // Create shallow copy of node by Id, return new node Id
@@ -236,10 +237,7 @@ Id copy(NodeManager& nm, Id id);
 // Create deep copy of node by Id, return subtree root Id
 Id copy_subtree(NodeManager& nm, Id root);
 
-// Destroy subtree nodes
-void destroy_subtree(NodeManager& nm, Id root);
-
-
+} // namespace id
 } // namespace stree
 
 #endif
