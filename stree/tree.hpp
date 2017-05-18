@@ -58,12 +58,16 @@ namespace stree {
 using TypeId = std::uint8_t;
 using Arity  = std::uint8_t;
 using Index  = std::uint32_t;
-using FunctionIndex = std::uint8_t;
+using FunctionIndex       = std::uint8_t;
+using SelectFunctionIndex = std::uint8_t;
 using Position = std::uint8_t;
-using Value = STREE_VALUE_TYPE;
+using Value    = STREE_VALUE_TYPE;
 
-// Function index "empty" value
-const FunctionIndex FunctionNoIndex = std::numeric_limits<FunctionIndex>::max();
+// "empty" values
+const FunctionIndex FunctionNoIndex =
+    std::numeric_limits<FunctionIndex>::max();
+const SelectFunctionIndex SelectFunctionNoIndex =
+    std::numeric_limits<SelectFunctionIndex>::max();
 
 
 // Type enum and conversions
@@ -109,6 +113,10 @@ public:
     Id() : Id(TypeConst, 0, NoIndex) {}
 
     Id(Type type, Arity arity, Index index);
+
+    // void reset() {
+    //     set_index(NoIndex);
+    // }
 
     bool empty() const {
         return index() == NoIndex;
@@ -222,22 +230,39 @@ public:
 namespace id {
 
 Id make(NodeManager& nm, Type type, Arity arity = 0);
-
 void destroy(NodeManager& nm, Id id);
-
 void destroy_subtree(NodeManager& nm, Id root);
 
 Id nth_argument(NodeManager& nm, Id id, Arity n);
-
 void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
 
-// Create shallow copy of node by Id, return new node Id
 Id copy(NodeManager& nm, Id id);
-
-// Create deep copy of node by Id, return subtree root Id
 Id copy_subtree(NodeManager& nm, Id root);
 
+Value value(NodeManager& nm, Id id);
+void set_value(NodeManager& nm, Id id, Value value);
+
+Position position(NodeManager& nm, Id id);
+void set_position(NodeManager& nm, Id id, Position position);
+
+FunctionIndex fid(NodeManager& nm, Id id);
+void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
+
+// Not implemented
+// TODO
+SelectFunctionIndex sfid(NodeManager& nm, Id id);
+void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
+
 } // namespace id
+
+
+class Tree {
+public:
+    Tree() {}
+private:
+    Id root_;
+};
+
 } // namespace stree
 
 #endif

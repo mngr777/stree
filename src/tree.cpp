@@ -214,6 +214,7 @@ void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id) {
 #undef SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
 
 
+// TODO: copy value!!
 Id copy(NodeManager& nm, Id id) {
     return make(nm, id.type(), id.arity());
 }
@@ -228,6 +229,52 @@ Id copy_subtree(NodeManager& nm, Id root) {
                 nth_argument(nm, root, n)));
     return root_copy;
 }
+
+Value value(NodeManager& nm, Id id) {
+    assert(id.type() == TypeConst);
+    return nm.get<Value>(id.index());
+}
+
+void set_value(NodeManager& nm, Id id, Value value) {
+    assert(id.type() == TypeConst);
+    nm.get<Value>(id.index()) = std::move(value);
+}
+
+Position position(NodeManager& nm, Id id) {
+    assert(id.type() == TypePositional);
+    return nm.get<Position>(id.index());
+}
+
+void set_position(NodeManager& nm, Id id, Position position) {
+    assert(id.type() == TypePositional);
+    nm.get<Position>(id.index()) = position;
+}
+
+
+#define STREE_TMP_FID_FUN_ARITY_CASE(_arity)                    \
+    else if (id.arity() == _arity) {                            \
+        return nm.get<FunctionNode<_arity>>(id.index()).fid();  \
+    }
+
+FunctionIndex fid(NodeManager& nm, Id id) {
+    assert(id.type() == TypeFunction);
+    if (false) {}
+    else { assert(false && "Invalid arity"); }
+}
+#undef STREE_TMP_FID_FUN_ARITY_CASE
+
+
+#define STREE_TMP_SET_FID_FUN_ARITY_CASE(_arity)                \
+    else if (id.arity() == _arity) {                            \
+        nm.get<FunctionNode<_arity>>(id.index()).set_fid(fid);  \
+    }
+
+void set_fid(NodeManager& nm, Id id, FunctionIndex fid) {
+    assert(id.type() == TypeFunction);
+    if (false) {}
+    else { assert(false && "Invalid arity"); }
+}
+#undef STREE_TMP_SET_FID_FUN_ARITY_CASE
 
 } // namespace id
 } // namespace stree
