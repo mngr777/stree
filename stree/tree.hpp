@@ -110,7 +110,8 @@ private:
 public:
     static constexpr Index NoIndex = IndexMask;
 
-    Id() : Id(TypeConst, 0, NoIndex) {}
+    // Id() : Id(TypeConst, 0, NoIndex) {}
+    Id() : data_(NoIndex) {}
 
     Id(Type type, Arity arity, Index index);
 
@@ -230,6 +231,7 @@ public:
 namespace id {
 
 Id make(NodeManager& nm, Type type, Arity arity = 0);
+
 void destroy(NodeManager& nm, Id id);
 void destroy_subtree(NodeManager& nm, Id root);
 
@@ -239,16 +241,19 @@ void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
 Id copy(NodeManager& nm, Id id);
 Id copy_subtree(NodeManager& nm, Id root);
 
+// Const
 Value value(NodeManager& nm, Id id);
 void set_value(NodeManager& nm, Id id, Value value);
 
+// Positional
 Position position(NodeManager& nm, Id id);
 void set_position(NodeManager& nm, Id id, Position position);
 
+// Function
 FunctionIndex fid(NodeManager& nm, Id id);
 void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
 
-// Not implemented
+// Select: not implemented
 // TODO
 SelectFunctionIndex sfid(NodeManager& nm, Id id);
 void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
@@ -259,6 +264,7 @@ void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
 class Tree {
 public:
     Tree() {}
+
 private:
     Id root_;
 };
