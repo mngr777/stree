@@ -3,12 +3,14 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
 HEADER_FILES = \
+	stree/environment.hpp \
 	stree/eval.hpp \
 	stree/macro.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
 	src/main.cpp \
+	src/environment.cpp \
 	src/eval.cpp \
 	src/tree.cpp
 
