@@ -11,11 +11,6 @@
 
 namespace stree {
 
-// NOTE: terminal function must be written without parenthesis, e.g.:
-// (if-some-condition do-something do-something-else)
-// instead of
-// (if-some-condition (do-something) (do-something-else))
-
 class ParserError : std::exception {
 public:
     ParserError(const std::string& what)
@@ -48,9 +43,9 @@ public:
         ErrorUnexpectedRightParen,
         ErrorUnexpectedNumber,
         ErrorUnexpectedNonNumber,
-        ErrorExprNotFound,
-        ErrorExprUnexpectedTerm,
-        ErrorExprUnexpectedNonTerm,
+        ErrorSymbolNotFound,
+        ErrorSymbolUnexpectedTerm,
+        ErrorSymbolUnexpectedNonTerm,
         ErrorTooManyArguments,
         ErrorNotEnoughArguments,
         ErrorNumberInvalid,
@@ -104,7 +99,7 @@ private:
     void complete_nonterm_head();
     void complete_nonterm();
     void complete_number();
-    void complete_expr(const Symbol* symbol);
+    void complete_symbol(const Symbol* symbol);
 
     Value string_to_number(const std::string& s);
 

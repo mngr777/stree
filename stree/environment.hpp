@@ -17,6 +17,10 @@ class Symbol {
 public:
     Symbol(Type type) : type_(type) {}
 
+    bool is_callable() const {
+        return type_ == TypeFunction || type_ == TypeSelect;
+    }
+
     // Common
     Type type() const {
         return type_;

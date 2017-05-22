@@ -95,11 +95,11 @@ std::string Parser::error_message() const {
             return "Unexpected number";
         case ErrorUnexpectedNonNumber:
             return "Unexpected non-numeric character";
-        case ErrorExprNotFound:
-            return "Expression not found";
-        case ErrorExprUnexpectedTerm:
+        case ErrorSymbolNotFound:
+            return "Symbol not found";
+        case ErrorSymbolUnexpectedTerm:
             return "Unexpected terminal";
-        case ErrorExprUnexpectedNonTerm:
+        case ErrorSymbolUnexpectedNonTerm:
             return "Unexpected non-terminal";
         case ErrorTooManyArguments:
             return "Too many arguments";
@@ -292,14 +292,11 @@ void Parser::complete_term() {
     auto symbol = env_.symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
-        set_error(ErrorExprNotFound);
-    } else if (
-        (symbol->type() != TypePositional)
-        && (symbol->type() != TypeConst))
-    {
-        set_error(ErrorExprUnexpectedNonTerm);
+        set_error(ErrorSymbolNotFound);
+    } else if (symbol->is_callable()) {
+        set_error(ErrorSymbolUnexpectedNonTerm);
     } else {
-        complete_expr(symbol);
+        complete_symbol(symbol);
     }
 }
 
@@ -307,14 +304,11 @@ void Parser::complete_nonterm_head() {
     auto symbol = env_.symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
-        set_error(ErrorExprNotFound);
-    } else if (
-        (symbol->type() != TypeFunction)
-        && (symbol->type() != TypeSelect))
-    {
-        set_error(ErrorExprUnexpectedTerm);
+        set_error(ErrorSymbolNotFound);
+    } else if (!symbol->is_callable()) {
+        set_error(ErrorSymbolUnexpectedTerm);
     } else {
-        complete_expr(symbol);
+        complete_symbol(symbol);
     }
 }
 
@@ -359,16 +353,18 @@ void Parser::complete_number() {
 
     Symbol symbol(TypeConst);
     symbol.set_value(number);
-    complete_expr(&symbol);
+    complete_symbol(&symbol);
 }
 
 
-void Parser::complete_expr(const Symbol* symbol) {
+void Parser::complete_symbol(const Symbol* symbol) {
     Id id = env_.make_id(symbol);
 
     if (stack_.empty()) {
         // Empty stack
-        if (id.arity() == 0) {
+        if (id.type() == TypeConst
+            && id.type() == TypePositional)
+        {
             // Terminal: done
             root_ = id;
             state_ = StateDone;
@@ -380,16 +376,13 @@ void Parser::complete_expr(const Symbol* symbol) {
     } else {
         // There's a tree on stack to complete
         Frame& top = stack_.top();
-        assert(top.id.arity() > 0 && "Only non-terminals should go on stack");
         if (top.child_num < top.id.arity()) {
             // Add a child to a tree on the top
-            if (id.arity() == 0) {
-                // Terminal: add to top Id children
+            if (!symbol->is_callable()) {
                 id::set_nth_argument(
                     env_.node_manager(),
                     top.id, top.child_num++, id);
             } else {
-                // Non-terminal: push on stack
                 stack_.emplace(id);
             }
         } else {
