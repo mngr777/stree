@@ -253,10 +253,10 @@ void set_position(NodeManager& nm, Id id, Position position);
 FunctionIndex fid(NodeManager& nm, Id id);
 void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
 
-// Select: not implemented
+// Select
 // TODO
-SelectFunctionIndex sfid(NodeManager& nm, Id id);
-void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
+// SelectFunctionIndex sfid(NodeManager& nm, Id id);
+// void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
 
 } // namespace id
 

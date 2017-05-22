@@ -6,12 +6,14 @@ HEADER_FILES = \
 	stree/environment.hpp \
 	stree/eval.hpp \
 	stree/macro.hpp \
+	stree/parser.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
 	src/main.cpp \
 	src/environment.cpp \
 	src/eval.cpp \
+	src/parser.cpp \
 	src/tree.cpp
 
 # lib_LTLIBRARIES = libstree.la

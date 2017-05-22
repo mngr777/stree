@@ -1,0 +1,439 @@
+#include <stree/parser.hpp>
+#include <cassert>
+#include <cstring>
+#include <memory>
+#include <utility>
+
+// NOTE: Digits are not included in identifier simbols
+// since they are handled separately (and cannot be a first symbol)
+// TODO: separate also sign (+/-) symbols
+#define ALPHA  "abcdefghijklmnopqrstuvwxyz"
+#define ARITHM "-+*/%"
+#define LOGIC  "=<>!&|^"
+static char Ident[]  = ALPHA ARITHM LOGIC "_:?@#$";
+static char Digits[] = "0123456789";
+static char Space[]  = " \t\r\n";
+
+static bool is_space(const char c);
+static bool is_paren_left(const char c);
+static bool is_paren_right(const char c);
+static bool is_numeric(const char c);
+static bool is_ident(const char c);
+static bool is_dot(const char c);
+
+namespace stree {
+
+Parser::Parser(Environment& env) : env_(env)
+{
+    reset();
+}
+
+Parser::~Parser() {
+    if (!root_.empty())
+        id::destroy_subtree(env_.node_manager(), root_);
+
+    while (!stack_.empty()) {
+        Frame& top = stack_.top();
+        for (Arity n = 0; n < stack_.top().child_num; ++n) {
+            id::destroy_subtree(
+                env_.node_manager(),
+                id::nth_argument(env_.node_manager(), top.id, n));
+        }
+        stack_.pop();
+    }
+}
+
+void Parser::consume(const char c) {
+    if (state_ == StateError) {
+        return;
+    } else if (state_ == StateDone) {
+        reset();
+    }
+
+    // Count character
+    count(c);
+
+    // Process character
+    if (is_space(c)) {
+        space();
+    } else if (is_paren_left(c)) {
+        paren_left();
+    } else if (is_paren_right(c)) {
+        paren_right();
+    } else if (is_numeric(c)) {
+        numeric(c);
+    } else if (is_dot(c)) {
+        dot();
+    } else if (is_ident(c)) {
+        ident(c);
+    } else {
+        set_error(ErrorInvalidChar);
+    }
+}
+
+void Parser::reset() {
+    // result_ = Tree();
+    buffer_.clear();
+    while (!stack_.empty())
+        stack_.pop();
+    state_ = StateReady;
+    error_ = ErrorOk;
+    // not resetting line_num_ and char_num_
+}
+
+std::string Parser::error_message() const {
+    switch (error_) {
+        case ErrorOk:
+            return "Ok";
+        case ErrorInvalidChar:
+            return "Invalid character";
+        case ErrorUnexpectedLeftParen:
+            return "Unexpected `('";
+        case ErrorUnexpectedRightParen:
+            return "Unexpected `)'";
+        case ErrorUnexpectedNumber:
+            return "Unexpected number";
+        case ErrorUnexpectedNonNumber:
+            return "Unexpected non-numeric character";
+        case ErrorExprNotFound:
+            return "Expression not found";
+        case ErrorExprUnexpectedTerm:
+            return "Unexpected terminal";
+        case ErrorExprUnexpectedNonTerm:
+            return "Unexpected non-terminal";
+        case ErrorTooManyArguments:
+            return "Too many arguments";
+        case ErrorNotEnoughArguments:
+            return "Not enough arguments";
+        case ErrorNumberInvalid:
+            return "Invalid number";
+        case ErrorNumberOutOfRange:
+            return "Number is out of range";
+        case ErrorNumberUnexpectedDot:
+            return "Unexpected dot";
+        default:
+            assert(false && "Undefined error");
+    }
+}
+
+void Parser::count(char c) {
+    if (c == '\n') {
+        ++line_num_;
+        char_num_ = 0;
+    } else {
+        ++char_num_;
+    }
+}
+
+void Parser::space() {
+    switch (state_) {
+        case StateTerm:
+            complete_term();
+            break;
+
+        case StateNontermHead:
+            complete_nonterm_head();
+            break;
+
+        case StateNumber:
+            complete_number();
+            break;
+
+        case StateReady:
+        case StateExpectNonterm:
+        case StateNonterm:
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::paren_left() {
+    switch (state_) {
+        case StateReady:
+        case StateNonterm:
+            state_ = StateExpectNonterm;
+            break;
+
+        case StateExpectNonterm:
+        case StateTerm:
+        case StateNontermHead:
+        case StateNumber:
+            set_error(ErrorUnexpectedLeftParen);
+            break;
+
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::paren_right() {
+    switch (state_) {
+        case StateReady:
+        case StateExpectNonterm:
+            set_error(ErrorUnexpectedRightParen);
+            break;
+
+        case StateTerm:
+            complete_term();
+            if (state_ == StateNonterm)
+                complete_nonterm();
+            break;
+
+        case StateNontermHead:
+            complete_nonterm_head();
+            complete_nonterm();
+            break;
+
+        case StateNonterm:
+            complete_nonterm();
+            break;
+
+        case StateNumber:
+            complete_number();
+            if (state_ == StateNonterm)
+                complete_nonterm();
+            break;
+
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::numeric(const char c) {
+    switch (state_) {
+        case StateReady:
+            assert(buffer_.size() == 0);
+            buffer_.push_back(c);
+            state_ = StateNumber;
+            break;
+
+        case StateExpectNonterm:
+            set_error(ErrorUnexpectedNumber);
+            break;
+
+        case StateTerm:
+        case StateNonterm:
+        case StateNontermHead:
+        case StateNumber:
+            buffer_.push_back(c);
+            break;
+
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::dot() {
+    switch (state_) {
+        case StateReady:
+        case StateExpectNonterm:
+        case StateTerm:
+        case StateNontermHead:
+        case StateNonterm:
+            set_error(ErrorInvalidChar);
+            break;
+
+        case StateNumber:
+            if (buffer_.find('.') == std::string::npos) {
+                numeric('.');
+            } else {
+                set_error(ErrorNumberUnexpectedDot);
+            }
+
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::ident(const char c) {
+    switch (state_) {
+        case StateReady:
+            assert(buffer_.size() == 0);
+            buffer_.push_back(c);
+            state_ = StateTerm;
+            break;
+
+        case StateExpectNonterm:
+            assert(buffer_.size() == 0);
+            buffer_.push_back(c);
+            state_ = StateNontermHead;
+            break;
+
+        case StateNonterm:
+            state_ = StateTerm;
+            // fallthru
+        case StateTerm:
+        case StateNontermHead:
+            buffer_.push_back(c);
+            break;
+
+        case StateNumber:
+            set_error(ErrorUnexpectedNonNumber);
+            break;
+
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
+    }
+}
+
+void Parser::complete_term() {
+    auto symbol = env_.symbol(buffer_);
+    buffer_.clear();
+    if (!symbol) {
+        set_error(ErrorExprNotFound);
+    } else if (
+        (symbol->type() != TypePositional)
+        && (symbol->type() != TypeConst))
+    {
+        set_error(ErrorExprUnexpectedNonTerm);
+    } else {
+        complete_expr(symbol);
+    }
+}
+
+void Parser::complete_nonterm_head() {
+    auto symbol = env_.symbol(buffer_);
+    buffer_.clear();
+    if (!symbol) {
+        set_error(ErrorExprNotFound);
+    } else if (
+        (symbol->type() != TypeFunction)
+        && (symbol->type() != TypeSelect))
+    {
+        set_error(ErrorExprUnexpectedTerm);
+    } else {
+        complete_expr(symbol);
+    }
+}
+
+void Parser::complete_nonterm() {
+    assert(
+        !stack_.empty()
+        && "Non-terminal expression end reached, but stack is empty");
+    Frame& top = stack_.top();
+    if (top.child_num == top.id.arity()) {
+        Id id = top.id;
+        stack_.pop();
+        if (stack_.empty()) {
+            // Nothing left on stack
+            root_ = id;
+            state_ = StateDone;
+        } else {
+            Frame& top = stack_.top();
+            if (top.child_num < top.id.arity()) {
+                id::set_nth_argument(
+                    env_.node_manager(),
+                    top.id, top.child_num++, id);
+            } else {
+                id::destroy(env_.node_manager(), id);
+                set_error(ErrorTooManyArguments);
+            }
+        }
+    } else {
+        set_error(ErrorNotEnoughArguments);
+    }
+}
+
+void Parser::complete_number() {
+    Value number{};
+    try {
+        number = string_to_number(buffer_);
+    } catch (const std::invalid_argument&) {
+        set_error(ErrorNumberInvalid);
+    } catch (const std::out_of_range&) {
+        set_error(ErrorNumberOutOfRange);
+    }
+    buffer_.clear();
+
+    Symbol symbol(TypeConst);
+    symbol.set_value(number);
+    complete_expr(&symbol);
+}
+
+
+void Parser::complete_expr(const Symbol* symbol) {
+    Id id = env_.make_id(symbol);
+
+    if (stack_.empty()) {
+        // Empty stack
+        if (id.arity() == 0) {
+            // Terminal: done
+            root_ = id;
+            state_ = StateDone;
+        } else {
+            // Non-terminal: push on stack to complete
+            stack_.emplace(id);
+            state_ = StateNonterm;
+        }
+    } else {
+        // There's a tree on stack to complete
+        Frame& top = stack_.top();
+        assert(top.id.arity() > 0 && "Only non-terminals should go on stack");
+        if (top.child_num < top.id.arity()) {
+            // Add a child to a tree on the top
+            if (id.arity() == 0) {
+                // Terminal: add to top Id children
+                id::set_nth_argument(
+                    env_.node_manager(),
+                    top.id, top.child_num++, id);
+            } else {
+                // Non-terminal: push on stack
+                stack_.emplace(id);
+            }
+        } else {
+            id::destroy(env_.node_manager(), id);
+            set_error(ErrorTooManyArguments);
+        }
+    }
+}
+
+Value Parser::string_to_number(const std::string& s) {
+    return (s.find('.') == std::string::npos)
+        ? static_cast<Value>(std::stoll(s))
+        : static_cast<Value>(std::stod(s));
+
+}
+
+void Parser::set_error(Error error) {
+    state_ = StateError;
+    error_ = error;
+}
+
+} // namespace stree
+
+
+bool is_space(const char c) {
+    return std::strchr(Space, c) != nullptr;
+}
+
+bool is_paren_left(const char c) {
+    return c == '(';
+}
+
+bool is_paren_right(const char c) {
+    return c == ')';
+}
+
+bool is_numeric(const char c) {
+    return std::strchr(Digits, c) != nullptr;
+}
+
+bool is_ident(const char c) {
+    return std::strchr(Ident, c) != nullptr;
+}
+
+bool is_dot(const char c) {
+    return c == '.';
+}

@@ -141,21 +141,23 @@ Id make(NodeManager& nm, Type type, Arity arity) {
     }
 
 void destroy(NodeManager& nm, Id id) {
-    switch (id.type()) {
-        case TypeConst:
-            nm.free<Value>(id.index());
-            break;
-        case TypePositional:
-            nm.free<Position>(id.index());
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_DESTROY_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-            break;
-        case TypeSelect:
-            // TODO
-            break;
+    if (!id.empty()) {
+        switch (id.type()) {
+            case TypeConst:
+                nm.free<Value>(id.index());
+                break;
+            case TypePositional:
+                nm.free<Position>(id.index());
+                break;
+            case TypeFunction:
+                if (false) {}
+                STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_DESTROY_FUN_ARITY_CASE)
+                else { assert(false && "Invalid arity"); }
+                break;
+            case TypeSelect:
+                // TODO
+                break;
+        }
     }
 }
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE

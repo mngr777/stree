@@ -17,18 +17,37 @@ class Symbol {
 public:
     Symbol(Type type) : type_(type) {}
 
+    // Common
+    Type type() const {
+        return type_;
+    }
+    Arity arity() const;
+
+    // Const
+    Value value() const;
+    void set_value(Value value);
+
+    // Positional
     Position position() const;
     void set_position(Position position);
 
-    Arity arity() const;
+    // Function, Select
     void set_arity(Arity arity);
 
+    // Function
     FunctionIndex fid() const;
     void set_fid(FunctionIndex fid);
+
+    // Select
+    SelectFunctionIndex sfid() const;
+    void set_sfid(SelectFunctionIndex sfid);
 
 private:
     Type type_;
     union {
+        struct {
+            Value value;
+        } constant;
         struct {
             Position position;
         } positional;
@@ -36,6 +55,10 @@ private:
             Arity arity;
             FunctionIndex fid;
         } function;
+        struct {
+            Arity arity;
+            SelectFunctionIndex sfid;
+        } select;
     } data_;
 };
 
@@ -45,7 +68,13 @@ public:
     void add_function(const std::string& name, Arity arity, Function function);
     void add_positional(const std::string& name, Position position);
 
-    Symbol* symbol_by_name(const std::string& name);
+    const Symbol* symbol(const std::string& name) const;
+
+    Id make_id(const Symbol* symbol);
+
+    NodeManager& node_manager() {
+        return node_manager_;
+    }
 
 private:
     using SymbolMap = std::map<std::string, Symbol>;
@@ -54,6 +83,7 @@ private:
 
     SymbolMap symbol_map_;
     std::vector<Function> functions_;
+    NodeManager node_manager_;
 };
 
 } // namespace stree
