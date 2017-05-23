@@ -21,6 +21,10 @@ public:
         return type_ == TypeFunction || type_ == TypeSelect;
     }
 
+    bool is_variable() const {
+        return !is_callable();
+    }
+
     // Common
     Type type() const {
         return type_;

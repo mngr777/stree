@@ -97,10 +97,10 @@ std::string Parser::error_message() const {
             return "Unexpected non-numeric character";
         case ErrorSymbolNotFound:
             return "Symbol not found";
-        case ErrorSymbolUnexpectedTerm:
-            return "Unexpected terminal";
-        case ErrorSymbolUnexpectedNonTerm:
-            return "Unexpected non-terminal";
+        case ErrorSymbolUnexpectedVariable:
+            return "Unexpected variable";
+        case ErrorSymbolUnexpectedCallable:
+            return "Unexpected callable";
         case ErrorTooManyArguments:
             return "Too many arguments";
         case ErrorNotEnoughArguments:
@@ -127,12 +127,12 @@ void Parser::count(char c) {
 
 void Parser::space() {
     switch (state_) {
-        case StateTerm:
-            complete_term();
+        case StateVariableSymbol:
+            complete_variable();
             break;
 
-        case StateNontermHead:
-            complete_nonterm_head();
+        case StateCallableSymbol:
+            complete_callable_symbol();
             break;
 
         case StateNumber:
@@ -140,8 +140,8 @@ void Parser::space() {
             break;
 
         case StateReady:
-        case StateExpectNonterm:
-        case StateNonterm:
+        case StateExpectCallableSymbol:
+        case StateCallableArguments:
         case StateError:
         case StateDone:
             // do nothing
@@ -152,13 +152,13 @@ void Parser::space() {
 void Parser::paren_left() {
     switch (state_) {
         case StateReady:
-        case StateNonterm:
-            state_ = StateExpectNonterm;
+        case StateCallableArguments:
+            state_ = StateExpectCallableSymbol;
             break;
 
-        case StateExpectNonterm:
-        case StateTerm:
-        case StateNontermHead:
+        case StateExpectCallableSymbol:
+        case StateVariableSymbol:
+        case StateCallableSymbol:
         case StateNumber:
             set_error(ErrorUnexpectedLeftParen);
             break;
@@ -173,29 +173,29 @@ void Parser::paren_left() {
 void Parser::paren_right() {
     switch (state_) {
         case StateReady:
-        case StateExpectNonterm:
+        case StateExpectCallableSymbol:
             set_error(ErrorUnexpectedRightParen);
             break;
 
-        case StateTerm:
-            complete_term();
-            if (state_ == StateNonterm)
-                complete_nonterm();
+        case StateVariableSymbol:
+            complete_variable();
+            if (state_ == StateCallableArguments)
+                complete_callable();
             break;
 
-        case StateNontermHead:
-            complete_nonterm_head();
-            complete_nonterm();
+        case StateCallableSymbol:
+            complete_callable_symbol();
+            complete_callable();
             break;
 
-        case StateNonterm:
-            complete_nonterm();
+        case StateCallableArguments:
+            complete_callable();
             break;
 
         case StateNumber:
             complete_number();
-            if (state_ == StateNonterm)
-                complete_nonterm();
+            if (state_ == StateCallableArguments)
+                complete_callable();
             break;
 
         case StateError:
@@ -213,13 +213,13 @@ void Parser::numeric(const char c) {
             state_ = StateNumber;
             break;
 
-        case StateExpectNonterm:
+        case StateExpectCallableSymbol:
             set_error(ErrorUnexpectedNumber);
             break;
 
-        case StateTerm:
-        case StateNonterm:
-        case StateNontermHead:
+        case StateVariableSymbol:
+        case StateCallableArguments:
+        case StateCallableSymbol:
         case StateNumber:
             buffer_.push_back(c);
             break;
@@ -234,10 +234,10 @@ void Parser::numeric(const char c) {
 void Parser::dot() {
     switch (state_) {
         case StateReady:
-        case StateExpectNonterm:
-        case StateTerm:
-        case StateNontermHead:
-        case StateNonterm:
+        case StateExpectCallableSymbol:
+        case StateVariableSymbol:
+        case StateCallableSymbol:
+        case StateCallableArguments:
             set_error(ErrorInvalidChar);
             break;
 
@@ -260,20 +260,20 @@ void Parser::ident(const char c) {
         case StateReady:
             assert(buffer_.size() == 0);
             buffer_.push_back(c);
-            state_ = StateTerm;
+            state_ = StateVariableSymbol;
             break;
 
-        case StateExpectNonterm:
+        case StateExpectCallableSymbol:
             assert(buffer_.size() == 0);
             buffer_.push_back(c);
-            state_ = StateNontermHead;
+            state_ = StateCallableSymbol;
             break;
 
-        case StateNonterm:
-            state_ = StateTerm;
+        case StateCallableArguments:
+            state_ = StateVariableSymbol;
             // fallthru
-        case StateTerm:
-        case StateNontermHead:
+        case StateVariableSymbol:
+        case StateCallableSymbol:
             buffer_.push_back(c);
             break;
 
@@ -288,31 +288,31 @@ void Parser::ident(const char c) {
     }
 }
 
-void Parser::complete_term() {
+void Parser::complete_variable() {
     auto symbol = env_.symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);
     } else if (symbol->is_callable()) {
-        set_error(ErrorSymbolUnexpectedNonTerm);
+        set_error(ErrorSymbolUnexpectedCallable);
     } else {
         complete_symbol(symbol);
     }
 }
 
-void Parser::complete_nonterm_head() {
+void Parser::complete_callable_symbol() {
     auto symbol = env_.symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);
     } else if (!symbol->is_callable()) {
-        set_error(ErrorSymbolUnexpectedTerm);
+        set_error(ErrorSymbolUnexpectedVariable);
     } else {
         complete_symbol(symbol);
     }
 }
 
-void Parser::complete_nonterm() {
+void Parser::complete_callable() {
     assert(
         !stack_.empty()
         && "Non-terminal expression end reached, but stack is empty");
@@ -365,13 +365,13 @@ void Parser::complete_symbol(const Symbol* symbol) {
         if (id.type() == TypeConst
             && id.type() == TypePositional)
         {
-            // Terminal: done
+            // Variable: done
             root_ = id;
             state_ = StateDone;
         } else {
-            // Non-terminal: push on stack to complete
+            // Callable: push on stack to complete
             stack_.emplace(id);
-            state_ = StateNonterm;
+            state_ = StateCallableArguments;
         }
     } else {
         // There's a tree on stack to complete

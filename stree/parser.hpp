@@ -7,8 +7,6 @@
 #include <stree/environment.hpp>
 #include <stree/tree.hpp>
 
-// TODO: Id tree destruction
-
 namespace stree {
 
 class ParserError : std::exception {
@@ -27,10 +25,10 @@ class Parser {
 public:
     enum State {
         StateReady,
-        StateExpectNonterm,
-        StateTerm,
-        StateNontermHead,
-        StateNonterm,
+        StateExpectCallableSymbol,
+        StateVariableSymbol,
+        StateCallableSymbol,
+        StateCallableArguments,
         StateNumber,
         StateError,
         StateDone
@@ -44,8 +42,8 @@ public:
         ErrorUnexpectedNumber,
         ErrorUnexpectedNonNumber,
         ErrorSymbolNotFound,
-        ErrorSymbolUnexpectedTerm,
-        ErrorSymbolUnexpectedNonTerm,
+        ErrorSymbolUnexpectedVariable,
+        ErrorSymbolUnexpectedCallable,
         ErrorTooManyArguments,
         ErrorNotEnoughArguments,
         ErrorNumberInvalid,
@@ -95,9 +93,9 @@ private:
     void dot();
     void ident(char c);
 
-    void complete_term();
-    void complete_nonterm_head();
-    void complete_nonterm();
+    void complete_variable();
+    void complete_callable_symbol();
+    void complete_callable();
     void complete_number();
     void complete_symbol(const Symbol* symbol);
 
