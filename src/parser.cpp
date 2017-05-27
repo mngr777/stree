@@ -351,7 +351,7 @@ void Parser::complete_number() {
     }
     buffer_.clear();
 
-    Symbol symbol(TypeConst);
+    Symbol symbol("", TypeConst);
     symbol.set_value(number);
     complete_symbol(&symbol);
 }

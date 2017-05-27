@@ -71,16 +71,16 @@ void Environment::add_function(
 {
     functions_.push_back(function);
     FunctionIndex fid = functions_.size() - 1;
-    Symbol symbol(TypeFunction);
+    Symbol symbol(name, TypeFunction);
     symbol.set_arity(arity);
     symbol.set_fid(fid);
-    add_symbol(name, symbol);
+    add_symbol(symbol);
 }
 
 void Environment::add_positional(const std::string& name, Position position) {
-    Symbol symbol(TypePositional);
+    Symbol symbol(name, TypePositional);
     symbol.set_position(position);
-    add_symbol(name, symbol);
+    add_symbol(symbol);
 }
 
 const Symbol* Environment::symbol(const std::string& name) const {
@@ -133,11 +133,11 @@ Id Environment::make_id(const Symbol* symbol) {
     return id;
 }
 
-void Environment::add_symbol(const std::string& name, Symbol symbol) {
-    if (symbol_map_.find(name) != symbol_map_.end())
+void Environment::add_symbol(Symbol symbol) {
+    if (symbol_map_.find(symbol.name()) != symbol_map_.end())
         throw std::invalid_argument(
-            std::string("Symbol already exists: ") + name);
-    symbol_map_.emplace(name, symbol);
+            std::string("Symbol already exists: ") + symbol.name());
+    symbol_map_.emplace(symbol.name(), symbol);
 }
 
 } // namespace stree {

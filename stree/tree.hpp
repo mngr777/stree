@@ -46,10 +46,10 @@
 
 
 // Output
-// namespace stree {
-// class Id;
-// }
-// std::ostream& operator<<(std::ostream& os, const stree::Id id);
+namespace stree {
+class Id;
+}
+std::ostream& operator<<(std::ostream& os, const stree::Id id);
 
 
 namespace stree {
@@ -243,7 +243,7 @@ Id make(NodeManager& nm, Type type, Arity arity = 0);
 void destroy(NodeManager& nm, Id id);
 void destroy_subtree(NodeManager& nm, Id root);
 
-Id nth_argument(NodeManager& nm, Id id, Arity n);
+Id nth_argument(const NodeManager& nm, Id id, Arity n);
 void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
 
 Id copy(NodeManager& nm, Id id);
@@ -269,12 +269,31 @@ void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
 } // namespace id
 
 
+class Environment;
+
 class Tree {
 public:
-    Tree() {}
+    Tree(Environment* env) : env_(env) {}
+
+    const Id& root() const {
+        return root_;
+    }
+
+    Id& root() {
+        return root_;
+    }
+
+    const Environment* env() const {
+        return env_;
+    }
+
+    Environment* env() {
+        return env_;
+    }
 
 private:
     Id root_;
+    Environment* env_;
 };
 
 } // namespace stree

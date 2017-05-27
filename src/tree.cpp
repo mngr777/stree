@@ -1,17 +1,17 @@
 #include <stree/tree.hpp>
 #include <cassert>
 
-// std::ostream& operator<<(std::ostream& os, const stree::Id id) {
-//     os << '(';
-//     if (!id.empty()) {
-//         os << "type: " << type_to_string(id.type())
-//            << ", arity: " << static_cast<unsigned>(id.arity())
-//            << ", index: " << id.index();
-//     } else {
-//         os << "empty";
-//     }
-//     return os << ')';
-// }
+std::ostream& operator<<(std::ostream& os, const stree::Id id) {
+    os << '(';
+    if (!id.empty()) {
+        os << "type: " << type_to_string(id.type())
+           << ", arity: " << static_cast<unsigned>(id.arity())
+           << ", index: " << id.index();
+    } else {
+        os << "empty";
+    }
+    return os << ')';
+}
 
 namespace {
 
@@ -179,7 +179,7 @@ void destroy_subtree(NodeManager& nm, Id root) {
         return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
     }
 
-Id nth_argument(NodeManager& nm, Id id, Arity n) {
+Id nth_argument(const NodeManager& nm, Id id, Arity n) {
     switch (id.type()) {
         case TypeConst:
         case TypePositional:

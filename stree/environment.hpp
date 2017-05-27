@@ -15,7 +15,9 @@ using Function = std::function<Value(const Arguments&)>;
 
 class Symbol {
 public:
-    Symbol(Type type) : type_(type) {}
+    Symbol(std::string name, Type type)
+        : name_(name),
+          type_(type) {}
 
     bool is_callable() const {
         return type_ == TypeFunction || type_ == TypeSelect;
@@ -23,6 +25,14 @@ public:
 
     bool is_variable() const {
         return !is_callable();
+    }
+
+    const std::string& name() const {
+        return name_;
+    }
+
+    std::string& name() {
+        return name_;
     }
 
     // Common
@@ -51,6 +61,7 @@ public:
     void set_sfid(SelectFunctionIndex sfid);
 
 private:
+    std::string name_;
     Type type_;
     union {
         struct {
@@ -81,6 +92,10 @@ public:
 
     Id make_id(const Symbol* symbol);
 
+    const NodeManager& node_manager() const {
+        return node_manager_;
+    }
+
     NodeManager& node_manager() {
         return node_manager_;
     }
@@ -88,7 +103,7 @@ public:
 private:
     using SymbolMap = std::map<std::string, Symbol>;
 
-    void add_symbol(const std::string& name, Symbol symbol);
+    void add_symbol(Symbol symbol);
 
     SymbolMap symbol_map_;
     std::vector<Function> functions_;
