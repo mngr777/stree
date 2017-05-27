@@ -77,6 +77,7 @@ public:
     void add_positional(const std::string& name, Position position);
 
     const Symbol* symbol(const std::string& name) const;
+    const Symbol* symbol(Id id) const;
 
     Id make_id(const Symbol* symbol);
 

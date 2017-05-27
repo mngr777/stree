@@ -46,10 +46,10 @@
 
 
 // Output
-namespace stree {
-class Id;
-}
-std::ostream& operator<<(std::ostream& os, const stree::Id id);
+// namespace stree {
+// class Id;
+// }
+// std::ostream& operator<<(std::ostream& os, const stree::Id id);
 
 
 namespace stree {
@@ -187,6 +187,11 @@ public:
         return nodes_[index];
     }
 
+    const T& get(Index index) const {
+        LockGuard lg(mtx_);
+        return nodes_[index];
+    }
+
     void free(Index index) {
         LockGuard lg(mtx_);
         buffer_.push(index);
@@ -195,7 +200,7 @@ public:
 private:
     std::vector<T> nodes_;
     std::queue<Index> buffer_;
-    std::mutex mtx_;
+    mutable std::mutex mtx_;
 };
 
 
@@ -215,6 +220,9 @@ public:
 
     template<typename T>
     T& get(Index index);
+
+    template<typename T>
+    const T& get(Index index) const;
 
     template<typename T>
     void free(Index index);
@@ -242,15 +250,15 @@ Id copy(NodeManager& nm, Id id);
 Id copy_subtree(NodeManager& nm, Id root);
 
 // Const
-Value value(NodeManager& nm, Id id);
+Value value(const NodeManager& nm, Id id);
 void set_value(NodeManager& nm, Id id, Value value);
 
 // Positional
-Position position(NodeManager& nm, Id id);
+Position position(const NodeManager& nm, Id id);
 void set_position(NodeManager& nm, Id id, Position position);
 
 // Function
-FunctionIndex fid(NodeManager& nm, Id id);
+FunctionIndex fid(const NodeManager& nm, Id id);
 void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
 
 // Select

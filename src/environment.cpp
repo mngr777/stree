@@ -88,6 +88,31 @@ const Symbol* Environment::symbol(const std::string& name) const {
     return (it != symbol_map_.end()) ? &(*it).second : nullptr;
 }
 
+// TODO: create lookup table
+const Symbol* Environment::symbol(Id id) const {
+    for (const auto& item : symbol_map_) {
+        const Symbol& symbol = item.second;
+        if (id.type() == symbol.type()) {
+            switch(id.type()) {
+                case TypeConst:
+                    break; // never resolve constant values
+                case TypePositional:
+                    if (id::position(node_manager_, id) == symbol.position())
+                        return &symbol;
+                    break;
+                case TypeFunction:
+                    if (id::fid(node_manager_, id) == symbol.fid())
+                        return &symbol;
+                    break;
+                case TypeSelect:
+                    // TODO
+                    break;
+            }
+        }
+    }
+    return nullptr;
+}
+
 Id Environment::make_id(const Symbol* symbol) {
     Id id = id::make(node_manager_, symbol->type(), symbol->arity());
     switch (symbol->type()) {
