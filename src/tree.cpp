@@ -265,6 +265,7 @@ void set_position(NodeManager& nm, Id id, Position position) {
 FunctionIndex fid(const NodeManager& nm, Id id) {
     assert(id.type() == TypeFunction);
     if (false) {}
+    STREE_FOR_EACH_FUN_ARITY(STREE_TMP_FID_FUN_ARITY_CASE)
     else { assert(false && "Invalid arity"); }
 }
 #undef STREE_TMP_FID_FUN_ARITY_CASE
@@ -278,6 +279,7 @@ FunctionIndex fid(const NodeManager& nm, Id id) {
 void set_fid(NodeManager& nm, Id id, FunctionIndex fid) {
     assert(id.type() == TypeFunction);
     if (false) {}
+    STREE_FOR_EACH_FUN_ARITY(STREE_TMP_SET_FID_FUN_ARITY_CASE)
     else { assert(false && "Invalid arity"); }
 }
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE

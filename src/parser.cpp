@@ -23,21 +23,22 @@ static bool is_dot(const char c);
 
 namespace stree {
 
-Parser::Parser(Environment& env) : env_(env)
+Parser::Parser(Environment* env) : env_(env)
 {
+    assert(env_);
     reset();
 }
 
 Parser::~Parser() {
     if (!root_.empty())
-        id::destroy_subtree(env_.node_manager(), root_);
+        id::destroy_subtree(env_->node_manager(), root_);
 
     while (!stack_.empty()) {
         Frame& top = stack_.top();
         for (Arity n = 0; n < stack_.top().child_num; ++n) {
             id::destroy_subtree(
-                env_.node_manager(),
-                id::nth_argument(env_.node_manager(), top.id, n));
+                env_->node_manager(),
+                id::nth_argument(env_->node_manager(), top.id, n));
         }
         stack_.pop();
     }
@@ -78,7 +79,31 @@ void Parser::reset() {
         stack_.pop();
     state_ = StateReady;
     error_ = ErrorOk;
-    // not resetting line_num_ and char_num_
+    line_num_ = 0;
+    char_num_ = 0;
+}
+
+std::string Parser::state_string() const {
+    switch (state_) {
+        case StateReady:
+            return "Ready";
+        case StateExpectCallableSymbol:
+            return "Expecting callable symbol";
+        case StateVariableSymbol:
+            return "Reading variable symbol";
+        case StateCallableSymbol:
+            return "Reading callable symbol";
+        case StateCallableArguments:
+            return "Reading callable arguments";
+        case StateNumber:
+            return "Reading number";
+        case StateError:
+            return "Error";
+        case StateDone:
+            return "Done";
+        default:
+            assert(false && "Undefined state");
+    }
 }
 
 std::string Parser::error_message() const {
@@ -289,7 +314,7 @@ void Parser::ident(const char c) {
 }
 
 void Parser::complete_variable() {
-    auto symbol = env_.symbol(buffer_);
+    auto symbol = env_->symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);
@@ -301,7 +326,7 @@ void Parser::complete_variable() {
 }
 
 void Parser::complete_callable_symbol() {
-    auto symbol = env_.symbol(buffer_);
+    auto symbol = env_->symbol(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);
@@ -328,10 +353,10 @@ void Parser::complete_callable() {
             Frame& top = stack_.top();
             if (top.child_num < top.id.arity()) {
                 id::set_nth_argument(
-                    env_.node_manager(),
+                    env_->node_manager(),
                     top.id, top.child_num++, id);
             } else {
-                id::destroy(env_.node_manager(), id);
+                id::destroy(env_->node_manager(), id);
                 set_error(ErrorTooManyArguments);
             }
         }
@@ -358,7 +383,7 @@ void Parser::complete_number() {
 
 
 void Parser::complete_symbol(const Symbol* symbol) {
-    Id id = env_.make_id(symbol);
+    Id id = env_->make_id(symbol);
 
     if (stack_.empty()) {
         // Empty stack
@@ -380,13 +405,14 @@ void Parser::complete_symbol(const Symbol* symbol) {
             // Add a child to a tree on the top
             if (!symbol->is_callable()) {
                 id::set_nth_argument(
-                    env_.node_manager(),
+                    env_->node_manager(),
                     top.id, top.child_num++, id);
             } else {
                 stack_.emplace(id);
             }
+            state_ = StateCallableArguments;
         } else {
-            id::destroy(env_.node_manager(), id);
+            id::destroy(env_->node_manager(), id);
             set_error(ErrorTooManyArguments);
         }
     }

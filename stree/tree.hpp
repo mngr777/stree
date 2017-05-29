@@ -150,6 +150,10 @@ public:
         return fid_;
     }
 
+    void set_fid(FunctionIndex fid) {
+        fid_ = fid;
+    }
+
     Id argument(Arity n) const {
         return arguments_[n];
     }
@@ -273,7 +277,12 @@ class Environment;
 
 class Tree {
 public:
-    Tree(Environment* env) : env_(env) {}
+    Tree(Environment* env)
+        : Tree(env, Id()) {}
+
+    Tree(Environment* env, Id root)
+        : env_(env),
+          root_(root) {}
 
     const Id& root() const {
         return root_;
@@ -292,8 +301,8 @@ public:
     }
 
 private:
-    Id root_;
     Environment* env_;
+    Id root_;
 };
 
 } // namespace stree

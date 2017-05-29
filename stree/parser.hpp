@@ -52,7 +52,7 @@ public:
     };
 
     // TODO: copy, assignment
-    Parser(Environment& env);
+    Parser(Environment* env);
     ~Parser();
 
     void consume(const char c);
@@ -73,7 +73,16 @@ public:
         return error_;
     }
 
+    std::string state_string() const;
     std::string error_message() const;
+
+    std::size_t line_num() const {
+        return line_num_;
+    }
+
+    std::size_t char_num() const {
+        return char_num_;
+    }
 
 private:
     struct Frame {
@@ -103,7 +112,7 @@ private:
 
     void set_error(Error error);
 
-    Environment& env_;
+    Environment* env_;
     State state_;
     Stack stack_;
     Error error_;
