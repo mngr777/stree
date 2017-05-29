@@ -233,6 +233,7 @@ void Parser::paren_right() {
 void Parser::numeric(const char c) {
     switch (state_) {
         case StateReady:
+        case StateCallableArguments:
             assert(buffer_.size() == 0);
             buffer_.push_back(c);
             state_ = StateNumber;
@@ -243,7 +244,6 @@ void Parser::numeric(const char c) {
             break;
 
         case StateVariableSymbol:
-        case StateCallableArguments:
         case StateCallableSymbol:
         case StateNumber:
             buffer_.push_back(c);

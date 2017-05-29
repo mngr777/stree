@@ -12,22 +12,26 @@ namespace stree {
 
 template<typename S>
 S& id_to_stream(S& stream, const Id& id, const Environment& env) {
-    auto symbol = env.symbol(id);
-    if (!symbol)
-        throw std::invalid_argument("Symbol not found");
+    if (id.type() == TypeConst) {
+        stream << id::value(env.node_manager(), id);
+    } else {
+        auto symbol = env.symbol(id);
+        if (!symbol)
+            throw std::invalid_argument("Symbol not found");
 
-    if (symbol->is_callable())
-        stream << '(';
-    stream << symbol->name();
-    if (symbol->is_callable()) {
-        for (Arity n = 0; n < symbol->arity(); ++n) {
-            stream << ' ';
-            id_to_stream(
-                stream,
-                id::nth_argument(env.node_manager(), id, n),
-                env);
+        if (symbol->is_callable())
+            stream << '(';
+        stream << symbol->name();
+        if (symbol->is_callable()) {
+            for (Arity n = 0; n < symbol->arity(); ++n) {
+                stream << ' ';
+                id_to_stream(
+                    stream,
+                    id::nth_argument(env.node_manager(), id, n),
+                    env);
+            }
+            stream << ')';
         }
-        stream << ')';
     }
     return stream;
 }

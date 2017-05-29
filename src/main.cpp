@@ -17,7 +17,7 @@ int main() {
     env.add_positional("x", 0);
 
     Parser p1(&env);
-    std::string ts1("(+ x x)");
+    std::string ts1("(+ (+ x x) 10.1)");
     for (const char ch : ts1) {
         p1.consume(ch);
         cout << "char: " << ch
