@@ -77,6 +77,11 @@ void Environment::add_function(
     add_symbol(symbol);
 }
 
+Function Environment::function(FunctionIndex fid) const {
+    assert(fid < functions_.size());
+    return functions_[fid];
+}
+
 void Environment::add_positional(const std::string& name, Position position) {
     Symbol symbol(name, TypePositional);
     symbol.set_position(position);

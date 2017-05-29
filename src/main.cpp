@@ -2,11 +2,12 @@
 #include <cstdint>
 #include <iostream>
 #include <stree/environment.hpp>
+#include <stree/eval.hpp>
 #include <stree/parser.hpp>
 #include <stree/string.hpp>
 #include <stree/tree.hpp>
 
-static stree::Value plus(const stree::Arguments& args) {
+static stree::Value plus(const stree::Arguments& args, stree::DataPtr) {
     assert(args.size() == 2);
     return args[0] + args[1];
 }
@@ -33,6 +34,9 @@ int main() {
     if (p1.is_done()) {
         Tree t1(&env, p1.result());
         cout << t1 << endl;
+        Params params{2.0};
+        Value result = eval(env, t1.root(), params);
+        cout << result << endl;
     } else if (p1.is_error()) {
         cerr << "Parse error: " << p1.error_message() << endl;
     } else {
@@ -41,7 +45,6 @@ int main() {
              << "Line: " << p1.line_num()
              << ", Pos: " << p1.char_num() << endl;
     }
-
 
     return 0;
 }

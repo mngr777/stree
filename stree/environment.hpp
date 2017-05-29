@@ -10,8 +10,13 @@
 
 namespace stree {
 
+#ifndef STREE_DATA_PTR_TYPE
+# define STREE_DATA_PTR_TYPE void*
+#endif
+
 using Arguments = std::vector<Value>;
-using Function = std::function<Value(const Arguments&)>;
+using DataPtr = STREE_DATA_PTR_TYPE;
+using Function = std::function<Value(const Arguments&, DataPtr)>;
 
 class Symbol {
 public:
@@ -85,6 +90,8 @@ private:
 class Environment {
 public:
     void add_function(const std::string& name, Arity arity, Function function);
+    Function function(FunctionIndex fid) const;
+
     void add_positional(const std::string& name, Position position);
 
     const Symbol* symbol(const std::string& name) const;
