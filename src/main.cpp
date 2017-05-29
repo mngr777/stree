@@ -1,11 +1,7 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <stree/environment.hpp>
-#include <stree/eval.hpp>
-#include <stree/parser.hpp>
-#include <stree/string.hpp>
-#include <stree/tree.hpp>
+#include <stree/stree.hpp>
 
 static stree::Value plus(const stree::Arguments& args, stree::DataPtr) {
     assert(args.size() == 2);
