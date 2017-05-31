@@ -112,9 +112,9 @@ STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 
 namespace id {
 
-#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)           \
-    else if (arity == _arity) {                         \
-        index = nm.alloc<FunctionNode<_arity>>();  \
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)       \
+    else if (arity == _arity) {                     \
+        index = nm.alloc<FunctionNode<_arity>>();   \
     }
 
 Id make(NodeManager& nm, Type type, Arity arity) {
@@ -188,7 +188,7 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root) {
 }
 
 
-#define SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
+#define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
     else if (id.arity() == _arity) {                                    \
         return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
     }
@@ -200,7 +200,7 @@ const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
             throw std::invalid_argument("Node doesn't have arguments");
         case TypeFunction:
             if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE)
+            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
         case TypeSelect:
             // TODO
@@ -208,13 +208,6 @@ const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
     }
     assert(false && "Unknown type");
 }
-#undef SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE
-
-
-#define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
-    else if (id.arity() == _arity) {                                    \
-        return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
-    }
 
 Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     switch (id.type()) {
