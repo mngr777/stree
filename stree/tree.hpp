@@ -110,14 +110,15 @@ private:
 public:
     static constexpr Index NoIndex = IndexMask;
 
-    // Id() : Id(TypeConst, 0, NoIndex) {}
     Id() : data_(NoIndex) {}
 
     Id(Type type, Arity arity, Index index);
 
-    // void reset() {
-    //     set_index(NoIndex);
-    // }
+    void reset() {
+#ifndef STREE_ID_NO_RESET
+        data_ = NoIndex;
+#endif
+    }
 
     bool empty() const {
         return index() == NoIndex;
@@ -246,6 +247,9 @@ Id make(NodeManager& nm, Type type, Arity arity = 0);
 
 void destroy(NodeManager& nm, Id id);
 void destroy_subtree(NodeManager& nm, Id root);
+
+bool is_valid(const NodeManager& nm, Id id);
+bool is_valid_subtree(const NodeManager& nm, Id root);
 
 Id nth_argument(const NodeManager& nm, Id id, Arity n);
 void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);

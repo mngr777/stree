@@ -163,14 +163,28 @@ void destroy(NodeManager& nm, Id id) {
                 break;
         }
     }
+    id.reset();
 }
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
 
 
 void destroy_subtree(NodeManager& nm, Id root) {
-    for (Arity n = 0; n < root.arity(); ++ n)
+    for (Arity n = 0; n < root.arity(); ++n)
         destroy_subtree(nm, nth_argument(nm, root, n));
     destroy(nm, root);
+}
+
+bool is_valid(const NodeManager& nm, Id id) {
+    return !id.empty();
+}
+
+bool is_valid_subtree(const NodeManager& nm, Id root) {
+    if (root.empty())
+        return false;
+    for (Arity n = 0; n < root.arity(); ++n)
+        if (!is_valid_subtree(nm, nth_argument(nm, root, n)))
+            return false;
+    return true;
 }
 
 
