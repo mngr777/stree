@@ -352,9 +352,10 @@ void Parser::complete_callable() {
         } else {
             Frame& top = stack_.top();
             if (top.child_num < top.id.arity()) {
-                id::set_nth_argument(
+                Id& arg = id::nth_argument(
                     env_->node_manager(),
-                    top.id, top.child_num++, id);
+                    top.id, top.child_num++);
+                arg = id;
             } else {
                 id::destroy(env_->node_manager(), id);
                 set_error(ErrorTooManyArguments);
@@ -404,9 +405,10 @@ void Parser::complete_symbol(const Symbol* symbol) {
         if (top.child_num < top.id.arity()) {
             // Add a child to a tree on the top
             if (!symbol->is_callable()) {
-                id::set_nth_argument(
+                Id& arg = id::nth_argument(
                     env_->node_manager(),
-                    top.id, top.child_num++, id);
+                    top.id, top.child_num++);
+                arg = id;
             } else {
                 stack_.emplace(id);
             }

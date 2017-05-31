@@ -8,6 +8,9 @@ Value eval(
     const Id& id,
     const Params& params, DataPtr data)
 {
+    assert(
+        id::is_valid_subtree(env.node_manager(), id)
+        && "Cannot eval invalid subtree");
     switch (id.type()) {
         case TypeConst:
             return id::value(env.node_manager(), id);

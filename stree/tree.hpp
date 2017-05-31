@@ -155,12 +155,12 @@ public:
         fid_ = fid;
     }
 
-    Id argument(Arity n) const {
+    const Id& argument(Arity n) const {
         return arguments_[n];
     }
 
-    void set_argument(Arity n, Id argument_id) {
-        arguments_[n] = argument_id;
+    Id& argument(Arity n) {
+        return arguments_[n];
     }
 
 private:
@@ -245,29 +245,29 @@ namespace id {
 
 Id make(NodeManager& nm, Type type, Arity arity = 0);
 
-void destroy(NodeManager& nm, Id id);
-void destroy_subtree(NodeManager& nm, Id root);
+void destroy(NodeManager& nm, Id& id);
+void destroy_subtree(NodeManager& nm, Id& root);
 
-bool is_valid(const NodeManager& nm, Id id);
-bool is_valid_subtree(const NodeManager& nm, Id root);
+bool is_valid(const NodeManager& nm, const Id& id);
+bool is_valid_subtree(const NodeManager& nm, const Id& root);
 
-Id nth_argument(const NodeManager& nm, Id id, Arity n);
-void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id);
+const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
+Id& nth_argument(NodeManager& nm, Id& id, Arity n);
 
-Id copy(NodeManager& nm, Id id);
-Id copy_subtree(NodeManager& nm, Id root);
+Id copy(NodeManager& nm, const Id& id);
+Id copy_subtree(NodeManager& nm, const Id& root);
 
 // Const
-Value value(const NodeManager& nm, Id id);
-void set_value(NodeManager& nm, Id id, Value value);
+Value value(const NodeManager& nm, const Id& id);
+void set_value(NodeManager& nm, Id& id, Value value);
 
 // Positional
-Position position(const NodeManager& nm, Id id);
-void set_position(NodeManager& nm, Id id, Position position);
+Position position(const NodeManager& nm, const Id& id);
+void set_position(NodeManager& nm, Id& id, Position position);
 
 // Function
-FunctionIndex fid(const NodeManager& nm, Id id);
-void set_fid(NodeManager& nm, Id id, FunctionIndex fid);
+FunctionIndex fid(const NodeManager& nm, const Id& id);
+void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
 
 // Select
 // TODO

@@ -144,7 +144,7 @@ Id make(NodeManager& nm, Type type, Arity arity) {
         nm.free<FunctionNode<_arity>>(id.index());  \
     }
 
-void destroy(NodeManager& nm, Id id) {
+void destroy(NodeManager& nm, Id& id) {
     if (!id.empty()) {
         switch (id.type()) {
             case TypeConst:
@@ -168,17 +168,17 @@ void destroy(NodeManager& nm, Id id) {
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
 
 
-void destroy_subtree(NodeManager& nm, Id root) {
+void destroy_subtree(NodeManager& nm, Id& root) {
     for (Arity n = 0; n < root.arity(); ++n)
         destroy_subtree(nm, nth_argument(nm, root, n));
     destroy(nm, root);
 }
 
-bool is_valid(const NodeManager& nm, Id id) {
+bool is_valid(const NodeManager& nm, const Id& id) {
     return !id.empty();
 }
 
-bool is_valid_subtree(const NodeManager& nm, Id root) {
+bool is_valid_subtree(const NodeManager& nm, const Id& root) {
     if (root.empty())
         return false;
     for (Arity n = 0; n < root.arity(); ++n)
@@ -188,84 +188,82 @@ bool is_valid_subtree(const NodeManager& nm, Id root) {
 }
 
 
+#define SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
+    else if (id.arity() == _arity) {                                    \
+        return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
+    }
+
+const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
+    switch (id.type()) {
+        case TypeConst:
+        case TypePositional:
+            throw std::invalid_argument("Node doesn't have arguments");
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE)
+            else { assert(false && "Invalid arity"); }
+        case TypeSelect:
+            // TODO
+            assert(false && "Not implemented");
+    }
+    assert(false && "Unknown type");
+}
+#undef SMTREE_TMP_CONST_ARGUMENT_FUN_ARITY_CASE
+
+
 #define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
     else if (id.arity() == _arity) {                                    \
         return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
     }
 
-Id nth_argument(const NodeManager& nm, Id id, Arity n) {
+Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     switch (id.type()) {
         case TypeConst:
         case TypePositional:
-            return Id(); // empty
+            throw std::invalid_argument("Node doesn't have arguments");
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
         case TypeSelect:
             // TODO
-            return Id();
+            assert(false && "Not implemented");
     }
-    assert(false);
+    assert(false && "Unknown type");
 }
 #undef SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
-#define SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                  \
-    else if (id.arity() == _arity) {                                    \
-        nm.get<FunctionNode<_arity>>(id.index()).set_argument(n, argument_id); \
-    }
-
-void set_nth_argument(NodeManager& nm, Id id, Arity n, Id argument_id) {
-    switch (id.type()) {
-        case TypeConst:
-        case TypePositional:
-            assert(false && "Cannot set argument to leaf node");
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-        case TypeSelect:
-            // TODO
-            break;
-    }
-}
-#undef SMTREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
-
-
 // TODO: copy value!!
-Id copy(NodeManager& nm, Id id) {
+Id copy(NodeManager& nm, const Id& id) {
     return make(nm, id.type(), id.arity());
 }
 
-Id copy_subtree(NodeManager& nm, Id root) {
+Id copy_subtree(NodeManager& nm, const Id& root) {
     Id root_copy = copy(nm, root);
-    for (Arity n = 0; n < root.arity(); ++n)
-        set_nth_argument(
-            nm, root, n,
-            copy_subtree(
-                nm,
-                nth_argument(nm, root, n)));
+    for (Arity n = 0; n < root.arity(); ++n) {
+        Id& arg = nth_argument(nm, root_copy, n);
+        arg = copy_subtree(nm, nth_argument(nm, root, n));
+    }
     return root_copy;
 }
 
-Value value(const NodeManager& nm, Id id) {
+Value value(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypeConst);
     return nm.get<Value>(id.index());
 }
 
-void set_value(NodeManager& nm, Id id, Value value) {
+void set_value(NodeManager& nm, Id& id, Value value) {
     assert(id.type() == TypeConst);
     nm.get<Value>(id.index()) = std::move(value);
 }
 
-Position position(const NodeManager& nm, Id id) {
+Position position(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypePositional);
     return nm.get<Position>(id.index());
 }
 
-void set_position(NodeManager& nm, Id id, Position position) {
+void set_position(NodeManager& nm, Id& id, Position position) {
     assert(id.type() == TypePositional);
     nm.get<Position>(id.index()) = position;
 }
@@ -276,7 +274,7 @@ void set_position(NodeManager& nm, Id id, Position position) {
         return nm.get<FunctionNode<_arity>>(id.index()).fid();  \
     }
 
-FunctionIndex fid(const NodeManager& nm, Id id) {
+FunctionIndex fid(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypeFunction);
     if (false) {}
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_FID_FUN_ARITY_CASE)
@@ -290,7 +288,7 @@ FunctionIndex fid(const NodeManager& nm, Id id) {
         nm.get<FunctionNode<_arity>>(id.index()).set_fid(fid);  \
     }
 
-void set_fid(NodeManager& nm, Id id, FunctionIndex fid) {
+void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
     assert(id.type() == TypeFunction);
     if (false) {}
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_SET_FID_FUN_ARITY_CASE)
