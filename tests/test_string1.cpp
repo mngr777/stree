@@ -35,12 +35,13 @@ int main() {
         cout << result << endl;
     } else if (p1.is_error()) {
         cerr << "Parse error: " << p1.error_message() << endl;
+        return -1;
     } else {
         cerr << "Parsing not finished" << endl
              << "State: " << p1.state_string() << endl
              << "Line: " << p1.line_num()
              << ", Pos: " << p1.char_num() << endl;
+        return -2;
     }
-
     return 0;
 }
