@@ -23,6 +23,7 @@ nobase_libstree_la_HEADERS = $(HEADER_FILES)
 libstree_la_SOURCES = $(SOURCE_FILES)
 
 TESTS = test_string1
+check_PROGRAMS = $(TESTS)
 test_string1_SOURCES = tests/test_string1.cpp
 test_string1_LDADD = libstree.la
 
