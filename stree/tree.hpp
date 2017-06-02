@@ -98,9 +98,48 @@ static_assert(ArityWidth < sizeof(FunctionIndex) * 8);
 constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth);
 
 
+class NodeManager;
+
+namespace id {
+
+Id make(NodeManager& nm, Type type, Arity arity = 0);
+
+void destroy(NodeManager& nm, Id& id);
+void destroy_subtree(NodeManager& nm, Id& root);
+
+bool is_valid(const NodeManager& nm, const Id& id);
+bool is_valid_subtree(const NodeManager& nm, const Id& root);
+
+const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
+Id& nth_argument(NodeManager& nm, Id& id, Arity n);
+
+Id copy(NodeManager& nm, const Id& id);
+Id copy_subtree(NodeManager& nm, const Id& root);
+
+// Const
+Value value(const NodeManager& nm, const Id& id);
+void set_value(NodeManager& nm, Id& id, Value value);
+
+// Positional
+Position position(const NodeManager& nm, const Id& id);
+void set_position(NodeManager& nm, Id& id, Position position);
+
+// Function
+FunctionIndex fid(const NodeManager& nm, const Id& id);
+void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
+
+// Select
+// TODO
+// SelectFunctionIndex sfid(NodeManager& nm, Id id);
+// void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
+
+} // namespace id
+
 // Tree node ID
 // Contains node type, arity and index in node pool
 class Id {
+    friend void id::destroy(NodeManager& nm, Id& id);
+
 private:
     static constexpr Index DataMask = std::numeric_limits<Index>::max();
     static constexpr Index TypeMask = (DataMask >> (ArityWidth + IndexWidth)) << (ArityWidth + IndexWidth);
@@ -114,26 +153,23 @@ public:
 
     Id(Type type, Arity arity, Index index);
 
-    void reset() {
-#ifndef STREE_ID_NO_RESET
-        data_ = NoIndex;
-#endif
-    }
-
     bool empty() const {
         return index() == NoIndex;
     }
 
     Type type() const;
-    void set_type(Type type);
-
     Arity arity() const;
-    void set_arity(Arity arity);
-
     Index index() const;
-    void set_index(Index index);
 
 private:
+    void reset() {
+        data_ = NoIndex;
+    }
+
+    void set_type(Type type);
+    void set_arity(Arity arity);
+    void set_index(Index index);
+
     Index data_;
 };
 
@@ -239,42 +275,6 @@ public:
 
 #undef STREE_TMP_MEMBER_FUN_DECL
 #undef STREE_TMP_MEMBER_DECL
-
-
-namespace id {
-
-Id make(NodeManager& nm, Type type, Arity arity = 0);
-
-void destroy(NodeManager& nm, Id& id);
-void destroy_subtree(NodeManager& nm, Id& root);
-
-bool is_valid(const NodeManager& nm, const Id& id);
-bool is_valid_subtree(const NodeManager& nm, const Id& root);
-
-const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
-Id& nth_argument(NodeManager& nm, Id& id, Arity n);
-
-Id copy(NodeManager& nm, const Id& id);
-Id copy_subtree(NodeManager& nm, const Id& root);
-
-// Const
-Value value(const NodeManager& nm, const Id& id);
-void set_value(NodeManager& nm, Id& id, Value value);
-
-// Positional
-Position position(const NodeManager& nm, const Id& id);
-void set_position(NodeManager& nm, Id& id, Position position);
-
-// Function
-FunctionIndex fid(const NodeManager& nm, const Id& id);
-void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
-
-// Select
-// TODO
-// SelectFunctionIndex sfid(NodeManager& nm, Id id);
-// void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
-
-} // namespace id
 
 
 class Environment;
