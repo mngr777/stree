@@ -89,13 +89,26 @@ private:
 
 class Environment {
 public:
+    Environment() {}
+    Environment(const Environment& other) = delete;
+    Environment& operator=(const Environment& other) = delete;
+    
     void add_function(const std::string& name, Arity arity, Function function);
     Function function(FunctionIndex fid) const;
 
     void add_positional(const std::string& name, Position position);
 
     const Symbol* symbol(const std::string& name) const;
-    const Symbol* symbol(Id id) const;
+    const Symbol* symbol(const Id& id) const;
+
+    unsigned symbol_num() const;
+    const Symbol* symbol(unsigned n) const;
+
+    unsigned terminal_num() const;
+    const Symbol* terminal(unsigned n) const;
+
+    unsigned nonterminal_num() const;
+    const Symbol* nonterminal(unsigned n) const;
 
     Id make_id(const Symbol* symbol);
 
@@ -113,6 +126,9 @@ private:
     void add_symbol(Symbol symbol);
 
     SymbolMap symbol_map_;
+    std::vector<const Symbol*> symbols_;
+    std::vector<const Symbol*> terminals_;
+    std::vector<const Symbol*> nonterminals_;
     std::vector<Function> functions_;
     NodeManager node_manager_;
 };

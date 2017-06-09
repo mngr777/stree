@@ -94,7 +94,7 @@ const Symbol* Environment::symbol(const std::string& name) const {
 }
 
 // TODO: create lookup table
-const Symbol* Environment::symbol(Id id) const {
+const Symbol* Environment::symbol(const Id& id) const {
     for (const auto& item : symbol_map_) {
         const Symbol& symbol = item.second;
         if (id.type() == symbol.type()) {
@@ -118,6 +118,32 @@ const Symbol* Environment::symbol(Id id) const {
     return nullptr;
 }
 
+unsigned Environment::symbol_num() const {
+    return symbols_.size();
+}
+
+const Symbol* Environment::symbol(unsigned n) const {
+    return symbols_[n];
+}
+
+unsigned Environment::terminal_num() const {
+    return terminals_.size();
+}
+
+const Symbol* Environment::terminal(unsigned n) const {
+    assert(n < terminals_.size());
+    return terminals_[n];
+}
+
+unsigned Environment::nonterminal_num() const {
+    return nonterminals_.size();
+}
+    
+const Symbol* Environment::nonterminal(unsigned n) const {
+    assert(n < nonterminals_.size());
+    return nonterminals_[n];
+}
+
 Id Environment::make_id(const Symbol* symbol) {
     Id id = id::make(node_manager_, symbol->type(), symbol->arity());
     switch (symbol->type()) {
@@ -138,11 +164,20 @@ Id Environment::make_id(const Symbol* symbol) {
     return id;
 }
 
-void Environment::add_symbol(Symbol symbol) {
-    if (symbol_map_.find(symbol.name()) != symbol_map_.end())
+void Environment::add_symbol(Symbol smb) {
+    if (symbol_map_.find(smb.name()) != symbol_map_.end())
         throw std::invalid_argument(
-            std::string("Symbol already exists: ") + symbol.name());
-    symbol_map_.emplace(symbol.name(), symbol);
+            std::string("Symbol already exists: ") + smb.name());
+    symbol_map_.emplace(smb.name(), smb);
+
+    const Symbol* smb_ptr = symbol(smb.name());
+    assert(smb_ptr && "Cannot find added symbol");
+    symbols_.push_back(smb_ptr);
+    if (smb.arity() == 0) {
+        terminals_.push_back(smb_ptr);
+    } else {
+        nonterminals_.push_back(smb_ptr);
+    }
 }
 
 } // namespace stree {

@@ -1,7 +1,6 @@
 #include <stree/tree.hpp>
-#include <cassert>
 
-std::ostream& operator<<(std::ostream& os, const stree::Id id) {
+std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';
     if (!id.empty()) {
         os << "type: " << type_to_string(id.type())
@@ -51,7 +50,6 @@ Id::Id(Type type, Arity arity, Index index) {
     set_arity(arity);
     set_index(index);
 }
-
 
 Type Id::type() const {
     return type_id_to_type(
@@ -129,7 +127,8 @@ Id make(NodeManager& nm, Type type, Arity arity) {
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
-                break;
+            else { assert(false && "Invalid arity"); }
+            break;
         case TypeSelect:
             // TODO
             break;
@@ -188,9 +187,9 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root) {
 }
 
 
-#define SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                      \
+#define STREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                       \
     else if (id.arity() == _arity) {                                    \
-        return nm.get<FunctionNode<_arity>>(id.index()).argument(n);    \
+        return (nm.get<FunctionNode<_arity>>(id.index())).argument(n);  \
     }
 
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
@@ -200,7 +199,7 @@ const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
             throw std::invalid_argument("Node doesn't have arguments");
         case TypeFunction:
             if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE)
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
         case TypeSelect:
             // TODO
@@ -216,7 +215,7 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
             throw std::invalid_argument("Node doesn't have arguments");
         case TypeFunction:
             if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE)
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
         case TypeSelect:
             // TODO
@@ -224,7 +223,7 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     }
     assert(false && "Unknown type");
 }
-#undef SMTREE_TMP_ARGUMENT_FUN_ARITY_CASE
+#undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
 // TODO: copy value!!

@@ -12,7 +12,9 @@ namespace stree {
 
 template<typename S>
 S& id_to_stream(S& stream, const Id& id, const Environment& env) {
-    if (id.type() == TypeConst) {
+    if (id.empty()) {
+        stream << "<empty>";
+    } else if (id.type() == TypeConst) {
         stream << id::value(env.node_manager(), id);
     } else {
         auto symbol = env.symbol(id);
@@ -22,16 +24,15 @@ S& id_to_stream(S& stream, const Id& id, const Environment& env) {
         if (symbol->is_callable())
             stream << '(';
         stream << symbol->name();
-        if (symbol->is_callable()) {
-            for (Arity n = 0; n < symbol->arity(); ++n) {
-                stream << ' ';
-                id_to_stream(
-                    stream,
-                    id::nth_argument(env.node_manager(), id, n),
-                    env);
-            }
-            stream << ')';
+        for (Arity n = 0; n < id.arity(); ++n) {
+            stream << ' ';
+            id_to_stream(
+                stream,
+                id::nth_argument(env.node_manager(), id, n),
+                env);
         }
+        if (symbol->is_callable())
+            stream << ')';
     }
     return stream;
 }

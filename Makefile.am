@@ -22,8 +22,10 @@ libstree_ladir = $(includedir)
 nobase_libstree_la_HEADERS = $(HEADER_FILES)
 libstree_la_SOURCES = $(SOURCE_FILES)
 
-TESTS = test_string1
+TESTS = test_string1 test_grow1
 check_PROGRAMS = $(TESTS)
 test_string1_SOURCES = tests/test_string1.cpp
 test_string1_LDADD = libstree.la
+test_grow1_SOURCES = tests/test_grow1.cpp
+test_grow1_LDADD = libstree.la
 

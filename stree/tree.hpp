@@ -1,6 +1,7 @@
 #ifndef STREE_TREE_HPP_
 #define STREE_TREE_HPP_
 
+#include <cassert>
 #include <cstdint>
 #include <limits>
 #include <mutex>
@@ -49,7 +50,7 @@
 namespace stree {
 class Id;
 }
-std::ostream& operator<<(std::ostream& os, const stree::Id id);
+std::ostream& operator<<(std::ostream& os, const stree::Id& id);
 
 
 namespace stree {
@@ -150,8 +151,12 @@ public:
     static constexpr Index NoIndex = IndexMask;
 
     Id() : data_(NoIndex) {}
-
     Id(Type type, Arity arity, Index index);
+    Id(const Id& other) : data_(other.data_) {}
+    Id& operator=(const Id& other) {
+        data_ = other.data_;
+        return *this;
+    }
 
     bool empty() const {
         return index() == NoIndex;
@@ -192,10 +197,12 @@ public:
     }
 
     const Id& argument(Arity n) const {
+        assert(0 <= n && n < A);
         return arguments_[n];
     }
 
     Id& argument(Arity n) {
+        assert(0 <= n && n < A);
         return arguments_[n];
     }
 
@@ -211,30 +218,39 @@ class NodePool {
 private:
     using LockGuard = std::lock_guard<std::mutex>;
 public:
+    NodePool() {}
+    NodePool(const NodePool& other) = delete;
+    NodePool& operator=(const NodePool& other) = delete;
+
     Index alloc() {
         LockGuard lg(mtx_);
-        if (buffer_.empty()) {
-            nodes_.emplace_back(T());
-            return nodes_.size() - 1;
-        } else {
-            Index index = buffer_.front();
-            buffer_.pop();
-            return index;
-        }
+        // if (buffer_.empty()) {
+        Index index = nodes_.size();
+        // nodes_.emplace_back(T());
+        nodes_.emplace_back(T());
+        return index;
+        // } else {
+        //     Index index = buffer_.front();
+        //     buffer_.pop();
+        //     return index;
+        // }
     }
 
     T& get(Index index) {
         LockGuard lg(mtx_);
+        assert(0 <= index && index < nodes_.size());
         return nodes_[index];
     }
 
     const T& get(Index index) const {
         LockGuard lg(mtx_);
+        assert(0 <= index && index < nodes_.size());
         return nodes_[index];
     }
 
     void free(Index index) {
         LockGuard lg(mtx_);
+        assert(0 <= index && index < nodes_.size());
         buffer_.push(index);
     }
 
@@ -256,6 +272,10 @@ private:
 
 class NodeManager {
 public:
+    NodeManager() {}
+    NodeManager(const NodeManager& other) = delete;
+    NodeManager& operator=(const NodeManager& other) = delete;
+
     template<typename T>
     Index alloc();
 
