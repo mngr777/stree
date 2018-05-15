@@ -201,9 +201,20 @@ public:
         return arguments_[n];
     }
 
+    // TODO: remove?
     Id& argument(Arity n) {
         assert(0 <= n && n < A);
         return arguments_[n];
+    }
+
+    void set_argument(Arity n, Id arg) {
+        assert(0 <=n && n < A);
+        arguments_[n] = arg;
+    }
+
+    void unset_argument(Arity n) {
+        assert(0 <=n && n < A);
+        // ??
     }
 
 private:

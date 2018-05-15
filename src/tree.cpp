@@ -196,34 +196,69 @@ const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
     switch (id.type()) {
         case TypeConst:
         case TypePositional:
-            throw std::invalid_argument("Node doesn't have arguments");
+            assert(false && "Nodes of this type cannot have arguments");
+            break;
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
+            break;
         case TypeSelect:
             // TODO
             assert(false && "Not implemented");
+            break;
     }
     assert(false && "Unknown type");
 }
 
+// TODO: remove
 Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     switch (id.type()) {
         case TypeConst:
         case TypePositional:
-            throw std::invalid_argument("Node doesn't have arguments");
+            assert(false && "Nodes of this type cannot have arguments");
+            break;
         case TypeFunction:
             if (false) {}
             STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
             else { assert(false && "Invalid arity"); }
+            break;
         case TypeSelect:
             // TODO
             assert(false && "Not implemented");
+            break;
     }
     assert(false && "Unknown type");
 }
+
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
+
+
+#define STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                   \
+    else if (id.arity() == _arity) {                                    \
+        return (nm.get<FunctionNode<_arity>>(id.index())).set_argument(n, arg); \
+    }
+
+void set_nth_argument(NodeManager& nm, Id id, Arity n, Id arg) {
+    switch (id.type()) {
+        case TypeConst:
+        case TypePositional:
+            assert(false && "Nodes of this type cannot have arguments");
+            break;
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE)
+            else { assert(false && "Invalid arity"); }
+            break;
+        case TypeSelect:
+            // TODO
+            assert(false && "Not implemented");
+            break;
+    }
+    assert(false && "Unknown type");
+}
+
+#undef STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
 
 
 // TODO: copy value!!
