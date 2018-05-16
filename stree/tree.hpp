@@ -235,16 +235,15 @@ public:
 
     Index alloc() {
         LockGuard lg(mtx_);
-        // if (buffer_.empty()) {
-        Index index = nodes_.size();
-        // nodes_.emplace_back(T());
-        nodes_.emplace_back(T());
+        Index index = 0;
+        if (buffer_.empty()) {
+            index = nodes_.size();
+            nodes_.emplace_back(T());
+        } else {
+            index = buffer_.front();
+            buffer_.pop();
+        }
         return index;
-        // } else {
-        //     Index index = buffer_.front();
-        //     buffer_.pop();
-        //     return index;
-        // }
     }
 
     T& get(Index index) {
@@ -339,6 +338,23 @@ private:
     Environment* env_;
     Id root_;
 };
+
+
+namespace tree {
+
+using NodeNum = unsigned;
+using _ConstNodeQueue = std::queue<const Id>;
+
+
+
+NodeNum subtree_size(const NodeManager& nm, const Id& id);
+
+const Id& nth_node(const NodeManager& nm, NodeNum n);
+
+const Id& _nth_node(const NodeManager& nm, const Id& id, NodeNum n);
+
+
+} // namespace tree
 
 } // namespace stree
 
