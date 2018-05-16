@@ -7,12 +7,15 @@
 // NOTE: Digits are not included in identifier simbols
 // since they are handled separately (and cannot be a first symbol)
 // TODO: separate also sign (+/-) symbols
-#define ALPHA  "abcdefghijklmnopqrstuvwxyz"
-#define ARITHM "-+*/%"
-#define LOGIC  "=<>!&|^"
-static char Ident[]  = ALPHA ARITHM LOGIC "_:?@#$";
+#define STREE_TMP_ALPHA  "abcdefghijklmnopqrstuvwxyz"
+#define STREE_TMP_ARITHM "-+*/%"
+#define STREE_TMP_LOGIC  "=<>!&|^"
+static char Ident[]  = STREE_TMP_ALPHA STREE_TMP_ARITHM STREE_TMP_LOGIC "_:?@#$";
 static char Digits[] = "0123456789";
 static char Space[]  = " \t\r\n";
+#undef STREE_TMP_ALPHA
+#undef STREE_TMP_ARITHM
+#undef STREE_TMP_LOGIC
 
 static bool is_space(const char c);
 static bool is_paren_left(const char c);
@@ -42,6 +45,16 @@ Parser::~Parser() {
         }
         stack_.pop();
     }
+}
+
+std::string::size_type Parser::parse(const std::string& s) {
+    std::string::size_type pos = 0;
+    for (; pos < s.size(); ++ pos) {
+        consume(s[pos]);
+        if (is_done() || is_error())
+            break;
+    }
+    return pos;
 }
 
 void Parser::consume(const char c) {

@@ -55,6 +55,8 @@ public:
     Parser(Environment* env);
     ~Parser();
 
+    std::string::size_type parse(const std::string& s);
+
     void consume(const char c);
 
     Id result() const {
