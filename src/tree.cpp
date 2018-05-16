@@ -132,6 +132,7 @@ Id make(NodeManager& nm, Type type, Arity arity) {
             break;
         case TypeSelect:
             // TODO
+            assert(false && "Not implemented");
             break;
     }
     return Id(type, arity, index);
@@ -160,6 +161,7 @@ void destroy(NodeManager& nm, Id& id) {
                 break;
             case TypeSelect:
                 // TODO
+                assert(false && "Not implemented");
                 break;
         }
     }
@@ -230,7 +232,6 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     }
     assert(false && "Unknown type");
 }
-
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
@@ -257,13 +258,27 @@ void set_nth_argument(NodeManager& nm, Id id, Arity n, Id arg) {
     }
     assert(false && "Unknown type");
 }
-
 #undef STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
 
 
-// TODO: copy value!!
 Id copy(NodeManager& nm, const Id& id) {
-    return make(nm, id.type(), id.arity());
+    Id result = make(nm, id.type(), id.arity());
+    switch (id.type()) {
+        case TypeConst:
+            set_value(nm, result, value(nm, id));
+            break;
+        case TypePositional:
+            set_position(nm, result, position(nm, id));
+            break;
+        case TypeFunction:
+            set_fid(nm, result, fid(nm, id));
+            break;
+        case TypeSelect:
+            // TODO
+            assert(false && "Not implemented");
+            break;
+    }
+    return result;
 }
 
 Id copy_subtree(NodeManager& nm, const Id& root) {
@@ -338,6 +353,18 @@ NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     return size;
 }
 
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
+    return const_cast<Id&>(
+        nth_node(
+            const_cast<const NodeManager&>(nm),
+            const_cast<const Id&>(id),
+            n));
+}
+
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
+    return _nth_node(nm, id, n);
+}
+
 /*
      (0)
      /  \
@@ -345,27 +372,27 @@ NodeNum subtree_size(const NodeManager& nm, const Id& id) {
    /    /  \
  (3)  (4)  (5)
 */
-const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
-    return _nth_node(nm, id, n);
-}
-
 const Id& _nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
-    _ConstNodeQueue queue = {id};
+    _ConstNodeRefQueue queue;
+    queue.emplace(id); // initialize queue with root
     while (!queue.empty()) {
-        auto current = queue.pop_front();
-        assert(id::is_valid(current) && "All nodes before N-th should be valid");
+        // next node from queue
+        const Id& current = queue.front();
+        queue.pop();
+        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
         if (n == 0) {
             // found N-th node
             return current;
         } else if (n - 1 < queue.size() + current.arity()) {
             // one of current node children is N-th node
-            return id::nth_argument(nm, current, n - 1);
+            assert(n > queue.size());
+            return id::nth_argument(nm, current, n - 1 - queue.size());
         } else {
             // we don't know N-th node yet, add current node children to queue
             for (Arity i = 0; i < current.arity(); ++i)
-                queue.push_back(id::nth_argument(nm, current, i));
+                queue.emplace(id::nth_argument(nm, current, i));
+            --n;
         }
-        --n;
     }
     throw std::range_error("Invalid node number");
 }

@@ -24,6 +24,9 @@ public:
         : name_(name),
           type_(type) {}
 
+    bool operator==(const Symbol& other) const;
+    bool operator!=(const Symbol& other) const;
+
     bool is_callable() const {
         return type_ == TypeFunction || type_ == TypeSelect;
     }

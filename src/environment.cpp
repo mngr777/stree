@@ -5,6 +5,14 @@
 
 namespace stree {
 
+bool Symbol::operator==(const Symbol& other) const {
+    return name() == other.name();
+}
+
+bool Symbol::operator!=(const Symbol& other) const {
+    return !(*this == other);
+}
+
 Arity Symbol::arity() const {
     switch (type_) {
         case TypeConst:

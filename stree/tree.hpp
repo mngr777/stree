@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <mutex>
 #include <ostream>
@@ -201,7 +202,6 @@ public:
         return arguments_[n];
     }
 
-    // TODO: remove?
     Id& argument(Arity n) {
         assert(0 <= n && n < A);
         return arguments_[n];
@@ -343,13 +343,14 @@ private:
 namespace tree {
 
 using NodeNum = unsigned;
-using _ConstNodeQueue = std::queue<const Id>;
-
-
+using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
+using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
-const Id& nth_node(const NodeManager& nm, NodeNum n);
+
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
 
 const Id& _nth_node(const NodeManager& nm, const Id& id, NodeNum n);
 
