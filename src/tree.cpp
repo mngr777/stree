@@ -140,6 +140,17 @@ Id make(NodeManager& nm, Type type, Arity arity) {
 #undef STREE_TMP_MAKE_FUN_ARITY_CASE
 
 
+NodeNum subtree_size(const NodeManager& nm, const Id& id) {
+    NodeNum size = 0;
+    if (!id.empty()) {
+        ++size;
+        for (NodeNum n = 0; n < id.arity(); ++n)
+            size += subtree_size(nm, id::nth_argument(nm, id, n));
+    }
+    return size;
+}
+
+
 #define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)   \
     else if(id.arity() == _arity) {                 \
         nm.free<FunctionNode<_arity>>(id.index());  \
@@ -233,6 +244,47 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
     assert(false && "Unknown type");
 }
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
+
+
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
+    return const_cast<Id&>(
+        nth_node(
+            const_cast<const NodeManager&>(nm),
+            const_cast<const Id&>(id),
+            n));
+}
+
+/*
+     (0)
+     /  \
+   (1)  (2)
+   /    /  \
+ (3)  (4)  (5)
+*/
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
+    _ConstNodeRefQueue queue;
+    queue.emplace(id); // initialize queue with root
+    while (!queue.empty()) {
+        // next node from queue
+        const Id& current = queue.front();
+        queue.pop();
+        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
+        if (n == 0) {
+            // found N-th node
+            return current;
+        } else if (n - 1 < queue.size() + current.arity()) {
+            // one of current node children is N-th node
+            assert(n > queue.size());
+            return id::nth_argument(nm, current, n - 1 - queue.size());
+        } else {
+            // we don't know N-th node yet, add current node children to queue
+            for (Arity i = 0; i < current.arity(); ++i)
+                queue.emplace(id::nth_argument(nm, current, i));
+            --n;
+        }
+    }
+    throw std::range_error("Invalid node number");
+}
 
 
 #define STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                   \
@@ -339,64 +391,5 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE
 
 } // namespace id
-
-
-namespace tree {
-
-NodeNum subtree_size(const NodeManager& nm, const Id& id) {
-    NodeNum size = 0;
-    if (!id.empty()) {
-        ++size;
-        for (NodeNum n = 0; n < id.arity(); ++n)
-            size += subtree_size(nm, id::nth_argument(nm, id, n));
-    }
-    return size;
-}
-
-Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
-    return const_cast<Id&>(
-        nth_node(
-            const_cast<const NodeManager&>(nm),
-            const_cast<const Id&>(id),
-            n));
-}
-
-const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
-    return _nth_node(nm, id, n);
-}
-
-/*
-     (0)
-     /  \
-   (1)  (2)
-   /    /  \
- (3)  (4)  (5)
-*/
-const Id& _nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
-    _ConstNodeRefQueue queue;
-    queue.emplace(id); // initialize queue with root
-    while (!queue.empty()) {
-        // next node from queue
-        const Id& current = queue.front();
-        queue.pop();
-        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
-        if (n == 0) {
-            // found N-th node
-            return current;
-        } else if (n - 1 < queue.size() + current.arity()) {
-            // one of current node children is N-th node
-            assert(n > queue.size());
-            return id::nth_argument(nm, current, n - 1 - queue.size());
-        } else {
-            // we don't know N-th node yet, add current node children to queue
-            for (Arity i = 0; i < current.arity(); ++i)
-                queue.emplace(id::nth_argument(nm, current, i));
-            --n;
-        }
-    }
-    throw std::range_error("Invalid node number");
-}
-
-} // namespace tree
 
 } // namespace stree

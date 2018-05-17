@@ -104,7 +104,13 @@ class NodeManager;
 
 namespace id {
 
+using NodeNum = unsigned;
+using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
+using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
+
 Id make(NodeManager& nm, Type type, Arity arity = 0);
+
+NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
 void destroy(NodeManager& nm, Id& id);
 void destroy_subtree(NodeManager& nm, Id& root);
@@ -114,6 +120,9 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root);
 
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
 Id& nth_argument(NodeManager& nm, Id& id, Arity n);
+
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
 
 Id copy(NodeManager& nm, const Id& id);
 Id copy_subtree(NodeManager& nm, const Id& root);
@@ -339,23 +348,6 @@ private:
     Id root_;
 };
 
-
-namespace tree {
-
-using NodeNum = unsigned;
-using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
-using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
-
-NodeNum subtree_size(const NodeManager& nm, const Id& id);
-
-
-Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
-const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
-
-const Id& _nth_node(const NodeManager& nm, const Id& id, NodeNum n);
-
-
-} // namespace tree
 
 } // namespace stree
 

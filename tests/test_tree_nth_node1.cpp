@@ -42,7 +42,7 @@ int main() {
     //                0 1  2  3 5 6  4
     std::string ts1("(+ a (- (* c d) b))");
     std::string answers[] = {"+", "a", "-", "*", "b", "c", "d"};
-    tree::NodeNum answer_num = 7;
+    id::NodeNum answer_num = 7;
 
     // Parse
     Parser p1(&env);
@@ -55,9 +55,9 @@ int main() {
     if (p1.is_done()) {
         // Get tree node by node number
         Tree t1(&env, p1.result());
-        for (tree::NodeNum n = 0; n < answer_num; ++n) {
+        for (id::NodeNum n = 0; n < answer_num; ++n) {
             cout << "[Node " << n << "] ";
-            const Id& id = tree::nth_node(env.node_manager(), t1.root(), n);
+            const Id& id = id::nth_node(env.node_manager(), t1.root(), n);
             const Symbol* symbol = env.symbol(id);
             if (!symbol) {
                 cout << "Symbol not found by ID " << id << endl;
