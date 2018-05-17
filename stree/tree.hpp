@@ -13,40 +13,6 @@
 #include <boost/preprocessor/tuple/to_list.hpp>
 #include <stree/macros.hpp>
 
-// List of function arities
-#ifndef STREE_FUN_ARITY_TUPLE
-# define STREE_FUN_ARITY_TUPLE (0, 1, 2)
-#endif
-
-// Arity width in bits
-#ifndef STREE_ARITY_WIDTH
-# define STREE_ARITY_WIDTH (3)
-#endif
-
-// Value type
-#ifndef STREE_VALUE_TYPE
-# define STREE_VALUE_TYPE float;
-#endif
-
-
-// Helper macros
-
-// Apply MACRO to each value in ARITY_TUPLE:
-// MACRO(arity)
-#define STREE_FOR_EACH_FUN_ARITY(MACRO)                                 \
-    BOOST_PP_LIST_FOR_EACH(                                             \
-        STREE_FOR_EACH_WRAPPER, MACRO, BOOST_PP_TUPLE_TO_LIST(STREE_FUN_ARITY_TUPLE))
-
-// Apply MACRO to each index and value in ARITY_TUPLE:
-// MACRO(index, arity)
-//
-// May be used to map arity values stored in Id class to actual arity,
-// reducing required number of bits: O(log(MaxArity)) to O(log(ArityTupleSize))
-#define STREE_FOR_EACH_FUN_ARITY_I(MACRO)                               \
-    BOOST_PP_LIST_FOR_EACH_I(                                           \
-        STREE_FOR_EACH_WRAPPER_I, MACRO, BOOST_PP_TUPLE_TO_LIST(STREE_FUN_ARITY_TUPLE))
-
-
 // Output
 namespace stree {
 class Id;
