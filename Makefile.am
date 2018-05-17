@@ -26,7 +26,8 @@ TESTS = test_string1 \
 	test_grow1 \
 	test_tree_size1 \
 	test_tree_nth_node1 \
-	test_copy1
+	test_copy1 \
+	test_subtree_string1
 check_PROGRAMS = $(TESTS)
 test_string1_SOURCES = tests/test_string1.cpp
 test_string1_LDADD = libstree.la
@@ -38,3 +39,5 @@ test_tree_nth_node1_SOURCES = tests/test_tree_nth_node1.cpp
 test_tree_nth_node1_LDADD = libstree.la
 test_copy1_SOURCES = tests/test_copy1.cpp
 test_copy1_LDADD = libstree.la
+test_subtree_string1_SOURCES = tests/test_subtree_string1.cpp
+test_subtree_string1_LDADD = libstree.la

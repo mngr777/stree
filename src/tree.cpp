@@ -1,5 +1,6 @@
 #include <stree/tree.hpp>
 #include <stdexcept>
+#include <utility>
 #include <stree/environment.hpp>
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
@@ -395,23 +396,40 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 
 
 // Subtree class
+void Subtree::swap(Subtree& other) {
+    std::swap(root_, other.root_);
+}
 
-NodeNum Subtree::size() const {
+void Subtree::destroy() {
+    id::destroy_subtree(env_->node_manager(), root_);
+}
+
+void Subtree::replace(Tree& tree) {
+    destroy();
+    Subtree subtree = tree.subtree(0);
+    swap(subtree);
+}
+
+Tree Subtree::copy() {
+    return Tree(env_, id::copy_subtree(env_->node_manager(), root_));
+}
+
+// Tree class
+
+NodeNum Tree::size() const {
     if (size_cache_ == NoNodeNum)
         size_cache_ = id::subtree_size(env_->node_manager(), root_);
     return size_cache_;
 }
 
-const Subtree Subtree::subtree(NodeNum n) const {
+const Subtree Tree::subtree(NodeNum n) const {
+    return Subtree(env_, const_cast<Id&>(id::nth_node(env_->node_manager(), root_, n)));
+}
+
+Subtree Tree::subtree(NodeNum n) {
     return Subtree(env_, id::nth_node(env_->node_manager(), root_, n));
 }
 
-Subtree Subtree::subtree(NodeNum n) {
-    return Subtree(env_, id::nth_node(env_->node_manager(), root_, n));
-}
-
-
-// Tree class
 Tree::~Tree() {
     id::destroy_subtree(env_->node_manager(), root_);
 }

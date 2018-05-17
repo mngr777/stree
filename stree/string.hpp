@@ -3,12 +3,19 @@
 
 #include <ostream>
 #include <stdexcept>
+#include <string>
 #include <stree/environment.hpp>
 #include <stree/tree.hpp>
 
-std::ostream& operator<<(std::ostream& os, const stree::Subtree& tree);
+std::ostream& operator<<(std::ostream& os, const stree::Tree& tree);
+std::ostream& operator<<(std::ostream& os, const stree::Subtree& subtree);
 
 namespace stree {
+
+std::string to_string(const stree::Tree& tree);
+std::string to_string(const stree::Subtree& subtree);
+
+std::string id_to_string(const Id& id, const Environment& env);
 
 template<typename S>
 S& id_to_stream(S& stream, const Id& id, const Environment& env) {
@@ -36,7 +43,6 @@ S& id_to_stream(S& stream, const Id& id, const Environment& env) {
     }
     return stream;
 }
-
 
 } // namespace stree
 

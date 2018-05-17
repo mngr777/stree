@@ -102,7 +102,9 @@ constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth)
 
 class NodeManager;
 
+// Tree node number type
 using NodeNum = unsigned;
+// "empty" tree node number
 const NodeNum NoNodeNum = std::numeric_limits<NodeNum>::max();
 
 namespace id {
@@ -319,19 +321,62 @@ public:
 
 
 class Environment;
+class Tree;
 
 class Subtree {
 public:
-    Subtree(Environment* env)
-        : Subtree(env, Id()) {}
+    Subtree(
+        Environment* env,
+        Id& root)
+        : env_(env),
+          root_(root) {}
 
-    Subtree(Environment* env, Id root)
+    void swap(Subtree& other);
+
+    void destroy();
+
+    // NOTE: `tree' root will be replaced with empty node
+    void replace(Tree& tree);
+
+    // Create tree from subtree copy
+    Tree copy();
+
+    const Id& root() const {
+        return root_;
+    }
+
+    Id& root() {
+        return root_;
+    }
+
+    const Environment* env() const {
+        return env_;
+    }
+
+    Environment* env() {
+        return env_;
+    }
+
+private:
+    Environment* env_;
+    Id& root_;
+};
+
+
+class Tree {
+public:
+    Tree(Environment* env)
+        : Tree(env, Id()) {}
+
+    Tree(Environment* env, Id root)
         : env_(env),
           root_(root),
           size_cache_(NoNodeNum)
     {
         assert(env && "Environment pointer cannot be empty");
     }
+
+    ~Tree();
 
     NodeNum size() const;
 
@@ -354,22 +399,11 @@ public:
         return env_;
     }
 
-protected:
+private:
     Environment* env_;
     Id root_;
     mutable NodeNum size_cache_;
 };
-
-
-class Tree : public Subtree {
-public:
-    Tree(Environment* env)
-        : Subtree(env) {}
-    Tree(Environment* env, Id root)
-        : Subtree(env, root) {}
-    ~Tree();
-};
-
 
 } // namespace stree
 
