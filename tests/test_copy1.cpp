@@ -52,7 +52,7 @@ int main() {
         }
 
         // Check if node names match
-        for (id::NodeNum n = 0; n < t1_size; ++n) {
+        for (NodeNum n = 0; n < t1_size; ++n) {
             // Original
             const Id& id = id::nth_node(env.node_manager(), t1.root(), n);
             const Symbol* symbol = env.symbol(id);

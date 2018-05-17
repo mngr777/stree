@@ -18,7 +18,7 @@ int main() {
 
     // Test data
     std::string ts1("(+ (+ (+ x x) 10.1) x)");
-    const id::NodeNum size_answer = 7;
+    const NodeNum size_answer = 7;
 
     // Parse
     Parser p1(&env);
@@ -28,7 +28,7 @@ int main() {
         // Calc. tree size
         Tree t1(&env, p1.result());
         cout << t1 << endl; // output tree
-        id::NodeNum size = id::subtree_size(env.node_manager(), t1.root());
+        NodeNum size = id::subtree_size(env.node_manager(), t1.root());
         cout << "Tree size: " << size << "; correct answer: " << size_answer << endl;
         if (size != size_answer)
             return -1;

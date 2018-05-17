@@ -102,9 +102,11 @@ constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth)
 
 class NodeManager;
 
+using NodeNum = unsigned;
+const NodeNum NoNodeNum = std::numeric_limits<NodeNum>::max();
+
 namespace id {
 
-using NodeNum = unsigned;
 using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
 using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
 
@@ -318,14 +320,23 @@ public:
 
 class Environment;
 
-class Tree {
+class Subtree {
 public:
-    Tree(Environment* env)
-        : Tree(env, Id()) {}
+    Subtree(Environment* env)
+        : Subtree(env, Id()) {}
 
-    Tree(Environment* env, Id root)
+    Subtree(Environment* env, Id root)
         : env_(env),
-          root_(root) {}
+          root_(root),
+          size_cache_(NoNodeNum)
+    {
+        assert(env && "Environment pointer cannot be empty");
+    }
+
+    NodeNum size() const;
+
+    const Subtree subtree(NodeNum n) const;
+    Subtree subtree(NodeNum n);
 
     const Id& root() const {
         return root_;
@@ -343,9 +354,20 @@ public:
         return env_;
     }
 
-private:
+protected:
     Environment* env_;
     Id root_;
+    mutable NodeNum size_cache_;
+};
+
+
+class Tree : public Subtree {
+public:
+    Tree(Environment* env)
+        : Subtree(env) {}
+    Tree(Environment* env, Id root)
+        : Subtree(env, root) {}
+    ~Tree();
 };
 
 

@@ -6,7 +6,7 @@
 #include <stree/environment.hpp>
 #include <stree/tree.hpp>
 
-std::ostream& operator<<(std::ostream& os, const stree::Tree& tree);
+std::ostream& operator<<(std::ostream& os, const stree::Subtree& tree);
 
 namespace stree {
 

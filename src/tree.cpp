@@ -1,5 +1,6 @@
 #include <stree/tree.hpp>
 #include <stdexcept>
+#include <stree/environment.hpp>
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';
@@ -391,5 +392,29 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE
 
 } // namespace id
+
+
+// Subtree class
+
+NodeNum Subtree::size() const {
+    if (size_cache_ == NoNodeNum)
+        size_cache_ = id::subtree_size(env_->node_manager(), root_);
+    return size_cache_;
+}
+
+const Subtree Subtree::subtree(NodeNum n) const {
+    return Subtree(env_, id::nth_node(env_->node_manager(), root_, n));
+}
+
+Subtree Subtree::subtree(NodeNum n) {
+    return Subtree(env_, id::nth_node(env_->node_manager(), root_, n));
+}
+
+
+// Tree class
+Tree::~Tree() {
+    id::destroy_subtree(env_->node_manager(), root_);
+}
+
 
 } // namespace stree
