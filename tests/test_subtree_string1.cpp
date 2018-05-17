@@ -48,42 +48,25 @@ int main() {
         // Output whole tree
         cout << "Tree: " << t1 << endl;
 
+#define CHECK_SUBTREE(n, answer)                                        \
+        {                                                               \
+            std::string st = stree::to_string(t1.subtree(n));           \
+            cout << "Subtree " << n << ": " << st                       \
+                 << ", answer: " << answer                              \
+                 << endl;                                               \
+            if (st != answer)                                           \
+                return -3;                                              \
+        }
+
         // Output subtrees
-        std::string st0 = stree::to_string(t1.subtree(0));
-        std::string answer0 = ts1;
-        cout << "Subtree 0: " << st0 << ", correct answer: " << answer0 << endl;
-        if (st0 != answer0)
-            return -3;
+        CHECK_SUBTREE(0, ts1);
+        CHECK_SUBTREE(2, "(+ (- c d) (* e f))");
+        CHECK_SUBTREE(3, "(- c d)");
+        CHECK_SUBTREE(4, "(* e f)");
+        CHECK_SUBTREE(5, "c");
+        CHECK_SUBTREE(8, "f");
 
-        std::string st2 = stree::to_string(t1.subtree(2));
-        std::string answer2("(+ (- c d) (* e f))");
-        cout << "Subtree 2: " << st2 << ", correct answer: " << answer2 << endl;
-        if (st2 != answer2)
-            return -3;
-
-        std::string st3 = stree::to_string(t1.subtree(3));
-        std::string answer3("(- c d)");
-        cout << "Subtree 3: " << st3 << ", correct answer: " << answer3 << endl;
-        if (st3 != answer3)
-            return -3;
-
-        std::string st4 = stree::to_string(t1.subtree(4));
-        std::string answer4("(* e f)");
-        cout << "Subtree 4: " << st4 << ", correct answer: " << answer4 << endl;
-        if (st4 != answer4)
-            return -3;
-
-        std::string st5 = stree::to_string(t1.subtree(5));
-        std::string answer5("c");
-        cout << "Subtree 5: " << st5 << ", correct answer: " << answer5 << endl;
-        if (st5 != answer5)
-            return -3;
-
-        std::string st8 = stree::to_string(t1.subtree(8));
-        std::string answer8("f");
-        cout << "Subtree 8: " << st8 << ", correct answer: " << answer8 << endl;
-        if (st8 != answer8)
-            return -3;
+#undef CHECK_SUBTREE
 
     } else if (p1.is_error()) {
         cerr << "Parse error: " << p1.error_message() << endl;

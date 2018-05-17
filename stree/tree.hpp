@@ -202,10 +202,13 @@ private:
 };
 
 
+class NodeManagerStats;
+
 // Pool of nodes of specific type
 template<typename T>
 class NodePool {
 private:
+    friend NodeManagerStats;
     using LockGuard = std::lock_guard<std::mutex>;
 public:
     NodePool() {}
@@ -260,6 +263,7 @@ private:
     STREE_TMP_MEMBER_DECL(FunctionNode<_arity>, fun ## _arity);
 
 class NodeManager {
+    friend NodeManagerStats;
 public:
     NodeManager() {}
     NodeManager(const NodeManager& other) = delete;

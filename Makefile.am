@@ -7,6 +7,7 @@ HEADER_FILES = \
 	stree/eval.hpp \
 	stree/macros.hpp \
 	stree/parser.hpp \
+	stree/stats.hpp
 	stree/string.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \
@@ -14,6 +15,7 @@ SOURCE_FILES = \
 	src/environment.cpp \
 	src/eval.cpp \
 	src/parser.cpp \
+	src/stats.cpp \
 	src/string.cpp \
 	src/tree.cpp
 
@@ -27,17 +29,27 @@ TESTS = test_string1 \
 	test_tree_size1 \
 	test_tree_nth_node1 \
 	test_copy1 \
-	test_subtree_string1
+	test_subtree_string1 \
+	test_node_manager_stats1
 check_PROGRAMS = $(TESTS)
+
 test_string1_SOURCES = tests/test_string1.cpp
 test_string1_LDADD = libstree.la
+
 test_grow1_SOURCES = tests/test_grow1.cpp
 test_grow1_LDADD = libstree.la
+
 test_tree_size1_SOURCES = tests/test_tree_size1.cpp
 test_tree_size1_LDADD = libstree.la
+
 test_tree_nth_node1_SOURCES = tests/test_tree_nth_node1.cpp
 test_tree_nth_node1_LDADD = libstree.la
+
 test_copy1_SOURCES = tests/test_copy1.cpp
 test_copy1_LDADD = libstree.la
+
 test_subtree_string1_SOURCES = tests/test_subtree_string1.cpp
 test_subtree_string1_LDADD = libstree.la
+
+test_node_manager_stats1_SOURCES = tests/test_node_manager_stats1.cpp
+test_node_manager_stats1_LDADD = libstree.la

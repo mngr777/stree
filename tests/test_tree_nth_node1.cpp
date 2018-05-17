@@ -1,17 +1,8 @@
-#include <cassert>
 #include <iostream>
 #include <string>
 #include <stree/stree.hpp>
 
-static stree::Value plus(const stree::Arguments& args, stree::DataPtr) {
-    return 0;
-}
-
-static stree::Value minus(const stree::Arguments& args, stree::DataPtr) {
-    return 0;
-}
-
-static stree::Value mult(const stree::Arguments& args, stree::DataPtr) {
+static stree::Value func(const stree::Arguments& args, stree::DataPtr) {
     return 0;
 }
 
@@ -21,9 +12,9 @@ int main() {
 
     // Init environment
     Environment env;
-    env.add_function("+", 2, &::plus);
-    env.add_function("-", 2, &::minus);
-    env.add_function("*", 2, &::mult);
+    env.add_function("+", 2, &func);
+    env.add_function("-", 2, &func);
+    env.add_function("*", 2, &func);
     env.add_positional("a", 1);
     env.add_positional("b", 2);
     env.add_positional("c", 3);
@@ -48,7 +39,7 @@ int main() {
     Parser p1(&env);
     p1.parse(ts1);
 
-    // Output tree
+    // Output tree string
     cout << ts1 << endl;
 
     // Test
