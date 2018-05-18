@@ -291,6 +291,7 @@ public:
 
 
 class Environment;
+class Symbol;
 class Tree;
 
 class Subtree {
@@ -308,8 +309,11 @@ public:
     // NOTE: `tree' root will be replaced with empty node
     void replace(Tree& tree);
 
+    // Replace root with ID for other symbol with same arity
+    void mutate(const Symbol* symbol);
+
     // Create tree from subtree copy
-    Tree copy();
+    Tree copy() const;
 
     const Id& root() const {
         return root_;

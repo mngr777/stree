@@ -410,9 +410,23 @@ void Subtree::replace(Tree& tree) {
     swap(subtree);
 }
 
-Tree Subtree::copy() {
+void Subtree::mutate(const Symbol* symbol) {
+    if (symbol->arity() != root_.arity())
+        throw std::invalid_argument("Arity mismatch");
+    // Make replacement Id
+    Id id = env_->make_id(symbol);
+    // Copy (shallow) argument Ids
+    for (Arity n = 0; n < root_.arity(); ++n)
+        id::nth_argument(env_->node_manager(), id, n) =
+            id::nth_argument(env_->node_manager(), root_, n);
+    // Destroy root (non-recursive)
+    id::destroy(env_->node_manager(), root_);
+}
+
+Tree Subtree::copy() const {
     return Tree(env_, id::copy_subtree(env_->node_manager(), root_));
 }
+
 
 // Tree class
 
