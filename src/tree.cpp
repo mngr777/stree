@@ -430,6 +430,11 @@ Tree Subtree::copy() const {
 
 // Tree class
 
+Tree::Tree(Tree&& other) {
+    root_ = other.root_;
+    root_.reset();
+}
+
 NodeNum Tree::size() const {
     if (size_cache_ == NoNodeNum)
         size_cache_ = id::subtree_size(env_->node_manager(), root_);

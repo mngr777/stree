@@ -116,10 +116,13 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
 
 } // namespace id
 
+class Tree;
+
 // Tree node ID
 // Contains node type, arity and index in node pool
 class Id {
     friend void id::destroy(NodeManager& nm, Id& id);
+    friend Tree;
 
 private:
     static constexpr Index DataMask = std::numeric_limits<Index>::max();
@@ -339,6 +342,8 @@ private:
 
 class Tree {
 public:
+    Tree(Tree&& other);
+
     Tree(Environment* env)
         : Tree(env, Id()) {}
 
