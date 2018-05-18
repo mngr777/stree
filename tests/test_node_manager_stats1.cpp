@@ -108,6 +108,29 @@ int main() {
     CHECK_STATS(TypeFunction, 0, 1, 1);
     CHECK_STATS(TypeFunction, 2, 3, 3);
 
+    // Parse same string
+    // This should use up buffered nodes and not create new ones
+    p1.parse(ts1);
+    if (p1.is_done()) {
+        nms1.update(env.node_manager());
+        cout << "Stats after parsing same expression" << endl;
+        cout << nms1 << endl;
+        CHECK_STATS(TypePositional, 0, 3, 0);
+        CHECK_STATS(TypeFunction, 0, 1, 0);
+        CHECK_STATS(TypeFunction, 2, 3, 0);
+
+    } else if (p1.is_error()) {
+        cerr << "Parse error: " << p1.error_message() << endl;
+        return -1;
+    } else {
+        cerr << "Parsing not finished" << endl
+             << "State: " << p1.state_string() << endl
+             << "Line: " << p1.line_num()
+             << ", Pos: " << p1.char_num() << endl;
+        return -2;
+    }
+
+
 #undef CHECK_STATS
 
     return 0;
