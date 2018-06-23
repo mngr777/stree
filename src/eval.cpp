@@ -33,4 +33,8 @@ Value eval(
     }
 }
 
+Value eval(const Tree& tree, const Params& params, DataPtr data) {
+    return eval(*tree.env(), tree.root(), params, data);
+}
+
 }

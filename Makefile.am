@@ -31,7 +31,8 @@ TESTS = test_string1 \
 	test_copy1 \
 	test_subtree_string1 \
 	test_node_manager_stats1 \
-	test_swap1
+	test_swap1 \
+	test_mutate1
 check_PROGRAMS = $(TESTS)
 
 test_string1_SOURCES = tests/test_string1.cpp
@@ -57,3 +58,6 @@ test_node_manager_stats1_LDADD = libstree.la
 
 test_swap1_SOURCES = tests/test_swap1.cpp tests/macros.hpp
 test_swap1_LDADD = libstree.la
+
+test_mutate1_SOURCES = tests/test_mutate1.cpp tests/macros.hpp
+test_mutate1_LDADD = libstree.la

@@ -17,7 +17,7 @@
 #define PARSE(parser, string)                                           \
     parser.parse(string);                                               \
     if (parser.is_error())                                              \
-        std::cerr << "Parse error: " << p1.error_message() << std::endl; \
+        std::cerr << "Parse error: " << parser.error_message() << std::endl; \
     if (!parser.is_done()) {                                            \
         std::cerr << string << std::endl;                               \
         std::cerr << "Parsing not finished" << std::endl                \
@@ -44,6 +44,15 @@
              << endl;                                       \
         if (st != answer)                                   \
             std::exit(EXIT_FAILURE);                        \
+    }
+
+// Check if tree evaluates to correct value
+#define CHECK_EVAL(tree, params, answer)                                \
+    {                                                                   \
+        stree::Value value = stree::eval(tree, params);                 \
+        cout << "result: " << value << ", answer: " << answer << endl;  \
+        if (value != answer)                                            \
+            std::exit(EXIT_FAILURE);                                    \
     }
 
 // Check if tree or subtree size matches answer

@@ -315,6 +315,7 @@ public:
 
     // Replace root with ID for other symbol with same arity
     void mutate(const Symbol* symbol);
+    void mutate(const std::string& name);
 
     // Create tree from subtree copy
     Tree copy() const;

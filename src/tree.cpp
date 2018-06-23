@@ -415,8 +415,11 @@ void Subtree::replace(Tree& tree) {
 }
 
 void Subtree::mutate(const Symbol* symbol) {
+    if (!symbol)
+        throw std::invalid_argument("Empty symbol ptr");
     if (symbol->arity() != root_.arity())
         throw std::invalid_argument("Arity mismatch");
+    // TODO: do not replace if type matches
     // Make replacement Id
     Id id = env_->make_id(symbol);
     // Copy (shallow) argument Ids
@@ -425,6 +428,12 @@ void Subtree::mutate(const Symbol* symbol) {
             id::nth_argument(env_->node_manager(), root_, n);
     // Destroy root (non-recursive)
     id::destroy(env_->node_manager(), root_);
+    // Replace root
+    root_ = id;
+}
+
+void Subtree::mutate(const std::string& name) {
+    mutate(env_->symbol(name));
 }
 
 Tree Subtree::copy() const {

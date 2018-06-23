@@ -14,6 +14,7 @@ Value eval(
     const Id& id,
     const Params& params, DataPtr data = nullptr);
 
+Value eval(const Tree& tree, const Params& params, DataPtr data = nullptr);
 
 }
 
