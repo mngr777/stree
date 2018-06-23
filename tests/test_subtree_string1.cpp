@@ -2,10 +2,9 @@
 #include <iostream>
 #include <string>
 #include <stree/stree.hpp>
+#include "macros.hpp"
 
-static stree::Value func(const stree::Arguments& args, stree::DataPtr) {
-    return stree::Value{};
-}
+DEFUN_EMPTY(func);
 
 int main() {
     using namespace std;
@@ -24,15 +23,6 @@ int main() {
     env.add_positional("f", 5);
 
     // Test data
-/*
-        (0)*
-      /     \
-    (1)a    (2)+
-          /      \
-       (3)-      (4)*
-       /  \      /  \
-     (5)c (6)d (7)e (8)f
- */
     //                0 1  2  3 5 6   4 7 8
     std::string ts1("(* a (+ (- c d) (* e f)))");
 
@@ -41,42 +31,20 @@ int main() {
 
     // Parse
     Parser p1(&env);
-    p1.parse(ts1);
-    if (p1.is_done()) {
-        // Make tree
-        Tree t1(&env, p1.result());
-        // Output whole tree
-        cout << "Tree: " << t1 << endl;
+    PARSE(p1, ts1);
 
-#define CHECK_SUBTREE(n, answer)                                        \
-        {                                                               \
-            std::string st = stree::to_string(t1.subtree(n));           \
-            cout << "Subtree " << n << ": " << st                       \
-                 << ", answer: " << answer                              \
-                 << endl;                                               \
-            if (st != answer)                                           \
-                return -3;                                              \
-        }
+    // Make tree
+    Tree t1(&env, p1.result());
+    // Output whole tree
+    cout << "Tree: " << t1 << endl;
 
-        // Output subtrees
-        CHECK_SUBTREE(0, ts1);
-        CHECK_SUBTREE(2, "(+ (- c d) (* e f))");
-        CHECK_SUBTREE(3, "(- c d)");
-        CHECK_SUBTREE(4, "(* e f)");
-        CHECK_SUBTREE(5, "c");
-        CHECK_SUBTREE(8, "f");
+    // Output subtrees
+    CHECK_SUBTREE_STR(t1, 0, ts1);
+    CHECK_SUBTREE_STR(t1, 2, "(+ (- c d) (* e f))");
+    CHECK_SUBTREE_STR(t1, 3, "(- c d)");
+    CHECK_SUBTREE_STR(t1, 4, "(* e f)");
+    CHECK_SUBTREE_STR(t1, 5, "c");
+    CHECK_SUBTREE_STR(t1, 8, "f");
 
-#undef CHECK_SUBTREE
-
-    } else if (p1.is_error()) {
-        cerr << "Parse error: " << p1.error_message() << endl;
-        return -1;
-    } else {
-        cerr << "Parsing not finished" << endl
-             << "State: " << p1.state_string() << endl
-             << "Line: " << p1.line_num()
-             << ", Pos: " << p1.char_num() << endl;
-        return -2;
-    }
     return 0;
 }

@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
 #include <stree/stree.hpp>
+#include "macros.hpp"
 
-static stree::Value func(const stree::Arguments& args, stree::DataPtr) {
-    return 0;
-}
+DEFUN_EMPTY(func);
 
 int main() {
     using namespace std;
@@ -38,7 +37,7 @@ int main() {
 
     // Parse
     Parser p1(&env);
-    p1.parse(ts1);
+    PARSE(p1, ts1);
 
     // Output tree string
     cout << ts1 << endl;
@@ -70,8 +69,7 @@ int main() {
     CHECK_STATS(TypeFunction, 0, 1, 0);
     CHECK_STATS(TypeFunction, 2, 3, 0);
 
-    // Test
-    if (p1.is_done()) {
+    {
         // Make tree
         Tree t1(&env, p1.result());
         // Get subtree
@@ -88,17 +86,7 @@ int main() {
         CHECK_STATS(TypePositional, 0, 3, 1);
         CHECK_STATS(TypeFunction, 0, 1, 1);
         CHECK_STATS(TypeFunction, 2, 3, 1);
-
-    } else if (p1.is_error()) {
-        cerr << "Parse error: " << p1.error_message() << endl;
-        return -1;
-    } else {
-        cerr << "Parsing not finished" << endl
-             << "State: " << p1.state_string() << endl
-             << "Line: " << p1.line_num()
-             << ", Pos: " << p1.char_num() << endl;
-        return -2;
-    }
+    } // t1 is destroyed
 
     // Output stats
     nms1.update(env.node_manager());
@@ -110,25 +98,14 @@ int main() {
 
     // Parse same string
     // This should use up buffered nodes and not create new ones
-    p1.parse(ts1);
-    if (p1.is_done()) {
-        nms1.update(env.node_manager());
-        cout << "Stats after parsing same expression" << endl;
-        cout << nms1 << endl;
-        CHECK_STATS(TypePositional, 0, 3, 0);
-        CHECK_STATS(TypeFunction, 0, 1, 0);
-        CHECK_STATS(TypeFunction, 2, 3, 0);
+    PARSE(p1, ts1);
 
-    } else if (p1.is_error()) {
-        cerr << "Parse error: " << p1.error_message() << endl;
-        return -1;
-    } else {
-        cerr << "Parsing not finished" << endl
-             << "State: " << p1.state_string() << endl
-             << "Line: " << p1.line_num()
-             << ", Pos: " << p1.char_num() << endl;
-        return -2;
-    }
+    nms1.update(env.node_manager());
+    cout << "Stats after parsing same expression" << endl;
+    cout << nms1 << endl;
+    CHECK_STATS(TypePositional, 0, 3, 0);
+    CHECK_STATS(TypeFunction, 0, 1, 0);
+    CHECK_STATS(TypeFunction, 2, 3, 0);
 
 
 #undef CHECK_STATS
