@@ -16,14 +16,15 @@
 // print error message and exit on error
 #define PARSE(parser, string)                                           \
     parser.parse(string);                                               \
-    if (parser.is_error()) {                                            \
+    if (parser.is_error())                                              \
         std::cerr << "Parse error: " << p1.error_message() << std::endl; \
-        std::exit(EXIT_FAILURE);                                        \
-    } else if (!parser.is_done()) {                                     \
+    if (!parser.is_done()) {                                            \
+        std::cerr << string << std::endl;                               \
         std::cerr << "Parsing not finished" << std::endl                \
                   << "State: " << parser.state_string() << std::endl    \
                   << "Line: " << parser.line_num()                      \
                   << ", Pos: " << parser.char_num() << std::endl;       \
+        std::exit(EXIT_FAILURE);                                        \
     }
 
 // Check if symbol exists (by ID or name)

@@ -44,6 +44,22 @@ private:
 
 } // namespace stree
 
+bool operator==(
+    const stree::NodeManagerStats::Item& item1,
+    const stree::NodeManagerStats::Item& item2);
+
+bool operator!=(
+    const stree::NodeManagerStats::Item& iitem1,
+    const stree::NodeManagerStats::Item& item2);
+
+bool operator==(
+    const stree::NodeManagerStats& stats1,
+    const stree::NodeManagerStats& stats2);
+
+bool operator!=(
+    const stree::NodeManagerStats& stats1,
+    const stree::NodeManagerStats& stats2);
+
 std::ostream& operator<<(std::ostream& os, const stree::NodeManagerStats::Item& item);
 
 std::ostream& operator<<(std::ostream& os, const stree::NodeManagerStats& stats);

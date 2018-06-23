@@ -64,6 +64,41 @@ const NodeManagerStats::Item NodeManagerStats::item(Type type, Arity arity) cons
 } // namespace stree
 
 
+bool operator==(
+    const stree::NodeManagerStats::Item& item1,
+    const stree::NodeManagerStats::Item& item2)
+{
+    return (item1.type == item2.type)
+        && (item1.arity == item2.arity)
+        && (item1.pool_size == item2.pool_size)
+        && (item1.buffer_size == item2.buffer_size);
+}
+
+bool operator!=(
+    const stree::NodeManagerStats::Item& item1,
+    const stree::NodeManagerStats::Item& item2)
+{
+    return !(item1 == item2);
+}
+
+bool operator==(
+    const stree::NodeManagerStats& stats1,
+    const stree::NodeManagerStats& stats2)
+{
+    auto items1 = stats1.items();
+    auto items2 = stats2.items();
+    assert(items1.size() == items2.size());
+    stree::NodeManagerStats::ItemList::size_type i = 0;
+    for (; i < items1.size(); ++i)
+        if (items1[i] != items2[i])
+            return false;
+    return true;
+}
+
+bool operator!=(const stree::NodeManagerStats& s1, const stree::NodeManagerStats& s2) {
+    return !(s1 == s2);
+}
+
 std::ostream& operator<<(std::ostream& os, const stree::NodeManagerStats::Item& item) {
     // Type
     os << "[" << stree::type_to_string(item.type);

@@ -306,6 +306,7 @@ public:
           root_(root) {}
 
     void swap(Subtree& other);
+    void swap(Subtree&& other);
 
     void destroy();
 

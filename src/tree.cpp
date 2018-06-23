@@ -400,6 +400,10 @@ void Subtree::swap(Subtree& other) {
     std::swap(root_, other.root_);
 }
 
+void Subtree::swap(Subtree&& other) {
+    swap(other);
+}
+
 void Subtree::destroy() {
     id::destroy_subtree(env_->node_manager(), root_);
 }
