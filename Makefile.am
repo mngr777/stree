@@ -3,11 +3,12 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
 HEADER_FILES = \
+	stree/stree.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \
 	stree/macros.hpp \
 	stree/parser.hpp \
-	stree/stats.hpp
+	stree/stats.hpp \
 	stree/string.hpp \
 	stree/tree.hpp
 SOURCE_FILES = \

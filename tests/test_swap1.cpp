@@ -62,7 +62,7 @@ int main() {
          << nms1 << endl;
 
     // Swap subtrees
-    t1.subtree(3).swap(t2.subtree(0));
+    t1.sub(3).swap(t2.sub(0));
 
     // Store new stats
     NodeManagerStats nms2;

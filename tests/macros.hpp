@@ -38,7 +38,7 @@
 // Check if nth subtree converted to string matches answer
 #define CHECK_SUBTREE_STR(tree, n, answer)                  \
     {                                                       \
-        std::string st = stree::to_string(tree.subtree(n)); \
+        std::string st = stree::to_string(tree.sub(n));     \
         cout << "Subtree " << n << ": " << st               \
              << ", answer: " << answer                      \
              << endl;                                       \

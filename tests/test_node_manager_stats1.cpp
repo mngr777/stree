@@ -73,7 +73,7 @@ int main() {
         // Make tree
         Tree t1(&env, p1.result());
         // Get subtree
-        Subtree st1 = t1.subtree(3);
+        Subtree st1 = t1.sub(3);
         // Destroy subtree
         cout << "Destroing subtree 3: " << st1 << endl;
         st1.destroy();

@@ -228,23 +228,13 @@ const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
 }
 
 Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
-    switch (id.type()) {
-        case TypeConst:
-        case TypePositional:
-            assert(false && "Nodes of this type cannot have arguments");
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-            break;
-        case TypeSelect:
-            // TODO
-            assert(false && "Not implemented");
-            break;
-    }
-    assert(false && "Unknown type");
+    return const_cast<Id&>(
+        nth_argument(
+            const_cast<const NodeManager&>(nm),
+            const_cast<const Id&>(id),
+            n));
 }
+
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
@@ -287,33 +277,6 @@ const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
     }
     throw std::range_error("Invalid node number");
 }
-
-
-#define STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE(_arity)                   \
-    else if (id.arity() == _arity) {                                    \
-        return (nm.get<FunctionNode<_arity>>(id.index())).set_argument(n, arg); \
-    }
-
-void set_nth_argument(NodeManager& nm, Id id, Arity n, Id arg) {
-    switch (id.type()) {
-        case TypeConst:
-        case TypePositional:
-            assert(false && "Nodes of this type cannot have arguments");
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-            break;
-        case TypeSelect:
-            // TODO
-            assert(false && "Not implemented");
-            break;
-    }
-    assert(false && "Unknown type");
-}
-#undef STREE_TMP_SET_ARGUMENT_FUN_ARITY_CASE
-
 
 Id copy(NodeManager& nm, const Id& id) {
     Id result = make(nm, id.type(), id.arity());
@@ -395,7 +358,84 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 } // namespace id
 
 
+// TreeBase class
+
+TreeBase::TreeBase(const TreeBase& other) {
+    env_ = other.env_;
+    size_cache_ = other.size_cache_;
+}
+
+TreeBase::TreeBase(TreeBase&& other) {
+    env_ = other.env_;
+    size_cache_ = other.size_cache_;
+}
+
+const Subtree TreeBase::sub(NodeNum n) const {
+    return Subtree(
+        env_,
+        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n)));
+}
+
+Subtree TreeBase::sub(NodeNum n) {
+    return Subtree(env_, id::nth_node(env_->node_manager(), root(), n));
+}
+
+const Subtree TreeBase::argument(Arity n) const {
+    check_argument_num(n);
+    return Subtree(
+        env_,
+        const_cast<Id&>(id::nth_argument(env_->node_manager(), root(), n)));
+}
+
+Subtree TreeBase::argument(Arity n) {
+    check_argument_num(n);
+    return Subtree(env_, id::nth_argument(env_->node_manager(), root(), n));
+}
+
+void TreeBase::check_argument_num(Arity n) const {
+    if (root().empty())
+        throw std::invalid_argument("Root is empty");
+    if (root().arity() < n + 1)
+        throw std::range_error("Invalid argument number");
+}
+
+void TreeBase::set(const Symbol* symbol) {
+    if (!symbol)
+        throw std::invalid_argument("Empty symbol ptr");
+    if (!root().empty() && symbol->arity() != root().arity())
+        throw std::invalid_argument("Arity mismatch");
+    // TODO: do not replace if type matches
+    // Make replacement Id
+    Id id = env_->make_id(symbol);
+    if (!root().empty()) {
+        // Copy (shallow) argument Ids
+        for (Arity n = 0; n < root().arity(); ++n)
+            id::nth_argument(env_->node_manager(), id, n) =
+                id::nth_argument(env_->node_manager(), root(), n);
+        // Destroy root (non-recursive)
+        id::destroy(env_->node_manager(), root());
+    }
+    // Replace root
+    root() = id;
+}
+
+void TreeBase::set(const std::string& name) {
+    set(env_->symbol(name));
+}
+
+const Arity TreeBase::arity() const {
+    return root().arity();
+}
+
+NodeNum TreeBase::size() const {
+    if (size_cache_ == NoNodeNum)
+        size_cache_ = id::subtree_size(env_->node_manager(), root());
+    return size_cache_;
+}
+
+
 // Subtree class
+
 void Subtree::swap(Subtree& other) {
     std::swap(root_, other.root_);
 }
@@ -410,30 +450,8 @@ void Subtree::destroy() {
 
 void Subtree::replace(Tree& tree) {
     destroy();
-    Subtree subtree = tree.subtree(0);
+    Subtree subtree = tree.sub(0);
     swap(subtree);
-}
-
-void Subtree::mutate(const Symbol* symbol) {
-    if (!symbol)
-        throw std::invalid_argument("Empty symbol ptr");
-    if (symbol->arity() != root_.arity())
-        throw std::invalid_argument("Arity mismatch");
-    // TODO: do not replace if type matches
-    // Make replacement Id
-    Id id = env_->make_id(symbol);
-    // Copy (shallow) argument Ids
-    for (Arity n = 0; n < root_.arity(); ++n)
-        id::nth_argument(env_->node_manager(), id, n) =
-            id::nth_argument(env_->node_manager(), root_, n);
-    // Destroy root (non-recursive)
-    id::destroy(env_->node_manager(), root_);
-    // Replace root
-    root_ = id;
-}
-
-void Subtree::mutate(const std::string& name) {
-    mutate(env_->symbol(name));
 }
 
 Tree Subtree::copy() const {
@@ -443,23 +461,11 @@ Tree Subtree::copy() const {
 
 // Tree class
 
-Tree::Tree(Tree&& other) {
+Tree::Tree(Tree&& other)
+    : TreeBase(std::move(other))
+{
     root_ = other.root_;
-    root_.reset();
-}
-
-NodeNum Tree::size() const {
-    if (size_cache_ == NoNodeNum)
-        size_cache_ = id::subtree_size(env_->node_manager(), root_);
-    return size_cache_;
-}
-
-const Subtree Tree::subtree(NodeNum n) const {
-    return Subtree(env_, const_cast<Id&>(id::nth_node(env_->node_manager(), root_, n)));
-}
-
-Subtree Tree::subtree(NodeNum n) {
-    return Subtree(env_, id::nth_node(env_->node_manager(), root_, n));
+    other.root_.reset();
 }
 
 Tree::~Tree() {

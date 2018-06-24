@@ -296,13 +296,62 @@ public:
 class Environment;
 class Symbol;
 class Tree;
+class Subtree;
 
-class Subtree {
+class TreeBase {
+public:
+    TreeBase(Environment* env)
+        : env_(env),
+          size_cache_(NoNodeNum)
+    {
+        assert(env && "Environment pointer cannot be empty");
+    }
+
+    TreeBase(const TreeBase& other);
+    TreeBase(TreeBase&& other);
+
+    virtual ~TreeBase() {}
+
+    virtual Id& root() = 0;
+    virtual const Id& root() const = 0;
+
+    // Replace root with ID for other symbol with same arity
+    void set(const Symbol* symbol);
+    void set(const std::string& name);
+
+    const Subtree sub(NodeNum n) const;
+    Subtree sub(NodeNum n);
+
+    const Subtree argument(Arity n) const;
+    Subtree argument(Arity n);
+
+    const Arity arity() const;
+
+    NodeNum size() const;
+
+    const Environment* env() const {
+        return env_;
+    }
+
+    Environment* env() {
+        return env_;
+    }
+
+protected:
+    Environment* env_;
+
+    void check_argument_num(Arity n) const;
+
+private:
+    mutable NodeNum size_cache_;
+};
+
+class Subtree : public TreeBase {
 public:
     Subtree(
         Environment* env,
         Id& root)
-        : env_(env),
+        : TreeBase(env),
           root_(root) {}
 
     void swap(Subtree& other);
@@ -312,10 +361,6 @@ public:
 
     // NOTE: `tree' root will be replaced with empty node
     void replace(Tree& tree);
-
-    // Replace root with ID for other symbol with same arity
-    void mutate(const Symbol* symbol);
-    void mutate(const std::string& name);
 
     // Create tree from subtree copy
     Tree copy() const;
@@ -328,41 +373,26 @@ public:
         return root_;
     }
 
-    const Environment* env() const {
-        return env_;
-    }
-
-    Environment* env() {
-        return env_;
-    }
-
 private:
-    Environment* env_;
     Id& root_;
 };
 
 
-class Tree {
+class Tree : public TreeBase {
 public:
-    Tree(Tree&& other);
-
     Tree(Environment* env)
         : Tree(env, Id()) {}
 
     Tree(Environment* env, Id root)
-        : env_(env),
-          root_(root),
-          size_cache_(NoNodeNum)
-    {
-        assert(env && "Environment pointer cannot be empty");
-    }
+        : TreeBase(env),
+          root_(root) {}
+
+    Tree(Tree&& other);
+
+    Tree(const Tree& other) = delete;
+    Tree& operator=(const Tree& other) = delete;
 
     ~Tree();
-
-    NodeNum size() const;
-
-    const Subtree subtree(NodeNum n) const;
-    Subtree subtree(NodeNum n);
 
     const Id& root() const {
         return root_;
@@ -372,18 +402,8 @@ public:
         return root_;
     }
 
-    const Environment* env() const {
-        return env_;
-    }
-
-    Environment* env() {
-        return env_;
-    }
-
 private:
-    Environment* env_;
     Id root_;
-    mutable NodeNum size_cache_;
 };
 
 } // namespace stree

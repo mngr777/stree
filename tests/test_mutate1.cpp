@@ -33,7 +33,7 @@ int main() {
     cout << t1 << endl;
 
     // Mutate
-    t1.subtree(0).mutate("*");
+    t1.set("*");
     // Check tree string
     cout << t1 << endl;
     CHECK_SUBTREE_STR(t1, 0, "(* a b)");
@@ -41,7 +41,7 @@ int main() {
     CHECK_EVAL(t1, params, 6);
 
     // Mutate
-    t1.subtree(1).mutate("b");
+    t1.sub(1).set("b");
     // Check tree string
     CHECK_SUBTREE_STR(t1, 0, "(* b b)");
     // Check eval result
