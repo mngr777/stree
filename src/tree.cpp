@@ -1,4 +1,6 @@
 #include <stree/tree.hpp>
+#include <algorithm>
+#include <map>
 #include <stdexcept>
 #include <utility>
 #include <stree/environment.hpp>
@@ -238,6 +240,13 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
+/*
+     (0)
+     /  \
+   (1)  (2)
+   /    /  \
+ (3)  (4)  (5)
+*/
 Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
     return const_cast<Id&>(
         nth_node(
@@ -246,13 +255,6 @@ Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
             n));
 }
 
-/*
-     (0)
-     /  \
-   (1)  (2)
-   /    /  \
- (3)  (4)  (5)
-*/
 const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
     _ConstNodeRefQueue queue;
     queue.emplace(id); // initialize queue with root
@@ -276,6 +278,36 @@ const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
         }
     }
     throw std::range_error("Invalid node number");
+}
+
+void for_each_node(
+    const NodeManager& nm,
+    const Id& id,
+    std::function<bool(const Id&, NodeNum, NodeNum)> callback)
+{
+    assert(id::is_valid_subtree(nm, id) && "Subtree must be valid");
+    // Node number
+    NodeNum current_num = 0;
+    // Init queue
+    _ConstNodeRefDepthPairQueue queue;
+    queue.emplace(_ConstNodeRefDepthPair(id, 0));
+    while (!queue.empty()) {
+        // Get current node
+        const Id& current = queue.front().first;
+        NodeNum current_depth = queue.front().second;
+        queue.pop();
+        // Callback. Return in result is true
+        if (callback(current, current_num, current_depth))
+            return;
+        // Inc. node number
+        ++current_num;
+        // Add all children to queue
+        for (Arity i = 0; i < current.arity(); ++i)
+            queue.emplace(
+                _ConstNodeRefDepthPair(
+                    id::nth_argument(nm, current, i),
+                    current_depth + 1));
+    }
 }
 
 Id copy(NodeManager& nm, const Id& id) {
@@ -358,46 +390,42 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 } // namespace id
 
 
-// TreeBase class
+// TreeBase::Description class
+
+TreeDescription::TreeDescription() {
+    set_null();
+}
+
+bool TreeDescription::is_empty() const {
+    return (size == NoNodeNum)
+        || (depth == NoNodeNum)
+        || (term_num == NoNodeNum)
+        || (nonterm_num == NoNodeNum);
+}
+
+void TreeDescription::set_null() {
+    size = depth = term_num = nonterm_num = NoNodeNum;
+}
+
+void TreeDescription::set_zero() {
+    size = depth = term_num = nonterm_num = 0;
+}
+
+TreeBase::TreeBase(Environment* env)
+    : env_(env)
+{
+    assert(env_ && "Tree environment cannot be empty");
+    reset_cache();
+}
 
 TreeBase::TreeBase(const TreeBase& other) {
     env_ = other.env_;
-    size_cache_ = other.size_cache_;
+    description_ = other.description_;
+    width_ = other.width_;
 }
 
-TreeBase::TreeBase(TreeBase&& other) {
-    env_ = other.env_;
-    size_cache_ = other.size_cache_;
-}
-
-const Subtree TreeBase::sub(NodeNum n) const {
-    return Subtree(
-        env_,
-        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n)));
-}
-
-Subtree TreeBase::sub(NodeNum n) {
-    return Subtree(env_, id::nth_node(env_->node_manager(), root(), n));
-}
-
-const Subtree TreeBase::argument(Arity n) const {
-    check_argument_num(n);
-    return Subtree(
-        env_,
-        const_cast<Id&>(id::nth_argument(env_->node_manager(), root(), n)));
-}
-
-Subtree TreeBase::argument(Arity n) {
-    check_argument_num(n);
-    return Subtree(env_, id::nth_argument(env_->node_manager(), root(), n));
-}
-
-void TreeBase::check_argument_num(Arity n) const {
-    if (root().empty())
-        throw std::invalid_argument("Root is empty");
-    if (root().arity() < n + 1)
-        throw std::range_error("Invalid argument number");
-}
+TreeBase::TreeBase(TreeBase&& other)
+    : TreeBase(other) {}
 
 void TreeBase::set(const Symbol* symbol) {
     if (!symbol)
@@ -423,14 +451,104 @@ void TreeBase::set(const std::string& name) {
     set(env_->symbol(name));
 }
 
+const Subtree TreeBase::sub(NodeNum n) const {
+    return Subtree(
+        env_,
+        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n)));
+}
+
+Subtree TreeBase::sub(NodeNum n) {
+    return Subtree(env_, id::nth_node(env_->node_manager(), root(), n));
+}
+
+const Subtree TreeBase::argument(Arity n) const {
+    check_argument_num(n);
+    return Subtree(
+        env_,
+        const_cast<Id&>(id::nth_argument(env_->node_manager(), root(), n)));
+}
+
+Subtree TreeBase::argument(Arity n) {
+    check_argument_num(n);
+    return Subtree(env_, id::nth_argument(env_->node_manager(), root(), n));
+}
+
 const Arity TreeBase::arity() const {
     return root().arity();
 }
 
-NodeNum TreeBase::size() const {
-    if (size_cache_ == NoNodeNum)
-        size_cache_ = id::subtree_size(env_->node_manager(), root());
-    return size_cache_;
+const TreeDescription& TreeBase::describe() const {
+    if (description_.is_empty())
+        update_description();
+    return description_;
+}
+
+NodeNum TreeBase::width() const {
+    if (width_ == NoNodeNum)
+        update_width();
+    return width_;
+}
+
+void TreeBase::reset_cache() {
+    reset_description();
+    reset_width();
+}
+
+void TreeBase::check_argument_num(Arity n) const {
+    if (root().empty())
+        throw std::invalid_argument("Root is empty");
+    if (root().arity() < n + 1)
+        throw std::range_error("Invalid argument number");
+}
+
+void TreeBase::update_description() const {
+    description_.set_zero();
+    id::for_each_node(
+        env_->node_manager(),
+        root(),
+        [this](const Id& id, NodeNum n, NodeNum depth) {
+            // size
+            ++description_.size;
+            // depth
+            description_.depth = std::max(description_.depth, depth);
+            // term_num and nonterm_num
+            if (id.arity() == 0) {
+                ++description_.term_num;
+            } else {
+                ++description_.nonterm_num;
+            }
+            return false;
+        });
+}
+
+void TreeBase::update_width() const {
+    // Make depth to width map
+    std::map<NodeNum, NodeNum> width_map;
+    id::for_each_node(
+        env_->node_manager(),
+        root(),
+        [this, &width_map](const Id& id, NodeNum n, NodeNum depth) {
+            ++width_map[depth];
+            return false;
+        });
+    // Update width
+    width_ = 0;
+    if (width_map.size() > 0) {
+        auto it = std::max_element(
+            width_map.begin(), width_map.end(),
+            [](const auto& p1, const auto& p2) {
+                return p1.second < p2.second;
+            });
+        width_ = (*it).second;
+    }
+}
+
+void TreeBase::reset_description() {
+    description_.set_null();
+}
+
+void TreeBase::reset_width() {
+    width_ = NoNodeNum;
 }
 
 
@@ -460,6 +578,10 @@ Tree Subtree::copy() const {
 
 
 // Tree class
+
+Tree::Tree(Environment* env, const Symbol* symbol)
+    : TreeBase(env),
+      root_(env->make_id(symbol)) {}
 
 Tree::Tree(Tree&& other)
     : TreeBase(std::move(other))

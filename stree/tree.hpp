@@ -8,6 +8,7 @@
 #include <mutex>
 #include <ostream>
 #include <queue>
+#include <utility>
 #include <vector>
 #include <boost/preprocessor/list/for_each.hpp>
 #include <boost/preprocessor/tuple/to_list.hpp>
@@ -78,6 +79,9 @@ namespace id {
 using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
 using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
 
+using _ConstNodeRefDepthPair = std::pair<const Id&, NodeNum>;
+using _ConstNodeRefDepthPairQueue = std::queue<_ConstNodeRefDepthPair>;
+
 Id make(NodeManager& nm, Type type, Arity arity = 0);
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
@@ -93,6 +97,11 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n);
 
 Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
 const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
+
+void for_each_node(
+    const NodeManager& nm,
+    const Id& id,
+    std::function<bool(const Id&, NodeNum, NodeNum)> callback);
 
 Id copy(NodeManager& nm, const Id& id);
 Id copy_subtree(NodeManager& nm, const Id& root);
@@ -293,6 +302,20 @@ public:
 #undef STREE_TMP_MEMBER_DECL
 
 
+class TreeDescription {
+public:
+    TreeDescription();
+
+    bool is_empty() const;
+    void set_null();
+    void set_zero();
+
+    NodeNum size;
+    NodeNum depth;
+    NodeNum term_num;
+    NodeNum nonterm_num;
+};
+
 class Environment;
 class Symbol;
 class Tree;
@@ -300,12 +323,7 @@ class Subtree;
 
 class TreeBase {
 public:
-    TreeBase(Environment* env)
-        : env_(env),
-          size_cache_(NoNodeNum)
-    {
-        assert(env && "Environment pointer cannot be empty");
-    }
+    TreeBase(Environment* env);
 
     TreeBase(const TreeBase& other);
     TreeBase(TreeBase&& other);
@@ -327,7 +345,11 @@ public:
 
     const Arity arity() const;
 
-    NodeNum size() const;
+    const TreeDescription& describe() const;
+
+    NodeNum width() const;
+
+    void reset_cache();
 
     const Environment* env() const {
         return env_;
@@ -341,9 +363,14 @@ protected:
     Environment* env_;
 
     void check_argument_num(Arity n) const;
+    void update_description() const;
+    void update_width() const;
+    void reset_description();
+    void reset_width();
 
 private:
-    mutable NodeNum size_cache_;
+    mutable TreeDescription description_;
+    mutable NodeNum width_;
 };
 
 class Subtree : public TreeBase {
@@ -386,6 +413,8 @@ public:
     Tree(Environment* env, Id root)
         : TreeBase(env),
           root_(root) {}
+
+    Tree(Environment* env, const Symbol* symbol);
 
     Tree(Tree&& other);
 
