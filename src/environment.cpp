@@ -134,22 +134,35 @@ const Symbol* Environment::symbol(unsigned n) const {
     return symbols_[n];
 }
 
+
+unsigned Environment::symbol_by_arity_num(Arity arity) const {
+    auto it = symbol_list_arity_map_.find(arity);
+    return it != symbol_list_arity_map_.end()
+        ? it->second.size()
+        : 0;
+}
+
+const Symbol* Environment::symbol_by_arity(Arity arity, unsigned n) const {
+    auto it = symbol_list_arity_map_.find(arity);
+    return it != symbol_list_arity_map_.end()
+        ? it->second.at(n)
+        : nullptr;
+}
+
 unsigned Environment::terminal_num() const {
-    return terminals_.size();
+    return symbol_by_arity_num(0);
 }
 
 const Symbol* Environment::terminal(unsigned n) const {
-    assert(n < terminals_.size());
-    return terminals_[n];
+    return symbol_by_arity(0, n);
 }
 
 unsigned Environment::nonterminal_num() const {
     return nonterminals_.size();
 }
-    
+
 const Symbol* Environment::nonterminal(unsigned n) const {
-    assert(n < nonterminals_.size());
-    return nonterminals_[n];
+    return nonterminals_.at(n);
 }
 
 Id Environment::make_id(const Symbol* symbol) {
@@ -181,11 +194,20 @@ void Environment::add_symbol(Symbol smb) {
     const Symbol* smb_ptr = symbol(smb.name());
     assert(smb_ptr && "Cannot find added symbol");
     symbols_.push_back(smb_ptr);
-    if (smb.arity() == 0) {
-        terminals_.push_back(smb_ptr);
-    } else {
-        nonterminals_.push_back(smb_ptr);
+    add_symbol_to_arity_lists(smb_ptr);
+}
+
+void Environment::add_symbol_to_arity_lists(const Symbol* symbol) {
+    assert(symbol);
+    Arity arity = symbol->arity();
+
+    // add to nonterminal list
+    if (arity > 0) {
+        nonterminals_.push_back(symbol);
     }
+
+    // add to lists by arity
+    symbol_list_arity_map_[arity].push_back(symbol);
 }
 
 } // namespace stree {

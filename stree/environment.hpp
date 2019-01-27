@@ -92,6 +92,8 @@ private:
 
 class Environment {
 public:
+    typedef std::vector<const Symbol*> SymbolList;
+
     Environment() {}
     Environment(const Environment& other) = delete;
     Environment& operator=(const Environment& other) = delete;
@@ -106,6 +108,9 @@ public:
 
     unsigned symbol_num() const;
     const Symbol* symbol(unsigned n) const;
+
+    unsigned symbol_by_arity_num(Arity arity) const;
+    const Symbol* symbol_by_arity(Arity arity, unsigned n) const;
 
     unsigned terminal_num() const;
     const Symbol* terminal(unsigned n) const;
@@ -125,13 +130,15 @@ public:
 
 private:
     using SymbolMap = std::map<std::string, Symbol>;
+    using SymbolListArityMap = std::map<Arity, SymbolList>;
 
     void add_symbol(Symbol symbol);
+    void add_symbol_to_arity_lists(const Symbol* symbol);
 
     SymbolMap symbol_map_;
-    std::vector<const Symbol*> symbols_;
-    std::vector<const Symbol*> terminals_;
-    std::vector<const Symbol*> nonterminals_;
+    SymbolListArityMap symbol_list_arity_map_;
+    SymbolList symbols_;
+    SymbolList nonterminals_;
     std::vector<Function> functions_;
     NodeManager node_manager_;
 };
