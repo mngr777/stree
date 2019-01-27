@@ -455,8 +455,8 @@ void TreeDescription::set_zero() {
     size = depth = term_num = nonterm_num = 0;
 }
 
-TreeBase::TreeBase(Environment* env)
-    : env_(env)
+TreeBase::TreeBase(Environment* env, TreeBase* parent)
+    : env_(env), parent_(parent)
 {
     assert(env_ && "Tree environment cannot be empty");
     reset_cache();
@@ -464,6 +464,7 @@ TreeBase::TreeBase(Environment* env)
 
 TreeBase::TreeBase(const TreeBase& other) {
     env_ = other.env_;
+    parent_ = other.parent_;
     description_ = other.description_;
     width_ = other.width_;
 }
@@ -498,23 +499,25 @@ void TreeBase::set(const std::string& name) {
 const Subtree TreeBase::sub(NodeNum n) const {
     return Subtree(
         env_,
+        const_cast<TreeBase*>(this),
         const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n)));
 }
 
 Subtree TreeBase::sub(NodeNum n) {
-    return Subtree(env_, id::nth_node(env_->node_manager(), root(), n));
+    return Subtree(env_, this, id::nth_node(env_->node_manager(), root(), n));
 }
 
 const Subtree TreeBase::argument(Arity n) const {
     check_argument_num(n);
     return Subtree(
         env_,
+        const_cast<TreeBase*>(this),
         const_cast<Id&>(id::nth_argument(env_->node_manager(), root(), n)));
 }
 
 Subtree TreeBase::argument(Arity n) {
     check_argument_num(n);
-    return Subtree(env_, id::nth_argument(env_->node_manager(), root(), n));
+    return Subtree(env_, this, id::nth_argument(env_->node_manager(), root(), n));
 }
 
 const Arity TreeBase::arity() const {
@@ -536,6 +539,8 @@ NodeNum TreeBase::width() const {
 void TreeBase::reset_cache() {
     reset_description();
     reset_width();
+    if (parent_)
+        parent_->reset_cache();
 }
 
 void TreeBase::check_argument_num(Arity n) const {
@@ -582,6 +587,8 @@ void TreeBase::reset_width() {
 
 void Subtree::swap(Subtree& other) {
     std::swap(root_, other.root_);
+    reset_cache();
+    other.reset_cache();
 }
 
 void Subtree::swap(Subtree&& other) {
@@ -590,6 +597,7 @@ void Subtree::swap(Subtree&& other) {
 
 void Subtree::destroy() {
     id::destroy_subtree(env_->node_manager(), root_);
+    reset_cache();
 }
 
 void Subtree::replace(Tree& tree) {

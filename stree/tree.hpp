@@ -349,7 +349,7 @@ class Subtree;
 
 class TreeBase {
 public:
-    TreeBase(Environment* env);
+    TreeBase(Environment* env, TreeBase* parent = nullptr);
 
     TreeBase(const TreeBase& other);
     TreeBase(TreeBase&& other);
@@ -387,6 +387,7 @@ public:
 
 protected:
     Environment* env_;
+    TreeBase* parent_;
 
     void check_argument_num(Arity n) const;
     void update_description() const;
@@ -403,8 +404,9 @@ class Subtree : public TreeBase {
 public:
     Subtree(
         Environment* env,
+        TreeBase* parent,
         Id& root)
-        : TreeBase(env),
+        : TreeBase(env, parent),
           root_(root) {}
 
     void swap(Subtree& other);
@@ -437,7 +439,7 @@ public:
         : Tree(env, Id()) {}
 
     Tree(Environment* env, Id root)
-        : TreeBase(env),
+        : TreeBase(env, nullptr),
           root_(root) {}
 
     Tree(Environment* env, const Symbol* symbol);
