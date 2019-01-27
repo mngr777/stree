@@ -487,6 +487,10 @@ TreeBase::TreeBase(const TreeBase& other) {
 TreeBase::TreeBase(TreeBase&& other)
     : TreeBase(other) {}
 
+bool TreeBase::is_valid() const {
+    return id::is_valid_subtree(env_->node_manager(), root());
+}
+
 void TreeBase::set(const Symbol* symbol) {
     if (!symbol)
         throw std::invalid_argument("Empty symbol ptr");
@@ -511,15 +515,32 @@ void TreeBase::set(const std::string& name) {
     set(env_->symbol(name));
 }
 
-const Subtree TreeBase::sub(NodeNum n) const {
+const Subtree TreeBase::sub(NodeNum n, IsTerminal is_terminal) const {
     return Subtree(
         env_,
         const_cast<TreeBase*>(this),
-        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n)));
+        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n, is_terminal)));
 }
 
-Subtree TreeBase::sub(NodeNum n) {
-    return Subtree(env_, this, id::nth_node(env_->node_manager(), root(), n));
+Subtree TreeBase::sub(NodeNum n, IsTerminal is_terminal) {
+    return Subtree(
+        env_, this, id::nth_node(env_->node_manager(), root(), n, is_terminal));
+}
+
+const Subtree TreeBase::term(NodeNum n) const {
+    return sub(n, IsTerminalYes);
+}
+
+Subtree TreeBase::term(NodeNum n) {
+    return sub(n, IsTerminalYes);
+}
+
+const Subtree TreeBase::nonterm(NodeNum n) const {
+    return sub(n, IsTerminalNo);
+}
+
+Subtree TreeBase::nonterm(NodeNum n) {
+    return sub(n, IsTerminalNo);
 }
 
 const Subtree TreeBase::argument(Arity n) const {

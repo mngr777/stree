@@ -375,12 +375,14 @@ public:
     virtual Id& root() = 0;
     virtual const Id& root() const = 0;
 
+    bool is_valid() const;
+
     // Replace root with ID for other symbol with same arity
     void set(const Symbol* symbol);
     void set(const std::string& name);
 
-    const Subtree sub(NodeNum n) const;
-    Subtree sub(NodeNum n);
+    const Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny) const;
+    Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny);
 
     // n-th terminal
     const Subtree term(NodeNum n) const;
