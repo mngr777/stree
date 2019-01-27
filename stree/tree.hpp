@@ -41,6 +41,14 @@ const SelectFunctionIndex SelectFunctionNoIndex =
     std::numeric_limits<SelectFunctionIndex>::max();
 
 
+// Term/nonterm
+enum IsTerminal {
+    IsTerminalYes,
+    IsTerminalNo,
+    IsTerminalAny
+};
+
+
 // Type enum and conversions
 
 enum Type : TypeId {
@@ -105,8 +113,16 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root);
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
 Id& nth_argument(NodeManager& nm, Id& id, Arity n);
 
-Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
-const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
+Id& nth_node(
+    NodeManager& nm,
+    Id& id,
+    NodeNum n,
+    IsTerminal is_terminal = IsTerminalAny);
+const Id& nth_node(
+    const NodeManager& nm,
+    const Id& id,
+    NodeNum n,
+    IsTerminal is_terminal = IsTerminalAny);
 
 void for_each_node(
     const NodeManager& nm,
@@ -365,6 +381,14 @@ public:
 
     const Subtree sub(NodeNum n) const;
     Subtree sub(NodeNum n);
+
+    // n-th terminal
+    const Subtree term(NodeNum n) const;
+    Subtree term(NodeNum n);
+
+    // n-th non-terminal
+    const Subtree nonterm(NodeNum n) const;
+    Subtree nonterm(NodeNum n);
 
     const Subtree argument(Arity n) const;
     Subtree argument(Arity n);

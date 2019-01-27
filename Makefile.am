@@ -29,6 +29,7 @@ TESTS = test_string1 \
 	test_grow1 \
 	test_tree_size1 \
 	test_tree_nth_node1 \
+	test_tree_nth_node2 \
 	test_copy1 \
 	test_subtree_string1 \
 	test_node_manager_stats1 \
@@ -47,6 +48,9 @@ test_tree_size1_LDADD = libstree.la
 
 test_tree_nth_node1_SOURCES = tests/test_tree_nth_node1.cpp tests/macros.hpp
 test_tree_nth_node1_LDADD = libstree.la
+
+test_tree_nth_node2_SOURCES = tests/test_tree_nth_node2.cpp tests/macros.hpp
+test_tree_nth_node2_LDADD = libstree.la
 
 test_copy1_SOURCES = tests/test_copy1.cpp tests/macros.hpp
 test_copy1_LDADD = libstree.la

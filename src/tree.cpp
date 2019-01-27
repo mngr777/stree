@@ -291,15 +291,21 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
    /    /  \
  (3)  (4)  (5)
 */
-Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n, IsTerminal is_terminal) {
     return const_cast<Id&>(
         nth_node(
             const_cast<const NodeManager&>(nm),
             const_cast<const Id&>(id),
-            n));
+            n,
+            is_terminal));
 }
 
-const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
+const Id& nth_node(
+    const NodeManager& nm,
+    const Id& id,
+    NodeNum n,
+    IsTerminal is_terminal)
+{
     _ConstNodeRefQueue queue;
     queue.emplace(id); // initialize queue with root
     while (!queue.empty()) {
@@ -307,18 +313,27 @@ const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
         const Id& current = queue.front();
         queue.pop();
         assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
-        if (n == 0) {
+        bool terminality_match = (is_terminal == IsTerminalAny)
+            || (is_terminal == IsTerminalYes && current.arity() == 0)
+            || (is_terminal == IsTerminalNo && current.arity() > 0);
+        if (n == 0 && terminality_match) {
             // found N-th node
             return current;
-        } else if (n - 1 < queue.size() + current.arity()) {
+        } else if (
+            is_terminal == IsTerminalAny
+            && (n < queue.size() + 1 + current.arity()))
+        {
             // one of current node children is N-th node
+            // we can be sure only if we don't care if node is terminal
             assert(n > queue.size());
             return id::nth_argument(nm, current, n - 1 - queue.size());
         } else {
             // we don't know N-th node yet, add current node children to queue
             for (Arity i = 0; i < current.arity(); ++i)
                 queue.emplace(id::nth_argument(nm, current, i));
-            --n;
+            // decrement counter if current node terminality matches
+            if (terminality_match)
+                --n;
         }
     }
     throw std::range_error("Invalid node number");
