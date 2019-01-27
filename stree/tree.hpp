@@ -2,12 +2,14 @@
 #define STREE_TREE_HPP_
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <limits>
 #include <mutex>
 #include <ostream>
 #include <queue>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 #include <boost/preprocessor/list/for_each.hpp>
@@ -86,6 +88,14 @@ Id make(NodeManager& nm, Type type, Arity arity = 0);
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
+using _NodeWidthMap = std::unordered_map<Id, NodeNum>;
+
+NodeNum subtree_width(const NodeManager& nm, const Id& id);
+NodeNum _subtree_width(
+    const NodeManager& nm,
+    const Id& id,
+    _NodeWidthMap& width_map);
+
 void destroy(NodeManager& nm, Id& id);
 void destroy_subtree(NodeManager& nm, Id& root);
 
@@ -145,10 +155,12 @@ public:
     Id() : data_(NoIndex) {}
     Id(Type type, Arity arity, Index index);
     Id(const Id& other) : data_(other.data_) {}
-    Id& operator=(const Id& other) {
-        data_ = other.data_;
-        return *this;
-    }
+    Id& operator=(const Id& other);
+
+    bool operator==(const Id& other) const;
+    bool operator!=(const Id& other) const;
+
+    std::size_t hash() const;
 
     bool empty() const {
         return index() == NoIndex;
@@ -170,6 +182,20 @@ private:
     Index data_;
 };
 
+} // namespace stree
+namespace std {
+
+// ID hash function
+template<> struct hash<stree::Id> {
+    typedef stree::Id argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& id) const {
+        return id.hash();
+    }
+};
+
+}
+namespace stree {
 
 // Function tree node
 template<Arity A>

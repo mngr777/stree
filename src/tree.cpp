@@ -1,6 +1,5 @@
 #include <stree/tree.hpp>
 #include <algorithm>
-#include <map>
 #include <stdexcept>
 #include <utility>
 #include <stree/environment.hpp>
@@ -54,6 +53,23 @@ Id::Id(Type type, Arity arity, Index index) {
     set_type(type);
     set_arity(arity);
     set_index(index);
+}
+
+Id& Id::operator=(const Id& other) {
+    data_ = other.data_;
+    return *this;
+}
+
+bool Id::operator==(const Id& other) const {
+    return data_ == other.data_;
+}
+
+bool Id::operator!=(const Id& other) const {
+    return !(*this == other);
+}
+
+std::size_t Id::hash() const {
+    return data_;
 }
 
 Type Id::type() const {
@@ -144,6 +160,7 @@ Id make(NodeManager& nm, Type type, Arity arity) {
 #undef STREE_TMP_MAKE_FUN_ARITY_CASE
 
 
+// TODO: use map (see subtree_width)
 NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     NodeNum size = 0;
     if (!id.empty()) {
@@ -152,6 +169,33 @@ NodeNum subtree_size(const NodeManager& nm, const Id& id) {
             size += subtree_size(nm, id::nth_argument(nm, id, n));
     }
     return size;
+}
+
+NodeNum subtree_width(const NodeManager& nm, const Id& id) {
+    _NodeWidthMap width_map;
+    return _subtree_width(nm, id, width_map);
+}
+
+NodeNum _subtree_width(
+    const NodeManager& nm,
+    const Id& id,
+    _NodeWidthMap& width_map)
+{
+    // Look up in map
+    auto it = width_map.find(id);
+    if (it != width_map.end())
+        return (*it).second;
+
+    // Calc. width
+    NodeNum width = 0;
+    for (Arity n = 0; n < id.arity(); ++n)
+        width += _subtree_width(nm, nth_argument(nm, id, n), width_map);
+    width = std::max(static_cast<NodeNum>(1), width);
+
+    // Store in map
+    width_map[id] = width;
+
+    return width;
 }
 
 
@@ -522,25 +566,7 @@ void TreeBase::update_description() const {
 }
 
 void TreeBase::update_width() const {
-    // Make depth to width map
-    std::map<NodeNum, NodeNum> width_map;
-    id::for_each_node(
-        env_->node_manager(),
-        root(),
-        [this, &width_map](const Id& id, NodeNum n, NodeNum depth) {
-            ++width_map[depth];
-            return false;
-        });
-    // Update width
-    width_ = 0;
-    if (width_map.size() > 0) {
-        auto it = std::max_element(
-            width_map.begin(), width_map.end(),
-            [](const auto& p1, const auto& p2) {
-                return p1.second < p2.second;
-            });
-        width_ = (*it).second;
-    }
+    width_ = id::subtree_width(env_->node_manager(), root());
 }
 
 void TreeBase::reset_description() {
