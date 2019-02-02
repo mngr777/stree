@@ -646,24 +646,39 @@ Tree::Tree(Environment* env, const Symbol* symbol)
 Tree::Tree(const Tree& other)
     : TreeBase(other)
 {
-    *this = other;
+    copy(other);
 }
 
 Tree::Tree(Tree&& other)
     : TreeBase(std::move(other))
 {
-    root_ = other.root_;
-    other.root_.reset();
-}
-
-Tree& Tree::operator=(const Tree& other) {
-    id::destroy_subtree(env_->node_manager(), root_);
-    root_ = id::copy_subtree(env_->node_manager(), other.root_);
-    return *this;
+    copy(std::move(other));
 }
 
 Tree::~Tree() {
     id::destroy_subtree(env_->node_manager(), root_);
+}
+
+Tree& Tree::operator=(const Tree& other) {
+    TreeBase::operator=(other);
+    copy(other);
+    return *this;
+}
+
+Tree& Tree::operator=(Tree&& other) {
+    TreeBase::operator=(std::move(other));
+    copy(std::move(other));
+    return *this;
+}
+
+void Tree::copy(const Tree& other) {
+    id::destroy_subtree(env_->node_manager(), root_);
+    root_ = id::copy_subtree(env_->node_manager(), other.root_);
+}
+
+void Tree::copy(Tree&& other) {
+    root_ = other.root_;
+    other.root_.reset();
 }
 
 

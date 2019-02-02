@@ -470,6 +470,7 @@ public:
     Tree(Tree&& other);
 
     Tree& operator=(const Tree& other);
+    Tree& operator=(Tree&& other);
 
     ~Tree();
 
@@ -483,6 +484,9 @@ public:
 
 private:
     Id root_;
+
+    void copy(const Tree& other);
+    void copy(Tree&& other);
 };
 
 } // namespace stree
