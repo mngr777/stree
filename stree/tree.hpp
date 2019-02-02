@@ -366,10 +366,6 @@ class Subtree;
 class TreeBase {
 public:
     TreeBase(Environment* env, TreeBase* parent = nullptr);
-
-    TreeBase(const TreeBase& other);
-    TreeBase(TreeBase&& other);
-
     virtual ~TreeBase() {}
 
     virtual Id& root() = 0;
@@ -470,10 +466,10 @@ public:
 
     Tree(Environment* env, const Symbol* symbol);
 
+    Tree(const Tree& other);
     Tree(Tree&& other);
 
-    Tree(const Tree& other) = delete;
-    Tree& operator=(const Tree& other) = delete;
+    Tree& operator=(const Tree& other);
 
     ~Tree();
 

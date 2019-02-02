@@ -477,16 +477,6 @@ TreeBase::TreeBase(Environment* env, TreeBase* parent)
     reset_cache();
 }
 
-TreeBase::TreeBase(const TreeBase& other) {
-    env_ = other.env_;
-    parent_ = other.parent_;
-    description_ = other.description_;
-    width_ = other.width_;
-}
-
-TreeBase::TreeBase(TreeBase&& other)
-    : TreeBase(other) {}
-
 bool TreeBase::is_valid() const {
     return id::is_valid_subtree(env_->node_manager(), root());
 }
@@ -653,11 +643,23 @@ Tree::Tree(Environment* env, const Symbol* symbol)
     : TreeBase(env),
       root_(env->make_id(symbol)) {}
 
+Tree::Tree(const Tree& other)
+    : TreeBase(other)
+{
+    *this = other;
+}
+
 Tree::Tree(Tree&& other)
     : TreeBase(std::move(other))
 {
     root_ = other.root_;
     other.root_.reset();
+}
+
+Tree& Tree::operator=(const Tree& other) {
+    id::destroy_subtree(env_->node_manager(), root_);
+    root_ = id::copy_subtree(env_->node_manager(), other.root_);
+    return *this;
 }
 
 Tree::~Tree() {
