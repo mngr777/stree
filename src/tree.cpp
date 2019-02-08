@@ -650,6 +650,10 @@ Tree::Tree(Environment* env, const Symbol* symbol)
     : TreeBase(env),
       root_(env->make_id(symbol)) {}
 
+Tree::Tree(Environment* env, const Value& value)
+    : TreeBase(env),
+      root_(env->make_id(value)) {}
+
 Tree::Tree(const Tree& other)
     : TreeBase(other)
 {

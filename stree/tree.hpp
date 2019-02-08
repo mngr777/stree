@@ -468,6 +468,7 @@ public:
           root_(root) {}
 
     Tree(Environment* env, const Symbol* symbol);
+    Tree(Environment* env, const Value& value);
 
     Tree(const Tree& other);
     Tree(Tree&& other);

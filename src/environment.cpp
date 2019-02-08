@@ -96,6 +96,17 @@ void Environment::add_positional(const std::string& name, Position position) {
     add_symbol(symbol);
 }
 
+void Environment::add_constant(const std::string& name, const Value& value) {
+    Symbol symbol(name, TypeConst);
+    symbol.set_value(value);
+    add_symbol(symbol);
+}
+
+void Environment::add_constant(const std::string& name) {
+    Value value{};
+    add_constant(name, value);
+}
+
 const Symbol* Environment::symbol(const std::string& name) const {
     auto it = symbol_map_.find(name);
     return (it != symbol_map_.end()) ? &(*it).second : nullptr;
@@ -182,6 +193,12 @@ Id Environment::make_id(const Symbol* symbol) {
             // id::set_sfid(node_manager_, id, symbol->sfid());
             break;
     }
+    return id;
+}
+
+Id Environment::make_id(const Value& value) {
+    Id id = id::make(node_manager_, TypeConst, 0);
+    id::set_value(node_manager_, id, value);
     return id;
 }
 

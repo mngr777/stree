@@ -103,6 +103,9 @@ public:
 
     void add_positional(const std::string& name, Position position);
 
+    void add_constant(const std::string& name, const Value& value);
+    void add_constant(const std::string& name);
+
     const Symbol* symbol(const std::string& name) const;
     const Symbol* symbol(const Id& id) const;
 
@@ -119,6 +122,7 @@ public:
     const Symbol* nonterminal(unsigned n) const;
 
     Id make_id(const Symbol* symbol);
+    Id make_id(const Value& value);
 
     const NodeManager& node_manager() const {
         return node_manager_;
