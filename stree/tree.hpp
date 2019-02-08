@@ -283,20 +283,23 @@ public:
     }
 
     T& get(Index index) {
-        LockGuard lg(mtx_);
+        assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
+        LockGuard lg(mtx_);
         return nodes_[index];
     }
 
     const T& get(Index index) const {
-        LockGuard lg(mtx_);
+        assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
+        LockGuard lg(mtx_);
         return nodes_[index];
     }
 
     void free(Index index) {
-        LockGuard lg(mtx_);
+        assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
+        LockGuard lg(mtx_);
         buffer_.push(index);
     }
 

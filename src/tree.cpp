@@ -230,8 +230,9 @@ void destroy(NodeManager& nm, Id& id) {
 
 
 void destroy_subtree(NodeManager& nm, Id& root) {
-    for (Arity n = 0; n < root.arity(); ++n)
-        destroy_subtree(nm, nth_argument(nm, root, n));
+    if (!root.empty())
+        for (Arity n = 0; n < root.arity(); ++n)
+            destroy_subtree(nm, nth_argument(nm, root, n));
     destroy(nm, root);
 }
 
@@ -370,30 +371,36 @@ void for_each_node(
 }
 
 Id copy(NodeManager& nm, const Id& id) {
-    Id result = make(nm, id.type(), id.arity());
-    switch (id.type()) {
-        case TypeConst:
-            set_value(nm, result, value(nm, id));
-            break;
-        case TypePositional:
-            set_position(nm, result, position(nm, id));
-            break;
-        case TypeFunction:
-            set_fid(nm, result, fid(nm, id));
-            break;
-        case TypeSelect:
-            // TODO
-            assert(false && "Not implemented");
-            break;
+    Id result = !id.empty()
+        ? make(nm, id.type(), id.arity())
+        : Id();
+    if (!id.empty()) {
+        switch (id.type()) {
+            case TypeConst:
+                set_value(nm, result, value(nm, id));
+                break;
+            case TypePositional:
+                set_position(nm, result, position(nm, id));
+                break;
+            case TypeFunction:
+                set_fid(nm, result, fid(nm, id));
+                break;
+            case TypeSelect:
+                // TODO
+                assert(false && "Not implemented");
+                break;
+        }
     }
     return result;
 }
 
 Id copy_subtree(NodeManager& nm, const Id& root) {
     Id root_copy = copy(nm, root);
-    for (Arity n = 0; n < root.arity(); ++n) {
-        Id& arg = nth_argument(nm, root_copy, n);
-        arg = copy_subtree(nm, nth_argument(nm, root, n));
+    if (!root.empty()) {
+        for (Arity n = 0; n < root.arity(); ++n) {
+            Id& arg = nth_argument(nm, root_copy, n);
+            arg = copy_subtree(nm, nth_argument(nm, root, n));
+        }
     }
     return root_copy;
 }
