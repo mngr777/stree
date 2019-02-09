@@ -13,7 +13,7 @@
 
 // List of function arities
 #ifndef STREE_FUN_ARITY_TUPLE
-# define STREE_FUN_ARITY_TUPLE (0, 1, 2)
+# define STREE_FUN_ARITY_TUPLE (0, 1, 2, 3)
 #endif
 
 // Arity width in bits

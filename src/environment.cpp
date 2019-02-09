@@ -77,6 +77,7 @@ void Environment::add_function(
     Arity arity,
     Function function)
 {
+    // TODO: check if arity is valid
     functions_.push_back(function);
     FunctionIndex fid = functions_.size() - 1;
     Symbol symbol(name, TypeFunction);
