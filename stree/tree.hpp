@@ -170,8 +170,8 @@ public:
 
     Id() : data_(NoIndex) {}
     Id(Type type, Arity arity, Index index);
-    Id(const Id& other) : data_(other.data_) {}
-    Id& operator=(const Id& other);
+    Id(const Id& other) = default;
+    Id& operator=(const Id& other) = default;
 
     bool operator==(const Id& other) const;
     bool operator!=(const Id& other) const;

@@ -55,11 +55,6 @@ Id::Id(Type type, Arity arity, Index index) {
     set_index(index);
 }
 
-Id& Id::operator=(const Id& other) {
-    data_ = other.data_;
-    return *this;
-}
-
 bool Id::operator==(const Id& other) const {
     return data_ == other.data_;
 }
@@ -688,6 +683,7 @@ void Tree::copy(const Tree& other) {
 }
 
 void Tree::copy(Tree&& other) {
+    id::destroy_subtree(env_->node_manager(), root_);
     root_ = other.root_;
     other.root_.reset();
 }
