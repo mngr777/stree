@@ -4,8 +4,6 @@
 #include <utility>
 #include <stree/environment.hpp>
 
-#include <iostream> // TEST
-
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';
     if (!id.empty()) {

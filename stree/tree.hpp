@@ -244,11 +244,6 @@ public:
         arguments_[n] = arg;
     }
 
-    void unset_argument(Arity n) {
-        assert(0 <=n && n < A);
-        // ??
-    }
-
 private:
     FunctionIndex fid_;
     Id arguments_[A];
