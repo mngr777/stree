@@ -129,8 +129,9 @@ void for_each_node(
     const Id& id,
     std::function<bool(const Id&, NodeNum, NodeNum)> callback);
 
-Id copy(NodeManager& nm, const Id& id);
-Id copy_subtree(NodeManager& nm, const Id& root);
+// NOTE: cannot pass by reference for copying
+Id copy(NodeManager& nm, const Id id);
+Id copy_subtree(NodeManager& nm, const Id root);
 
 // Const
 Value value(const NodeManager& nm, const Id& id);
@@ -170,8 +171,6 @@ public:
 
     Id() : data_(NoIndex) {}
     Id(Type type, Arity arity, Index index);
-    Id(const Id& other) = default;
-    Id& operator=(const Id& other) = default;
 
     bool operator==(const Id& other) const;
     bool operator!=(const Id& other) const;
@@ -271,7 +270,7 @@ public:
 
     Index alloc() {
         LockGuard lg(mtx_);
-        Index index = 0;
+        Index index = Id::NoIndex;
         if (buffer_.empty()) {
             index = nodes_.size();
             nodes_.emplace_back(T());
@@ -279,6 +278,7 @@ public:
             index = buffer_.front();
             buffer_.pop();
         }
+        assert(Id::NoIndex);
         return index;
     }
 
@@ -326,16 +326,16 @@ public:
     NodeManager(const NodeManager& other) = delete;
     NodeManager& operator=(const NodeManager& other) = delete;
 
-    template<typename T>
+    template<typename N, Type type>
     Index alloc();
 
-    template<typename T>
-    T& get(Index index);
+    template<typename N, Type type>
+    N& get(Index index);
 
-    template<typename T>
-    const T& get(Index index) const;
+    template<typename N, Type type>
+    const N& get(Index index) const;
 
-    template<typename T>
+    template<typename N, Type type>
     void free(Index index);
 
     STREE_TMP_MEMBER_DECL(Position, pos)
@@ -379,6 +379,7 @@ public:
     // Replace root with ID for other symbol with same arity
     void set(const Symbol* symbol);
     void set(const std::string& name);
+    void set(Value value);
 
     const Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny) const;
     Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny);

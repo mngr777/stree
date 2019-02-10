@@ -1,5 +1,5 @@
-#ifndef ANTS_TEST_MACROS_
-#define ANTS_TEST_MACROS_
+#ifndef STREE_TEST_MACROS_
+#define STREE_TEST_MACROS_
 
 #include <cassert>
 #include <cstdlib>

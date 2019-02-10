@@ -2,6 +2,7 @@
 #include <string>
 #include <stree/stree.hpp>
 #include "macros.hpp"
+#include "node_manager_macros.hpp"
 
 DEFUN_EMPTY(func);
 
@@ -42,32 +43,13 @@ int main() {
     // Output tree string
     cout << ts1 << endl;
 
-#define CHECK_STATS(type, arity, pool_size_answer, buffer_size_answer)  \
-    {                                                                   \
-        auto item = nms1.item(type, arity);                             \
-        bool valid_pool_size = (item.pool_size == pool_size_answer);    \
-        bool valid_buffer_size = (item.buffer_size == buffer_size_answer); \
-        if (!valid_pool_size || ! valid_buffer_size) {                  \
-            cout << "[" << stree::type_to_string(type);                 \
-            if (type == TypeFunction || type == TypeSelect)             \
-                cout << " " << static_cast<unsigned>(arity);            \
-            cout << "] "                                                \
-                 << "pool size: " << item.pool_size                     \
-                 << " (answer is " << pool_size_answer << "), "         \
-                 << "buffer size: " << item.buffer_size                 \
-                 << " (answer is " << buffer_size_answer << ")"         \
-                 << endl;                                               \
-            return -3;                                                  \
-        }                                                               \
-    }
-
     // Output stats
     nms1.update(env.node_manager());
     cout << "Stats after parsing" << endl;
     cout << nms1 << endl;
-    CHECK_STATS(TypePositional, 0, 3, 0);
-    CHECK_STATS(TypeFunction, 0, 1, 0);
-    CHECK_STATS(TypeFunction, 2, 3, 0);
+    CHECK_STATS(nms1, TypePositional, 0, 3, 0);
+    CHECK_STATS(nms1, TypeFunction, 0, 1, 0);
+    CHECK_STATS(nms1, TypeFunction, 2, 3, 0);
 
     {
         // Make tree
@@ -83,18 +65,18 @@ int main() {
         nms1.update(env.node_manager());
         cout << "Stats:" << endl
              << nms1 << endl;
-        CHECK_STATS(TypePositional, 0, 3, 1);
-        CHECK_STATS(TypeFunction, 0, 1, 1);
-        CHECK_STATS(TypeFunction, 2, 3, 1);
+        CHECK_STATS(nms1, TypePositional, 0, 3, 1);
+        CHECK_STATS(nms1, TypeFunction, 0, 1, 1);
+        CHECK_STATS(nms1, TypeFunction, 2, 3, 1);
     } // t1 is destroyed
 
     // Output stats
     nms1.update(env.node_manager());
     cout << "Stats after tree destruction" << endl;
     cout << nms1 << endl;
-    CHECK_STATS(TypePositional, 0, 3, 3);
-    CHECK_STATS(TypeFunction, 0, 1, 1);
-    CHECK_STATS(TypeFunction, 2, 3, 3);
+    CHECK_STATS(nms1, TypePositional, 0, 3, 3);
+    CHECK_STATS(nms1, TypeFunction, 0, 1, 1);
+    CHECK_STATS(nms1, TypeFunction, 2, 3, 3);
 
     // Parse same string
     // This should use up buffered nodes and not create new ones
@@ -103,12 +85,9 @@ int main() {
     nms1.update(env.node_manager());
     cout << "Stats after parsing same expression" << endl;
     cout << nms1 << endl;
-    CHECK_STATS(TypePositional, 0, 3, 0);
-    CHECK_STATS(TypeFunction, 0, 1, 0);
-    CHECK_STATS(TypeFunction, 2, 3, 0);
-
-
-#undef CHECK_STATS
+    CHECK_STATS(nms1, TypePositional, 0, 3, 0);
+    CHECK_STATS(nms1, TypeFunction, 0, 1, 0);
+    CHECK_STATS(nms1, TypeFunction, 2, 3, 0);
 
     return 0;
 }

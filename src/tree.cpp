@@ -4,6 +4,8 @@
 #include <utility>
 #include <stree/environment.hpp>
 
+#include <iostream> // TEST
+
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';
     if (!id.empty()) {
@@ -95,29 +97,29 @@ void Id::set_index(Index index) {
 
 // Node manager
 
-#define STREE_TMP_MEMBER_IMPL(_Type, _member)                   \
-    template<>                                                  \
-    Index NodeManager::alloc<_Type>() {                         \
-        return _member.alloc();                                 \
-    }                                                           \
-    template<>                                                  \
-    _Type& NodeManager::get<_Type>(Index index) {               \
-        return _member.get(index);                              \
-    }                                                           \
-    template<>                                                  \
-    const _Type& NodeManager::get<_Type>(Index index) const {   \
-        return _member.get(index);                              \
-    }                                                           \
-    template<>                                                  \
-    void NodeManager::free<_Type>(Index index) {                \
-        _member.free(index);                                    \
+#define STREE_TMP_MEMBER_IMPL(_Node, _type, _member)                    \
+    template<>                                                          \
+    Index NodeManager::alloc<_Node, _type>() {                          \
+        return _member.alloc();                                         \
+    }                                                                   \
+    template<>                                                          \
+    _Node& NodeManager::get<_Node, _type>(Index index) {                \
+        return _member.get(index);                                      \
+    }                                                                   \
+    template<>                                                          \
+    const _Node& NodeManager::get<_Node, _type>(Index index) const {    \
+        return _member.get(index);                                      \
+    }                                                                   \
+    template<>                                                          \
+    void NodeManager::free<_Node, _type>(Index index) {                 \
+        _member.free(index);                                            \
     }
 
-#define STREE_TMP_MEMBER_FUN_IMPL(_arity)                       \
-    STREE_TMP_MEMBER_IMPL(FunctionNode<_arity>, fun ## _arity);
+#define STREE_TMP_MEMBER_FUN_IMPL(_arity)                               \
+    STREE_TMP_MEMBER_IMPL(FunctionNode<_arity>, TypeFunction, fun ## _arity);
 
-STREE_TMP_MEMBER_IMPL(Position, pos)
-STREE_TMP_MEMBER_IMPL(Value, val)
+STREE_TMP_MEMBER_IMPL(Position, TypePositional, pos)
+STREE_TMP_MEMBER_IMPL(Value, TypeConst, val)
 STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 
 #undef STREE_TMP_MEMBER_FUN_IMPL
@@ -126,19 +128,19 @@ STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
 
 namespace id {
 
-#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)       \
-    else if (arity == _arity) {                     \
-        index = nm.alloc<FunctionNode<_arity>>();   \
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)                   \
+    else if (arity == _arity) {                                 \
+        index = nm.alloc<FunctionNode<_arity>, TypeFunction>(); \
     }
 
 Id make(NodeManager& nm, Type type, Arity arity) {
     Index index = Id::NoIndex;
     switch (type) {
         case TypeConst:
-            index = nm.alloc<Value>();
+            index = nm.alloc<Value, TypeConst>();
             break;
         case TypePositional:
-            index = nm.alloc<Position>();
+            index = nm.alloc<Position, TypePositional>();
             break;
         case TypeFunction:
             if (false) {}
@@ -150,6 +152,7 @@ Id make(NodeManager& nm, Type type, Arity arity) {
             assert(false && "Not implemented");
             break;
     }
+    assert(index != Id::NoIndex);
     return Id(type, arity, index);
 }
 #undef STREE_TMP_MAKE_FUN_ARITY_CASE
@@ -196,17 +199,17 @@ NodeNum _subtree_width(
 
 #define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)   \
     else if(id.arity() == _arity) {                 \
-        nm.free<FunctionNode<_arity>>(id.index());  \
+        nm.free<FunctionNode<_arity>, TypeFunction>(id.index()); \
     }
 
 void destroy(NodeManager& nm, Id& id) {
     if (!id.empty()) {
         switch (id.type()) {
             case TypeConst:
-                nm.free<Value>(id.index());
+                nm.free<Value, TypeConst>(id.index());
                 break;
             case TypePositional:
-                nm.free<Position>(id.index());
+                nm.free<Position, TypePositional>(id.index());
                 break;
             case TypeFunction:
                 if (false) {}
@@ -218,17 +221,18 @@ void destroy(NodeManager& nm, Id& id) {
                 assert(false && "Not implemented");
                 break;
         }
+        id.reset();
     }
-    id.reset();
 }
 #undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
 
 
 void destroy_subtree(NodeManager& nm, Id& root) {
-    if (!root.empty())
+    if (!root.empty()) {
         for (Arity n = 0; n < root.arity(); ++n)
             destroy_subtree(nm, nth_argument(nm, root, n));
-    destroy(nm, root);
+        destroy(nm, root);
+    }
 }
 
 bool is_valid(const NodeManager& nm, const Id& id) {
@@ -247,7 +251,7 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root) {
 
 #define STREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                       \
     else if (id.arity() == _arity) {                                    \
-        return (nm.get<FunctionNode<_arity>>(id.index())).argument(n);  \
+        return (nm.get<FunctionNode<_arity>, TypeFunction>(id.index())).argument(n); \
     }
 
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
@@ -365,12 +369,11 @@ void for_each_node(
     }
 }
 
-Id copy(NodeManager& nm, const Id& id) {
-    Id result = !id.empty()
-        ? make(nm, id.type(), id.arity())
-        : Id();
+Id copy(NodeManager& nm, const Id id) {
+    Id result;
     if (!id.empty()) {
-        switch (id.type()) {
+        result = make(nm, id.type(), id.arity());
+        switch (result.type()) {
             case TypeConst:
                 set_value(nm, result, value(nm, id));
                 break;
@@ -389,12 +392,12 @@ Id copy(NodeManager& nm, const Id& id) {
     return result;
 }
 
-Id copy_subtree(NodeManager& nm, const Id& root) {
+Id copy_subtree(NodeManager& nm, const Id root) {
     Id root_copy = copy(nm, root);
     if (!root.empty()) {
         for (Arity n = 0; n < root.arity(); ++n) {
-            Id& arg = nth_argument(nm, root_copy, n);
-            arg = copy_subtree(nm, nth_argument(nm, root, n));
+            Id arg_copy = copy_subtree(nm, nth_argument(nm, root, n));
+            nth_argument(nm, root_copy, n) = arg_copy;
         }
     }
     return root_copy;
@@ -402,28 +405,28 @@ Id copy_subtree(NodeManager& nm, const Id& root) {
 
 Value value(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypeConst);
-    return nm.get<Value>(id.index());
+    return nm.get<Value, TypeConst>(id.index());
 }
 
 void set_value(NodeManager& nm, Id& id, Value value) {
     assert(id.type() == TypeConst);
-    nm.get<Value>(id.index()) = std::move(value);
+    nm.get<Value, TypeConst>(id.index()) = std::move(value);
 }
 
 Position position(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypePositional);
-    return nm.get<Position>(id.index());
+    return nm.get<Position, TypePositional>(id.index());
 }
 
 void set_position(NodeManager& nm, Id& id, Position position) {
     assert(id.type() == TypePositional);
-    nm.get<Position>(id.index()) = position;
+    nm.get<Position, TypePositional>(id.index()) = position;
 }
 
 
-#define STREE_TMP_FID_FUN_ARITY_CASE(_arity)                    \
-    else if (id.arity() == _arity) {                            \
-        return nm.get<FunctionNode<_arity>>(id.index()).fid();  \
+#define STREE_TMP_FID_FUN_ARITY_CASE(_arity)                            \
+    else if (id.arity() == _arity) {                                    \
+        return nm.get<FunctionNode<_arity>, TypeFunction>(id.index()).fid(); \
     }
 
 FunctionIndex fid(const NodeManager& nm, const Id& id) {
@@ -435,9 +438,9 @@ FunctionIndex fid(const NodeManager& nm, const Id& id) {
 #undef STREE_TMP_FID_FUN_ARITY_CASE
 
 
-#define STREE_TMP_SET_FID_FUN_ARITY_CASE(_arity)                \
-    else if (id.arity() == _arity) {                            \
-        nm.get<FunctionNode<_arity>>(id.index()).set_fid(fid);  \
+#define STREE_TMP_SET_FID_FUN_ARITY_CASE(_arity)                        \
+    else if (id.arity() == _arity) {                                    \
+        nm.get<FunctionNode<_arity>, TypeFunction>(id.index()).set_fid(fid); \
     }
 
 void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
@@ -505,6 +508,12 @@ void TreeBase::set(const Symbol* symbol) {
 
 void TreeBase::set(const std::string& name) {
     set(env_->symbol(name));
+}
+
+void TreeBase::set(Value value) {
+    Symbol symbol("", TypeConst);
+    symbol.set_value(std::move(value));
+    set(&symbol);
 }
 
 const Subtree TreeBase::sub(NodeNum n, IsTerminal is_terminal) const {
