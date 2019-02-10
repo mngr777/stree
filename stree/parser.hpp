@@ -36,6 +36,8 @@ public:
 
     enum Error {
         ErrorOk,
+        ErrorEmpty,
+        ErrorUnexpectedEnd,
         ErrorInvalidChar,
         ErrorUnexpectedLeftParen,
         ErrorUnexpectedRightParen,
@@ -58,6 +60,8 @@ public:
     std::string::size_type parse(const std::string& s);
 
     void consume(const char c);
+
+    void finish();
 
     Id result() const {
         return root_;

@@ -54,6 +54,7 @@ std::string::size_type Parser::parse(const std::string& s) {
         if (is_done() || is_error())
             break;
     }
+    finish();
     return pos;
 }
 
@@ -82,6 +83,33 @@ void Parser::consume(const char c) {
         ident(c);
     } else {
         set_error(ErrorInvalidChar);
+    }
+}
+
+void Parser::finish() {
+    switch (state_) {
+        case StateReady:
+            set_error(ErrorEmpty);
+            break;
+        case StateExpectCallableSymbol:
+            set_error(ErrorUnexpectedEnd);
+            break;
+        case StateVariableSymbol:
+            complete_variable();
+            break;
+        case StateCallableSymbol:
+            complete_callable_symbol();
+            break;
+        case StateCallableArguments:
+            set_error(ErrorUnexpectedEnd);
+            break;
+        case StateNumber:
+            complete_number();
+            break;
+        case StateError:
+        case StateDone:
+            // do nothing
+            break;
     }
 }
 
@@ -123,6 +151,10 @@ std::string Parser::error_message() const {
     switch (error_) {
         case ErrorOk:
             return "Ok";
+        case ErrorEmpty:
+            return "Empty";
+        case ErrorUnexpectedEnd:
+            return "Unexpected end";
         case ErrorInvalidChar:
             return "Invalid character";
         case ErrorUnexpectedLeftParen:
@@ -398,11 +430,10 @@ void Parser::complete_number() {
 
 void Parser::complete_symbol(const Symbol* symbol) {
     Id id = env_->make_id(symbol);
-
     if (stack_.empty()) {
         // Empty stack
         if (id.type() == TypeConst
-            && id.type() == TypePositional)
+            || id.type() == TypePositional)
         {
             // Variable: done
             root_ = id;
