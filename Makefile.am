@@ -35,8 +35,9 @@ TESTS = test_string1 \
 	test_node_manager_stats1 \
 	test_swap1 \
 	test_mutate1 \
-	test_move1
- 
+	test_move1 \
+	test_copy2
+
 check_PROGRAMS = $(TESTS)
 
 TEST_SOURCES = tests/macros.hpp
@@ -75,3 +76,7 @@ test_mutate1_LDADD = libstree.la
 test_move1_SOURCES = tests/test_move1.cpp $(TEST_SOURCES) \
 	tests/node_manager_macros.hpp
 test_move1_LDADD = libstree.la
+
+test_copy2_SOURCES = tests/test_copy2.cpp $(TEST_SOURCES) \
+	tests/node_manager_macros.hpp
+test_copy2_LDADD = libstree.la
