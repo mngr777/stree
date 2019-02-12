@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 #include <ostream>
-#include <stree/tree.hpp>
+#include <stree/node/packed/manager.hpp>
 
 namespace stree {
 

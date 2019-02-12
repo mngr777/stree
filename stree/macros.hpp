@@ -1,6 +1,9 @@
 #ifndef STREE_MACROS_HPP_
 #define STREE_MACROS_HPP_
 
+#include <boost/preprocessor/list/for_each.hpp>
+#include <boost/preprocessor/tuple/to_list.hpp>
+
 // Common helper macros
 
 // Wrapper for BOOST_PP_*_FOR_EACH "callback" macro
