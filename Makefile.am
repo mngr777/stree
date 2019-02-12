@@ -2,23 +2,41 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
+NODE_PACKED_HEADER_FILES = \
+	stree/node/packed.hpp \
+	stree/node/packed/id.hpp \
+	stree/node/packed/manager.hpp \
+	stree/node/packed/stats.hpp
+NODE_PACKED_SOURCE_ONLY_FILES =  \
+	src/node/packed/id.cpp \
+	src/node/packed/manager.cpp \
+	src/node/packed/stats.cpp
+
+NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
+NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
+
 HEADER_FILES = \
+	$(NODE_HEADER_FILES)
 	stree/stree.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \
 	stree/macros.hpp \
+	stree/node.hpp \
 	stree/parser.hpp \
-	stree/stats.hpp \
+	stree/search.hpp \
 	stree/string.hpp \
-	stree/tree.hpp
+	stree/tree.hpp \
+	stree/types.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
+	$(NODE_SOURCE_ONLY_FILES) \
 	src/environment.cpp \
 	src/eval.cpp \
 	src/parser.cpp \
-	src/stats.cpp \
+	src/search.cpp \
 	src/string.cpp \
-	src/tree.cpp
+	src/tree.cpp \
+	src/types.cpp
 
 lib_LTLIBRARIES = libstree.la
 libstree_ladir = $(includedir)
