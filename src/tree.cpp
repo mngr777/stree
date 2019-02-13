@@ -70,32 +70,48 @@ void TreeBase::set(Value value) {
     set(&symbol);
 }
 
-const Subtree TreeBase::sub(NodeNum n, IsTerminal is_terminal) const {
+const Subtree TreeBase::sub(NodeNum n) const {
+    return sub(n, NodeFilter());
+}
+
+Subtree TreeBase::sub(NodeNum n) {
+    return sub(n, NodeFilter());
+}
+
+const Subtree TreeBase::sub(NodeNum n, const NodeFilter& filter) const {
     return Subtree(
         env_,
         const_cast<TreeBase*>(this),
-        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n, is_terminal)));
+        const_cast<Id&>(id::nth_node(env_->node_manager(), root(), n, filter)));
 }
 
-Subtree TreeBase::sub(NodeNum n, IsTerminal is_terminal) {
+Subtree TreeBase::sub(NodeNum n, const NodeFilter& filter) {
     return Subtree(
-        env_, this, id::nth_node(env_->node_manager(), root(), n, is_terminal));
+        env_, this, id::nth_node(env_->node_manager(), root(), n, filter));
 }
 
 const Subtree TreeBase::term(NodeNum n) const {
-    return sub(n, IsTerminalYes);
+    NodeFilter filter;
+    filter.is_terminal = IsTerminalYes;
+    return sub(n, filter);
 }
 
 Subtree TreeBase::term(NodeNum n) {
-    return sub(n, IsTerminalYes);
+    NodeFilter filter;
+    filter.is_terminal = IsTerminalYes;
+    return sub(n, filter);
 }
 
 const Subtree TreeBase::nonterm(NodeNum n) const {
-    return sub(n, IsTerminalNo);
+    NodeFilter filter;
+    filter.is_terminal = IsTerminalNo;
+    return sub(n, filter);
 }
 
 Subtree TreeBase::nonterm(NodeNum n) {
-    return sub(n, IsTerminalNo);
+    NodeFilter filter;
+    filter.is_terminal = IsTerminalNo;
+    return sub(n, filter);
 }
 
 const Subtree TreeBase::argument(Arity n) const {

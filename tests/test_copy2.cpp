@@ -87,8 +87,11 @@ TreeList crossover(stree::Tree tree1, stree::Tree tree2, std::random_device& rd)
         ? NodeNumDist{0, tree2.describe().term_num - 1}(rd)
         : NodeNumDist{0, tree2.describe().nonterm_num - 1}(rd);
 
-    stree::Subtree sub1 = tree1.sub(p1, use_term1 ? stree::IsTerminalYes : stree::IsTerminalNo);
-    stree::Subtree sub2 = tree2.sub(p2, use_term2 ? stree::IsTerminalYes : stree::IsTerminalNo);
+    stree::NodeFilter f1, f2;
+    f1.is_terminal = use_term1 ? stree::IsTerminalYes : stree::IsTerminalNo;
+    f2.is_terminal = use_term2 ? stree::IsTerminalYes : stree::IsTerminalNo;
+    stree::Subtree sub1 = tree1.sub(p1, f1);
+    stree::Subtree sub2 = tree2.sub(p2, f2);
 
     sub1.swap(sub2);
 

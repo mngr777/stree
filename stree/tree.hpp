@@ -43,8 +43,11 @@ public:
     void set(const std::string& name);
     void set(Value value);
 
-    const Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny) const;
-    Subtree sub(NodeNum n, IsTerminal is_terminal = IsTerminalAny);
+    const Subtree sub(NodeNum n) const;
+    Subtree sub(NodeNum n);
+
+    const Subtree sub(NodeNum n, const NodeFilter& filter) const;
+    Subtree sub(NodeNum n, const NodeFilter& filter);
 
     // n-th terminal
     const Subtree term(NodeNum n) const;

@@ -1,5 +1,6 @@
 #include <stree/node/packed/id.hpp>
 #include <stree/node/packed/manager.hpp>
+#include <stree/search.hpp>
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';
@@ -235,91 +236,6 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
 
 
-/*
-     (0)
-     /  \
-   (1)  (2)
-   /    /  \
- (3)  (4)  (5)
-*/
-Id& nth_node(NodeManager& nm, Id& id, NodeNum n, IsTerminal is_terminal) {
-    return const_cast<Id&>(
-        nth_node(
-            const_cast<const NodeManager&>(nm),
-            const_cast<const Id&>(id),
-            n,
-            is_terminal));
-}
-
-const Id& nth_node(
-    const NodeManager& nm,
-    const Id& id,
-    NodeNum n,
-    IsTerminal is_terminal)
-{
-    _ConstNodeRefQueue queue;
-    queue.emplace(id); // initialize queue with root
-    while (!queue.empty()) {
-        // next node from queue
-        const Id& current = queue.front();
-        queue.pop();
-        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
-        bool terminality_match = (is_terminal == IsTerminalAny)
-            || (is_terminal == IsTerminalYes && current.arity() == 0)
-            || (is_terminal == IsTerminalNo && current.arity() > 0);
-        if (n == 0 && terminality_match) {
-            // found N-th node
-            return current;
-        } else if (
-            is_terminal == IsTerminalAny
-            && (n < queue.size() + 1 + current.arity()))
-        {
-            // one of current node children is N-th node
-            // we can be sure only if we don't care if node is terminal
-            assert(n > queue.size());
-            return id::nth_argument(nm, current, n - 1 - queue.size());
-        } else {
-            // we don't know N-th node yet, add current node children to queue
-            for (Arity i = 0; i < current.arity(); ++i)
-                queue.emplace(id::nth_argument(nm, current, i));
-            // decrement counter if current node terminality matches
-            if (terminality_match)
-                --n;
-        }
-    }
-    throw std::range_error("Invalid node number");
-}
-
-void for_each_node(
-    const NodeManager& nm,
-    const Id& id,
-    std::function<bool(const Id&, NodeNum, NodeNum)> callback)
-{
-    assert(id::is_valid_subtree(nm, id) && "Subtree must be valid");
-    // Node number
-    NodeNum current_num = 0;
-    // Init queue
-    _ConstNodeRefDepthPairQueue queue;
-    queue.emplace(_ConstNodeRefDepthPair(id, 0));
-    while (!queue.empty()) {
-        // Get current node
-        const Id& current = queue.front().first;
-        NodeNum current_depth = queue.front().second;
-        queue.pop();
-        // Callback. Return in result is true
-        if (callback(current, current_num, current_depth))
-            return;
-        // Inc. node number
-        ++current_num;
-        // Add all children to queue
-        for (Arity i = 0; i < current.arity(); ++i)
-            queue.emplace(
-                _ConstNodeRefDepthPair(
-                    id::nth_argument(nm, current, i),
-                    current_depth + 1));
-    }
-}
-
 Id copy(NodeManager& nm, const Id id) {
     Id result;
     if (!id.empty()) {
@@ -401,6 +317,89 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
     else { assert(false && "Invalid arity"); }
 }
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE
+
+
+/*
+     (0)
+     /  \
+   (1)  (2)
+   /    /  \
+ (3)  (4)  (5)
+*/
+
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {
+    return nth_node(nm, id, n, NodeFilter());
+}
+
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n) {
+    return nth_node(nm, id, n, NodeFilter());
+}
+
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n, const NodeFilter& filter) {
+    _ConstNodeRefQueue queue;
+    queue.emplace(id); // initialize queue with root
+    while (!queue.empty()) {
+        // next node from queue
+        const Id& current = queue.front();
+        queue.pop();
+        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
+        bool match = filter.match(current);
+        if (n == 0 && match) {
+            // found N-th node
+            return current;
+        } else if (filter.empty() && (n < queue.size() + 1 + current.arity())) {
+            // one of current node children is N-th node
+            // we can be sure only if we don't filter nodes
+            assert(n > queue.size());
+            return id::nth_argument(nm, current, n - 1 - queue.size());
+        } else {
+            // we don't know N-th node yet, add current node children to queue
+            for (Arity i = 0; i < current.arity(); ++i)
+                queue.emplace(id::nth_argument(nm, current, i));
+            // decrement counter if current node matches filter
+            if (match) --n;
+        }
+    }
+    throw std::range_error("Invalid node number");
+}
+
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n, const NodeFilter& filter) {
+    return const_cast<Id&>(
+        nth_node(
+            const_cast<const NodeManager&>(nm),
+            const_cast<const Id&>(id),
+            n, filter));
+}
+
+void for_each_node(
+    const NodeManager& nm,
+    const Id& id,
+    std::function<bool(const Id&, NodeNum, NodeNum)> callback)
+{
+    assert(id::is_valid_subtree(nm, id) && "Subtree must be valid");
+    // Node number
+    NodeNum current_num = 0;
+    // Init queue
+    _ConstNodeRefDepthPairQueue queue;
+    queue.emplace(_ConstNodeRefDepthPair(id, 0));
+    while (!queue.empty()) {
+        // Get current node
+        const Id& current = queue.front().first;
+        NodeNum current_depth = queue.front().second;
+        queue.pop();
+        // Callback. Return in result is true
+        if (callback(current, current_num, current_depth))
+            return;
+        // Inc. node number
+        ++current_num;
+        // Add all children to queue
+        for (Arity i = 0; i < current.arity(); ++i)
+            queue.emplace(
+                _ConstNodeRefDepthPair(
+                    id::nth_argument(nm, current, i),
+                    current_depth + 1));
+    }
+}
 
 } // namespace id
 

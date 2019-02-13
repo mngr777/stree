@@ -51,7 +51,9 @@ int main() {
     cout << "Terminals" << endl;
     for (NodeNum n = 0; n < answers_term_num; ++n) {
         cout << "[Node " << n << "] ";
-        const Id& id = id::nth_node(env.node_manager(), t1.root(), n, IsTerminalYes);
+        NodeFilter filter;
+        filter.is_terminal = IsTerminalYes;
+        const Id& id = id::nth_node(env.node_manager(), t1.root(), n, filter);
         const Symbol* symbol = nullptr;
         GET_SYMBOL(symbol, env, id);
         if (symbol->name() != answers_term[n]) {
@@ -67,7 +69,9 @@ int main() {
     cout << "Non-terminals" << endl;
     for (NodeNum n = 0; n < answers_nonterm_num; ++n) {
         cout << "[Node " << n << "] ";
-        const Id& id = id::nth_node(env.node_manager(), t1.root(), n, IsTerminalNo);
+        NodeFilter filter;
+        filter.is_terminal = IsTerminalNo;
+        const Id& id = id::nth_node(env.node_manager(), t1.root(), n, filter);
         const Symbol* symbol = nullptr;
         GET_SYMBOL(symbol, env, id);
         if (symbol->name() != answers_nonterm[n]) {

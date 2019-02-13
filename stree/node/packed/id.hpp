@@ -6,7 +6,6 @@
 #include <queue>
 #include <unordered_map>
 #include <stree/macros.hpp>
-#include <stree/search.hpp>
 #include <stree/types.hpp>
 
 // Output
@@ -28,6 +27,7 @@ constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth)
 
 class NodeManager;
 class Id;
+class NodeFilter;
 
 namespace id {
 
@@ -58,22 +58,6 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root);
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n);
 Id& nth_argument(NodeManager& nm, Id& id, Arity n);
 
-Id& nth_node(
-    NodeManager& nm,
-    Id& id,
-    NodeNum n,
-    IsTerminal is_terminal = IsTerminalAny);
-const Id& nth_node(
-    const NodeManager& nm,
-    const Id& id,
-    NodeNum n,
-    IsTerminal is_terminal = IsTerminalAny);
-
-void for_each_node(
-    const NodeManager& nm,
-    const Id& id,
-    std::function<bool(const Id&, NodeNum, NodeNum)> callback);
-
 // NOTE: cannot pass by reference for copying
 Id copy(NodeManager& nm, const Id id);
 Id copy_subtree(NodeManager& nm, const Id root);
@@ -94,6 +78,19 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
 // TODO
 // SelectFunctionIndex sfid(NodeManager& nm, Id id);
 // void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
+
+
+// TODO: move traversal outside
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n);
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n);
+
+const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n, const NodeFilter& filter);
+Id& nth_node(NodeManager& nm, Id& id, NodeNum n, const NodeFilter& filter);
+
+void for_each_node(
+    const NodeManager& nm,
+    const Id& id,
+    std::function<bool(const Id&, NodeNum, NodeNum)> callback);
 
 } // namespace id
 
