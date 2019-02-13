@@ -16,7 +16,7 @@ NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
 NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
 
 HEADER_FILES = \
-	$(NODE_HEADER_FILES)
+	$(NODE_HEADER_FILES) \
 	stree/stree.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \

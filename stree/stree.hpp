@@ -7,6 +7,6 @@
 #include <stree/parser.hpp>
 #include <stree/string.hpp>
 #include <stree/tree.hpp>
-#include <node.hpp>
+#include <stree/node.hpp>
 
 #endif
