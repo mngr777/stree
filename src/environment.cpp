@@ -6,6 +6,7 @@
 namespace stree {
 
 bool Symbol::operator==(const Symbol& other) const {
+    // TODO: compare by type and value
     return name() == other.name();
 }
 

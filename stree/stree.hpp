@@ -2,6 +2,8 @@
 #define STREE_STREE_HPP_
 
 #include <stree/environment.hpp>
+#include <stree/algorithm.hpp>
+#include <stree/compare.hpp>
 #include <stree/eval.hpp>
 #include <stree/macros.hpp>
 #include <stree/parser.hpp>

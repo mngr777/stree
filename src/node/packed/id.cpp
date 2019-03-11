@@ -319,6 +319,8 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE
 
 
+// TODO: move to `algorithm'
+
 /*
      (0)
      /  \

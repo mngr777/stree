@@ -18,6 +18,8 @@ NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
 HEADER_FILES = \
 	$(NODE_HEADER_FILES) \
 	stree/stree.hpp \
+	stree/algorithm.hpp \
+	stree/compare.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \
 	stree/macros.hpp \
@@ -30,6 +32,8 @@ HEADER_FILES = \
 SOURCE_FILES = \
 	$(HEADER_FILES) \
 	$(NODE_SOURCE_ONLY_FILES) \
+	src/algorithm.cpp \
+	src/compare.cpp \
 	src/environment.cpp \
 	src/eval.cpp \
 	src/parser.cpp \
@@ -54,7 +58,8 @@ TESTS = test_string1 \
 	test_swap1 \
 	test_mutate1 \
 	test_move1 \
-	test_copy2
+	test_copy2 \
+	test_common_region1
 
 check_PROGRAMS = $(TESTS)
 
@@ -98,3 +103,6 @@ test_move1_LDADD = libstree.la
 test_copy2_SOURCES = tests/test_copy2.cpp $(TEST_SOURCES) \
 	tests/node_manager_macros.hpp
 test_copy2_LDADD = libstree.la
+
+test_common_region1_SOURCES = tests/test_common_region1.cpp $(TEST_SOURCES)
+test_common_region1_LDADD = libstree.la
