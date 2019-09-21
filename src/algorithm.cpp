@@ -32,6 +32,10 @@ CommonRegion::Item& CommonRegion::operator[](unsigned index) {
     return list_.at(index);
 }
 
+NodeNum CommonRegion::size() const {
+    return list_.size();
+}
+
 CommonRegion::ItemList::iterator CommonRegion::begin() {
     return list_.begin();
 }

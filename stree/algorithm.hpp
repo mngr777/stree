@@ -33,6 +33,8 @@ public:
     Item& operator[](unsigned index);
     const Item& operator[](unsigned index) const;
 
+    NodeNum size() const;
+
     ItemList::iterator begin();
     ItemList::const_iterator begin() const;
 
