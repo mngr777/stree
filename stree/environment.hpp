@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include <stree/macros.hpp>
 #include <stree/tree.hpp>
@@ -17,6 +18,7 @@ namespace stree {
 using Arguments = std::vector<Value>;
 using DataPtr = STREE_DATA_PTR_TYPE;
 using Function = std::function<Value(const Arguments&, DataPtr)>;
+using SelectFunction = std::function<unsigned(const Arguments&, DataPtr)>;
 
 class Symbol {
 public:
@@ -101,6 +103,14 @@ public:
     void add_function(const std::string& name, Arity arity, Function function);
     Function function(FunctionIndex fid) const;
 
+    void add_select_function(
+        const std::string& name,
+        Arity arity,
+        Arity cond_arity,
+        SelectFunction select_function);
+    SelectFunction select_function(SelectFunctionIndex sfid) const;
+    Arity select_function_cond_arity(SelectFunctionIndex sfid) const;
+
     void add_positional(const std::string& name, Position position);
 
     void add_constant(const std::string& name, const Value& value);
@@ -135,6 +145,7 @@ public:
 private:
     using SymbolMap = std::map<std::string, Symbol>;
     using SymbolListArityMap = std::map<Arity, SymbolList>;
+    using SelectFunctionItem = std::pair<SelectFunction, Arity>;
 
     void add_symbol(Symbol symbol);
     void add_symbol_to_arity_lists(const Symbol* symbol);
@@ -144,6 +155,7 @@ private:
     SymbolList symbols_;
     SymbolList nonterminals_;
     std::vector<Function> functions_;
+    std::vector<SelectFunctionItem> select_functions_;
     NodeManager node_manager_;
 };
 

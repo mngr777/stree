@@ -75,9 +75,8 @@ FunctionIndex fid(const NodeManager& nm, const Id& id);
 void set_fid(NodeManager& nm, Id& id, FunctionIndex fid);
 
 // Select
-// TODO
-// SelectFunctionIndex sfid(NodeManager& nm, Id id);
-// void set_sfid(NodeManager& nm, Id id, SelectFunctionIndex sfid);
+SelectFunctionIndex sfid(const NodeManager& nm, const Id& id);
+void set_sfid(NodeManager& nm, Id& id, SelectFunctionIndex sfid);
 
 
 // TODO: move traversal outside

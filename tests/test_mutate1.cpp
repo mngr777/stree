@@ -38,14 +38,14 @@ int main() {
     cout << t1 << endl;
     CHECK_SUBTREE_STR(t1, 0, "(* a b)");
     // Check eval result
-    CHECK_EVAL(t1, params, 6);
+    CHECK_EVAL(t1, params, 6, nullptr);
 
     // Mutate
     t1.sub(1).set("b");
     // Check tree string
     CHECK_SUBTREE_STR(t1, 0, "(* b b)");
     // Check eval result
-    CHECK_EVAL(t1, params, 9);
+    CHECK_EVAL(t1, params, 9, nullptr);
 
     return 0;
 }

@@ -22,6 +22,7 @@ HEADER_FILES = \
 	stree/compare.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \
+	stree/exec.hpp \
 	stree/macros.hpp \
 	stree/node.hpp \
 	stree/parser.hpp \
@@ -36,6 +37,7 @@ SOURCE_FILES = \
 	src/compare.cpp \
 	src/environment.cpp \
 	src/eval.cpp \
+	src/exec.cpp \
 	src/parser.cpp \
 	src/search.cpp \
 	src/string.cpp \
@@ -59,11 +61,13 @@ TESTS = test_string1 \
 	test_mutate1 \
 	test_move1 \
 	test_copy2 \
-	test_common_region1
+	test_common_region1 \
+	test_select1
 
 check_PROGRAMS = $(TESTS)
 
 TEST_SOURCES = tests/macros.hpp
+TEST_LIBS = libstree.la
 
 test_string1_SOURCES = tests/test_string1.cpp
 test_string1_LDADD = libstree.la
@@ -106,3 +110,6 @@ test_copy2_LDADD = libstree.la
 
 test_common_region1_SOURCES = tests/test_common_region1.cpp $(TEST_SOURCES)
 test_common_region1_LDADD = libstree.la
+
+test_select1_SOURCES = tests/test_select1.cpp $(TEST_SOURCES)
+test_select1_LDADD = $(TEST_LIBS)

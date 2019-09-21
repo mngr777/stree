@@ -7,12 +7,18 @@ namespace stree {
 #define STREE_TMP_INIT_FUN_ARITY_STAT_ITEM(_arity)  \
     items_.emplace_back(TypeFunction, _arity);
 
+#define STREE_TMP_INIT_SELECT_ARITY_STAT_ITEM(_arity)   \
+    items_.emplace_back(TypeSelect, _arity);
+
 NodeManagerStats::NodeManagerStats() {
     items_.emplace_back(TypeConst, 0);
     items_.emplace_back(TypePositional, 0);
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_INIT_FUN_ARITY_STAT_ITEM)
+    STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_INIT_SELECT_ARITY_STAT_ITEM)
 }
+
 #undef STREE_TMP_INIT_FUN_ARITY_STAT_ITEM
+#undef STREE_TMP_INIT_SELECT_ARITY_STAT_ITEM
 
 
 #define STREE_TMP_GET_ITEM_STATS(_nm_member)                    \
@@ -22,6 +28,11 @@ NodeManagerStats::NodeManagerStats() {
 #define STREE_TMP_GET_FUN_ITEM_STATS(_arity)        \
     else if (item.arity == _arity) {                \
         STREE_TMP_GET_ITEM_STATS(fun ## _arity);    \
+    }
+
+#define STREE_TMP_GET_SELECT_ITEM_STATS(_arity)     \
+    else if (item.arity == _arity) {                \
+        STREE_TMP_GET_ITEM_STATS(select ## _arity); \
     }
 
 void NodeManagerStats::update(const NodeManager& nm) {
@@ -36,16 +47,19 @@ void NodeManagerStats::update(const NodeManager& nm) {
             case TypeFunction:
                 if (false) {}
                 STREE_FOR_EACH_FUN_ARITY(STREE_TMP_GET_FUN_ITEM_STATS)
-                else { assert(false && "Invalid arity"); }
+                else { assert(false && "Invalid function arity"); }
                 break;
             case TypeSelect:
-                // TODO
-                assert(false && "Not implemented");
+                if (false) {}
+                STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_GET_SELECT_ITEM_STATS)
+                else { assert(false && "Invalid select arity"); }
                 break;
         }
     }
 }
+
 #undef STREE_TMP_GET_FUN_ITEM_STATS
+#undef STREE_TMP_GET_SELECT_ITEM_STATS
 #undef STREE_TMP_GET_ITEM_STATS
 
 

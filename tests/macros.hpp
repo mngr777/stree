@@ -23,7 +23,8 @@
         std::cerr << "Parsing not finished" << std::endl                \
                   << "State: " << parser.state_string() << std::endl    \
                   << "Line: " << parser.line_num()                      \
-                  << ", Pos: " << parser.char_num() << std::endl;       \
+                  << ", Pos: " << parser.char_num() << std::endl        \
+                  << ", Buffer: " << parser.buffer() << std::endl;      \
         std::exit(EXIT_FAILURE);                                        \
     }
 
@@ -47,9 +48,9 @@
     }
 
 // Check if tree evaluates to correct value
-#define CHECK_EVAL(tree, params, answer)                                \
+#define CHECK_EVAL(tree, params, answer, data_ptr)                      \
     {                                                                   \
-        stree::Value value = stree::eval(tree, params);                 \
+        stree::Value value = stree::eval(tree, params, data_ptr);       \
         cout << "result: " << value << ", answer: " << answer << endl;  \
         if (value != answer)                                            \
             std::exit(EXIT_FAILURE);                                    \
