@@ -112,6 +112,8 @@ SelectFunction Environment::select_function(SelectFunctionIndex sfid) const {
     return select_functions_[sfid].first;
 }
 
+// TODO: after symbol(const Id&) is constant time, move cond_arity to symbol,
+// use symbol to get cond_arity in eval.
 Arity Environment::select_function_cond_arity(SelectFunctionIndex sfid) const {
     assert(sfid < select_functions_.size());
     return select_functions_[sfid].second;
@@ -140,7 +142,8 @@ const Symbol* Environment::symbol(const std::string& name) const {
     return (it != symbol_map_.end()) ? &(*it).second : nullptr;
 }
 
-// TODO: create lookup table
+// TODO: return functions_[id.fid()] etc.
+// change add_positional to assign position automatically (no position argument)
 const Symbol* Environment::symbol(const Id& id) const {
     for (const auto& item : symbol_map_) {
         const Symbol& symbol = item.second;

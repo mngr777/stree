@@ -1,23 +1,20 @@
 #ifndef STREE_EXEC_HPP_
 #define STREE_EXEC_HPP_
 
-#include <stack>
+#include <ostream>
+#include <string>
+#include <vector>
 #include <stree/environment.hpp>
 #include <stree/eval.hpp>
 #include <stree/tree.hpp>
 
 namespace stree {
 
+class ExecDebug;
+
 class Exec {
+    friend ExecDebug;
 public:
-    class Frame {
-    public:
-        Frame(const Id& id): id(id) {}
-
-        const Id& id;
-        Arguments arguments;
-    };
-
     Exec(const Environment& env, const Id& root)
         : env_(env),
           root_(root),
@@ -26,9 +23,10 @@ public:
           is_finished_(false),
           result_(Value{}) {}
 
-    void run(Params* params, DataPtr data_ptr = nullptr);
-    void restart();
+    void init(Params* params, DataPtr data_ptr = nullptr);
+    void run();
     void step();
+    void restart();
 
     const bool is_finished() const {
         return is_finished_;
@@ -39,13 +37,25 @@ public:
     }
 
 private:
-    using Stack = std::stack<Frame>;
+    class Frame {
+    public:
+        Frame(const Id& id) : id(id) {}
+
+        const Id& id;
+        Arguments arguments;
+    };
+
+    using Stack = std::vector<Frame>;
 
     void stack_clear();
     void stack_push(const Id& id);
     void stack_pop();
     Frame& stack_top();
     bool stack_empty() const;
+
+    // debug
+    Frame& stack_frame(unsigned n);
+    unsigned stack_size() const;
 
     const Environment& env_;
     const Id& root_;
@@ -55,6 +65,19 @@ private:
 
     bool is_finished_;
     Value result_;
+};
+
+
+class ExecDebug {
+public:
+    ExecDebug(Exec& exec) : exec_(exec) {}
+
+    std::ostream& print_backtrace(std::ostream& os) const;
+
+private:
+    std::ostream& print_frame(std::ostream& os, Exec::Frame& frame) const;
+
+    Exec& exec_;
 };
 
 }
