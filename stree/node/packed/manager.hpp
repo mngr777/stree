@@ -15,7 +15,6 @@ namespace stree {
 template<Arity A>
 class FunctionNode {
 public:
-public:
     FunctionNode() : FunctionNode(FunctionNoIndex) {}
 
     FunctionNode(FunctionIndex fid) : fid_(fid) {}
@@ -45,6 +44,42 @@ public:
 
 private:
     FunctionIndex fid_;
+    Id arguments_[A];
+};
+
+
+template<Arity A>
+class SelectNode {
+public:
+    SelectNode() : SelectNode(SelectFunctionNoIndex) {}
+
+    SelectNode(SelectFunctionIndex sfid) : sfid_(sfid) {}
+
+    SelectFunctionIndex sfid() const {
+        return sfid_;
+    }
+
+    void set_sfid(FunctionIndex sfid) {
+        sfid_ = sfid;
+    }
+
+    const Id& argument(Arity n) const {
+        assert(0 <= n && n < A);
+        return arguments_[n];
+    }
+
+    Id& argument(Arity n) {
+        assert(0 <= n && n < A);
+        return arguments_[n];
+    }
+
+    void set_argument(Arity n, Id arg) {
+        assert(0 <=n && n < A);
+        arguments_[n] = arg;
+    }
+
+private:
+    SelectFunctionIndex sfid_;
     Id arguments_[A];
 };
 
@@ -113,6 +148,9 @@ private:
 #define STREE_TMP_MEMBER_FUN_DECL(_arity)                       \
     STREE_TMP_MEMBER_DECL(FunctionNode<_arity>, fun ## _arity);
 
+#define STREE_TMP_MEMBER_SELECT_DECL(_arity)                    \
+    STREE_TMP_MEMBER_DECL(SelectNode<_arity>, select ## _arity)
+
 class NodeManager {
     friend NodeManagerStats;
 public:
@@ -135,9 +173,11 @@ public:
     STREE_TMP_MEMBER_DECL(Position, pos)
     STREE_TMP_MEMBER_DECL(Value, val)
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_DECL)
+    STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MEMBER_SELECT_DECL)
 };
 
 #undef STREE_TMP_MEMBER_FUN_DECL
+#undef STREE_TMP_MEMBER_SELECT_DECL
 #undef STREE_TMP_MEMBER_DECL
 
 } // namespace stree

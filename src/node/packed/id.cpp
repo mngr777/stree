@@ -85,29 +85,37 @@ namespace id {
         index = nm.alloc<FunctionNode<_arity>, TypeFunction>(); \
     }
 
+#define STREE_TMP_MAKE_SELECT_ARITY_CASE(_arity)            \
+    else if (arity == _arity) {                             \
+        index = nm.alloc<SelectNode<_arity>, TypeSelect>(); \
+    }
+
 Id make(NodeManager& nm, Type type, Arity arity) {
     Index index = Id::NoIndex;
     switch (type) {
-        case TypeConst:
-            index = nm.alloc<Value, TypeConst>();
-            break;
-        case TypePositional:
-            index = nm.alloc<Position, TypePositional>();
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-            break;
-        case TypeSelect:
-            // TODO
-            assert(false && "Not implemented");
-            break;
+    case TypeConst:
+        index = nm.alloc<Value, TypeConst>();
+        break;
+    case TypePositional:
+        index = nm.alloc<Position, TypePositional>();
+        break;
+    case TypeFunction:
+        if (false) {}
+        STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
+        else { assert(false && "Invalid function arity"); }
+        break;
+    case TypeSelect:
+        if (false) {}
+        STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MAKE_SELECT_ARITY_CASE)
+        else { assert(false && "Invalid select arity"); }
+        break;
     }
     assert(index != Id::NoIndex);
     return Id(type, arity, index);
 }
+
 #undef STREE_TMP_MAKE_FUN_ARITY_CASE
+#undef STREE_TMP_MAKE_SELECT_ARITY_CASE
 
 
 // TODO: use map (see subtree_width)
@@ -149,34 +157,42 @@ NodeNum _subtree_width(
 }
 
 
-#define SMTREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)   \
-    else if(id.arity() == _arity) {                 \
-        nm.free<FunctionNode<_arity>, TypeFunction>(id.index()); \
+#define STREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)                    \
+    else if(id.arity() == _arity) {                                 \
+        nm.free<FunctionNode<_arity>, TypeFunction>(id.index());    \
+    }
+
+#define STREE_TMP_DESTROY_SELECT_ARITY_CASE(_arity)             \
+    else if (id.arity() == _arity) {                            \
+        nm.free<SelectNode<_arity>, TypeSelect>(id.index());    \
     }
 
 void destroy(NodeManager& nm, Id& id) {
     if (!id.empty()) {
         switch (id.type()) {
-            case TypeConst:
-                nm.free<Value, TypeConst>(id.index());
-                break;
-            case TypePositional:
-                nm.free<Position, TypePositional>(id.index());
-                break;
-            case TypeFunction:
-                if (false) {}
-                STREE_FOR_EACH_FUN_ARITY(SMTREE_TMP_DESTROY_FUN_ARITY_CASE)
-                else { assert(false && "Invalid arity"); }
-                break;
-            case TypeSelect:
-                // TODO
-                assert(false && "Not implemented");
-                break;
+        case TypeConst:
+            nm.free<Value, TypeConst>(id.index());
+            break;
+        case TypePositional:
+            nm.free<Position, TypePositional>(id.index());
+            break;
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_DESTROY_FUN_ARITY_CASE)
+            else { assert(false && "Invalid function arity"); }
+            break;
+        case TypeSelect:
+            if (false) {}
+            STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_DESTROY_SELECT_ARITY_CASE)
+            else { assert(false && "Invalid select arity"); }
+            break;
         }
         id.reset();
     }
 }
-#undef SMTREE_TMP_DESTROY_FUN_ARITY_CASE
+
+#undef STREE_TMP_DESTROY_FUN_ARITY_CASE
+#undef STREE_TMP_DESTROY_SELECT_ARITY_CASE
 
 
 void destroy_subtree(NodeManager& nm, Id& root) {
@@ -203,24 +219,30 @@ bool is_valid_subtree(const NodeManager& nm, const Id& root) {
 
 #define STREE_TMP_ARGUMENT_FUN_ARITY_CASE(_arity)                       \
     else if (id.arity() == _arity) {                                    \
-        return (nm.get<FunctionNode<_arity>, TypeFunction>(id.index())).argument(n); \
+        return nm.get<FunctionNode<_arity>, TypeFunction>(id.index()).argument(n); \
+    }
+
+#define STREE_TMP_ARGUMENT_SELECT_ARITY_CASE(_arity)                    \
+    else if (id.arity() == _arity) {                                    \
+        return nm.get<SelectNode<_arity>, TypeSelect>(id.index()).argument(n); \
     }
 
 const Id& nth_argument(const NodeManager& nm, const Id& id, Arity n) {
     switch (id.type()) {
-        case TypeConst:
-        case TypePositional:
-            assert(false && "Nodes of this type cannot have arguments");
-            break;
-        case TypeFunction:
-            if (false) {}
-            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
-            else { assert(false && "Invalid arity"); }
-            break;
-        case TypeSelect:
-            // TODO
-            assert(false && "Not implemented");
-            break;
+    case TypeConst:
+    case TypePositional:
+        assert(false && "Nodes of this type cannot have arguments");
+        break;
+    case TypeFunction:
+        if (false) {}
+        STREE_FOR_EACH_FUN_ARITY(STREE_TMP_ARGUMENT_FUN_ARITY_CASE)
+        else { assert(false && "Invalid function arity"); }
+        break;
+    case TypeSelect:
+        if (false) {}
+        STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_ARGUMENT_SELECT_ARITY_CASE)
+        else { assert(false && "Invalid select arity"); }
+        break;
     }
     assert(false && "Unknown type");
 }
@@ -234,6 +256,7 @@ Id& nth_argument(NodeManager& nm, Id& id, Arity n) {
 }
 
 #undef STREE_TMP_ARGUMENT_FUN_ARITY_CASE
+#undef STREE_TMP_ARGUMENT_SELECT_ARITY_CASE
 
 
 Id copy(NodeManager& nm, const Id id) {
@@ -241,19 +264,18 @@ Id copy(NodeManager& nm, const Id id) {
     if (!id.empty()) {
         result = make(nm, id.type(), id.arity());
         switch (result.type()) {
-            case TypeConst:
-                set_value(nm, result, value(nm, id));
-                break;
-            case TypePositional:
-                set_position(nm, result, position(nm, id));
-                break;
-            case TypeFunction:
-                set_fid(nm, result, fid(nm, id));
-                break;
-            case TypeSelect:
-                // TODO
-                assert(false && "Not implemented");
-                break;
+        case TypeConst:
+            set_value(nm, result, value(nm, id));
+            break;
+        case TypePositional:
+            set_position(nm, result, position(nm, id));
+            break;
+        case TypeFunction:
+            set_fid(nm, result, fid(nm, id));
+            break;
+        case TypeSelect:
+            set_sfid(nm, result, sfid(nm, id));
+            break;
         }
     }
     return result;
@@ -300,7 +322,7 @@ FunctionIndex fid(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypeFunction);
     if (false) {}
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_FID_FUN_ARITY_CASE)
-    else { assert(false && "Invalid arity"); }
+    else { assert(false && "Invalid function arity"); }
 }
 #undef STREE_TMP_FID_FUN_ARITY_CASE
 
@@ -314,19 +336,48 @@ void set_fid(NodeManager& nm, Id& id, FunctionIndex fid) {
     assert(id.type() == TypeFunction);
     if (false) {}
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_SET_FID_FUN_ARITY_CASE)
-    else { assert(false && "Invalid arity"); }
+    else { assert(false && "Invalid function arity"); }
 }
 #undef STREE_TMP_SET_FID_FUN_ARITY_CASE
 
 
+#define STREE_TMP_SFID_SELECT_ARITY_CASE(_arity)                        \
+    else if (id.arity() == _arity) {                                    \
+        return nm.get<SelectNode<_arity>, TypeSelect>(id.index()).sfid(); \
+    }
+
+SelectFunctionIndex sfid(const NodeManager& nm, const Id& id) {
+    assert(id.type() == TypeSelect);
+    if (false) {}
+    STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_SFID_SELECT_ARITY_CASE)
+    else { assert(false && "Invalid select arity"); }
+}
+
+#undef STREE_TMP_SFID_SELECT_ARITY_CASE
+
+
+#define STREE_TMP_SET_SFID_SELECT_ARITY_CASE(_arity)                    \
+    else if (id.arity() == _arity) {                                    \
+        nm.get<SelectNode<_arity>, TypeSelect>(id.index()).set_sfid(sfid); \
+    }
+
+void set_sfid(NodeManager& nm, Id& id, SelectFunctionIndex sfid) {
+    assert(id.type() == TypeSelect);
+    if (false) {}
+    STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_SET_SFID_SELECT_ARITY_CASE)
+    else { assert(false && "Invalid select arity"); }
+}
+
+#undef STREE_TMP_SET_SFID_SELECT_ARITY_CASE
+
 // TODO: move to `algorithm'
 
 /*
-     (0)
-     /  \
-   (1)  (2)
-   /    /  \
- (3)  (4)  (5)
+    (0)
+    /  \
+  (1)  (2)
+  /    /  \
+(3)  (4)  (5)
 */
 
 const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n) {

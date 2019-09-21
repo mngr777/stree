@@ -90,6 +90,10 @@ public:
         return char_num_;
     }
 
+    const std::string& buffer() const {
+        return buffer_;
+    }
+
 private:
     struct Frame {
         Frame(Id id) : id(id), child_num(0) {}

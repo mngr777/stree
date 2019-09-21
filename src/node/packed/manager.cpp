@@ -23,11 +23,16 @@ namespace stree {
 #define STREE_TMP_MEMBER_FUN_IMPL(_arity)                               \
     STREE_TMP_MEMBER_IMPL(FunctionNode<_arity>, TypeFunction, fun ## _arity);
 
+#define STREE_TMP_MEMBER_SELECT_IMPL(_arity)                            \
+    STREE_TMP_MEMBER_IMPL(SelectNode<_arity>, TypeSelect, select ## _arity);
+
 STREE_TMP_MEMBER_IMPL(Position, TypePositional, pos)
 STREE_TMP_MEMBER_IMPL(Value, TypeConst, val)
 STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_IMPL)
+STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MEMBER_SELECT_IMPL)
 
 #undef STREE_TMP_MEMBER_FUN_IMPL
+#undef STREE_TMP_MEMBER_SELECT_IMPL
 #undef STREE_TMP_MEMBER_IMPL
 
 } // namespace stree

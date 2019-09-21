@@ -12,13 +12,14 @@ std::ostream& operator<<(std::ostream& os, const stree::Subtree& subtree);
 
 namespace stree {
 
+std::string to_string(const Id& id);
 std::string to_string(const stree::Tree& tree);
 std::string to_string(const stree::Subtree& subtree);
 
-std::string id_to_string(const Id& id, const Environment& env);
+std::string subtree_to_string(const Id& id, const Environment& env);
 
 template<typename S>
-S& id_to_stream(S& stream, const Id& id, const Environment& env) {
+S& subtree_to_stream(S& stream, const Id& id, const Environment& env) {
     if (id.empty()) {
         stream << "<empty>";
     } else if (id.type() == TypeConst) {
@@ -26,14 +27,15 @@ S& id_to_stream(S& stream, const Id& id, const Environment& env) {
     } else {
         auto symbol = env.symbol(id);
         if (!symbol)
-            throw std::invalid_argument("Symbol not found");
+            throw std::invalid_argument(
+                std::string("Symbol not found, id: ") + to_string(id));
 
         if (symbol->is_callable())
             stream << '(';
         stream << symbol->name();
         for (Arity n = 0; n < id.arity(); ++n) {
             stream << ' ';
-            id_to_stream(
+            subtree_to_stream(
                 stream,
                 id::nth_argument(env.node_manager(), id, n),
                 env);

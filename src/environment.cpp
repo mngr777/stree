@@ -48,7 +48,7 @@ void Symbol::set_position(Position position) {
 }
 
 void Symbol::set_arity(Arity arity) {
-    assert(type_ == TypeFunction);
+    assert(type_ == TypeFunction || type_ == TypeSelect);
     data_.function.arity = arity;
 }
 
@@ -79,8 +79,8 @@ void Environment::add_function(
     Function function)
 {
     // TODO: check if arity is valid
+    FunctionIndex fid = functions_.size();
     functions_.push_back(function);
-    FunctionIndex fid = functions_.size() - 1;
     Symbol symbol(name, TypeFunction);
     symbol.set_arity(arity);
     symbol.set_fid(fid);
@@ -91,6 +91,32 @@ Function Environment::function(FunctionIndex fid) const {
     assert(fid < functions_.size());
     return functions_[fid];
 }
+
+
+void Environment::add_select_function(
+        const std::string& name,
+        Arity arity,
+        Arity cond_arity,
+        SelectFunction select_function)
+{
+    SelectFunctionIndex sfid = select_functions_.size();
+    select_functions_.emplace_back(select_function, cond_arity);
+    Symbol symbol(name, TypeSelect);
+    symbol.set_arity(arity);
+    symbol.set_sfid(sfid);
+    add_symbol(symbol);
+}
+
+SelectFunction Environment::select_function(SelectFunctionIndex sfid) const {
+    assert(sfid < select_functions_.size());
+    return select_functions_[sfid].first;
+}
+
+Arity Environment::select_function_cond_arity(SelectFunctionIndex sfid) const {
+    assert(sfid < select_functions_.size());
+    return select_functions_[sfid].second;
+}
+
 
 void Environment::add_positional(const std::string& name, Position position) {
     Symbol symbol(name, TypePositional);
@@ -131,7 +157,8 @@ const Symbol* Environment::symbol(const Id& id) const {
                         return &symbol;
                     break;
                 case TypeSelect:
-                    // TODO
+                    if (id::sfid(node_manager_, id) == symbol.sfid())
+                        return &symbol;
                     break;
             }
         }
@@ -191,8 +218,7 @@ Id Environment::make_id(const Symbol* symbol) {
             id::set_fid(node_manager_, id, symbol->fid());
             break;
         case TypeSelect:
-            // TODO
-            // id::set_sfid(node_manager_, id, symbol->sfid());
+            id::set_sfid(node_manager_, id, symbol->sfid());
             break;
     }
     return id;
