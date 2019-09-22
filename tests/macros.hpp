@@ -4,12 +4,28 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <type_traits>
 #include <stree/stree.hpp>
 
 // Define test function that does nothing
 #define DEFUN_EMPTY(func)                                               \
     static stree::Value func(const stree::Arguments& args, stree::DataPtr) { \
         return stree::Value{};                                          \
+    }
+
+// Define test function that passes first argument through
+#define DEFUN_PASS(func)                                                \
+    static stree::Value func(const stree::Arguments& args, stree::DataPtr) { \
+        assert(!args.empty());                                          \
+        return args[0];                                                 \
+    }
+
+// Defie progn function (return last argument or zero)
+#define DEFUN_PROGN(func)                                               \
+    static stree::Value func(const stree::Arguments& args, stree::DataPtr) { \
+        return !args.empty()                                            \
+            ? static_cast<stree::Value>(args.back())                    \
+            : stree::Value{};                                           \
     }
 
 // Parse string with parser,

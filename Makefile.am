@@ -62,7 +62,8 @@ TESTS = test_string1 \
 	test_move1 \
 	test_copy2 \
 	test_common_region1 \
-	test_select1
+	test_select1 \
+	test_exec1
 
 check_PROGRAMS = $(TESTS)
 
@@ -113,3 +114,6 @@ test_common_region1_LDADD = libstree.la
 
 test_select1_SOURCES = tests/test_select1.cpp $(TEST_SOURCES)
 test_select1_LDADD = $(TEST_LIBS)
+
+test_exec1_SOURCES = tests/test_exec1.cpp $(TEST_SOURCES)
+test_exec1_LDADD = $(TEST_LIBS)

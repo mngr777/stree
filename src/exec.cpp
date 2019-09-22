@@ -76,26 +76,46 @@ unsigned Exec::stack_size() const {
     return stack_.size();
 }
 
-std::ostream& ExecDebug::print_backtrace(std::ostream& os) const {
+std::ostream& ExecDebug::print_backtrace(
+    std::ostream& os,
+    PrintFlags flags) const
+{
     if (exec_.stack_size() > 0) {
-        for (unsigned n = 0; n < exec_.stack_size(); ++n)
-            print_frame(os, exec_.stack_frame(n));
+        for (unsigned n = 0; n < exec_.stack_size(); ++n) {
+            os << "#" << n << " ";
+            print_frame(os, exec_.stack_frame(n), flags);
+            os << std::endl;
+        }
     } else {
-        os << "<empty>";
+        os << "<empty>" << std::endl;
     }
     return os;
 }
 
-std::ostream& ExecDebug::print_frame(std::ostream& os, Exec::Frame& frame) const {
-    os << frame.id << " "
-       << exec_.env_.symbol(frame.id)->name() << " ";
+std::ostream& ExecDebug::print_frame(
+    std::ostream& os,
+    Exec::Frame& frame,
+    PrintFlags flags) const
+{
+    // Print ID
+    if (flags & PrintIds)
+        os << frame.id << " ";
+
+    // Print symbol name
+    os << exec_.env_.symbol(frame.id)->name();
+
+    // Print arguments
+    os << " : ";
     for (const Value& value : frame.arguments) {
         os << value << " ";
     }
+
+    // Print <empty> for missing arguments
     assert(frame.id.arity() >= frame.arguments.size());
     for (unsigned i = 0; i < frame.id.arity() - frame.arguments.size(); ++i) {
-        os << "<empty>";
+        os << "<empty> ";
     }
+
     return os;
 }
 

@@ -5,6 +5,7 @@
 #include <stree/algorithm.hpp>
 #include <stree/compare.hpp>
 #include <stree/eval.hpp>
+#include <stree/exec.hpp>
 #include <stree/macros.hpp>
 #include <stree/parser.hpp>
 #include <stree/string.hpp>

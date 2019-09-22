@@ -15,6 +15,9 @@ class ExecDebug;
 class Exec {
     friend ExecDebug;
 public:
+    Exec(const TreeBase& tree)
+        : Exec(*tree.env(), tree.root()) {}
+
     Exec(const Environment& env, const Id& root)
         : env_(env),
           root_(root),
@@ -70,12 +73,21 @@ private:
 
 class ExecDebug {
 public:
+    using PrintFlags = char;
+    static const PrintFlags NoPrintFlags = 0;
+    static const PrintFlags PrintIds     = 1;
+
     ExecDebug(Exec& exec) : exec_(exec) {}
 
-    std::ostream& print_backtrace(std::ostream& os) const;
+    std::ostream& print_backtrace(
+        std::ostream& os,
+        PrintFlags flags = NoPrintFlags) const;
 
 private:
-    std::ostream& print_frame(std::ostream& os, Exec::Frame& frame) const;
+    std::ostream& print_frame(
+        std::ostream& os,
+        Exec::Frame& frame,
+        PrintFlags flags) const;
 
     Exec& exec_;
 };
