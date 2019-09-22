@@ -71,46 +71,46 @@ TEST_SOURCES = tests/macros.hpp
 TEST_LIBS = libstree.la
 
 test_string1_SOURCES = tests/test_string1.cpp
-test_string1_LDADD = libstree.la
+test_string1_LDADD = $(TEST_LIBS)
 
 test_grow1_SOURCES = tests/test_grow1.cpp
-test_grow1_LDADD = libstree.la
+test_grow1_LDADD = $(TEST_LIBS)
 
 test_tree_size1_SOURCES = tests/test_tree_size1.cpp $(TEST_SOURCES)
-test_tree_size1_LDADD = libstree.la
+test_tree_size1_LDADD = $(TEST_LIBS)
 
 test_tree_nth_node1_SOURCES = tests/test_tree_nth_node1.cpp $(TEST_SOURCES)
-test_tree_nth_node1_LDADD = libstree.la
+test_tree_nth_node1_LDADD = $(TEST_LIBS)
 
 test_tree_nth_node2_SOURCES = tests/test_tree_nth_node2.cpp $(TEST_SOURCES)
-test_tree_nth_node2_LDADD = libstree.la
+test_tree_nth_node2_LDADD = $(TEST_LIBS)
 
 test_copy1_SOURCES = tests/test_copy1.cpp $(TEST_SOURCES)
-test_copy1_LDADD = libstree.la
+test_copy1_LDADD = $(TEST_LIBS)
 
 test_subtree_string1_SOURCES = tests/test_subtree_string1.cpp $(TEST_SOURCES)
-test_subtree_string1_LDADD = libstree.la
+test_subtree_string1_LDADD = $(TEST_LIBS)
 
 test_node_manager_stats1_SOURCES = tests/test_node_manager_stats1.cpp $(TEST_SOURCES) \
 	tests/node_manager_macros.hpp
-test_node_manager_stats1_LDADD = libstree.la
+test_node_manager_stats1_LDADD = $(TEST_LIBS)
 
 test_swap1_SOURCES = tests/test_swap1.cpp $(TEST_SOURCES)
-test_swap1_LDADD = libstree.la
+test_swap1_LDADD = $(TEST_LIBS)
 
 test_mutate1_SOURCES = tests/test_mutate1.cpp $(TEST_SOURCES)
-test_mutate1_LDADD = libstree.la
+test_mutate1_LDADD = $(TEST_LIBS)
 
 test_move1_SOURCES = tests/test_move1.cpp $(TEST_SOURCES) \
 	tests/node_manager_macros.hpp
-test_move1_LDADD = libstree.la
+test_move1_LDADD = $(TEST_LIBS)
 
 test_copy2_SOURCES = tests/test_copy2.cpp $(TEST_SOURCES) \
 	tests/node_manager_macros.hpp
-test_copy2_LDADD = libstree.la
+test_copy2_LDADD = $(TEST_LIBS)
 
 test_common_region1_SOURCES = tests/test_common_region1.cpp $(TEST_SOURCES)
-test_common_region1_LDADD = libstree.la
+test_common_region1_LDADD = $(TEST_LIBS)
 
 test_select1_SOURCES = tests/test_select1.cpp $(TEST_SOURCES)
 test_select1_LDADD = $(TEST_LIBS)

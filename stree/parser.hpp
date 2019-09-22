@@ -1,6 +1,7 @@
 #ifndef STREE_PARSER_HPP_
 #define STREE_PARSER_HPP_
 
+#include <cstddef>
 #include <stack>
 #include <stdexcept>
 #include <string>
