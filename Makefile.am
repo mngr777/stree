@@ -19,6 +19,7 @@ HEADER_FILES = \
 	$(NODE_HEADER_FILES) \
 	stree/stree.hpp \
 	stree/algorithm.hpp \
+	stree/builder.hpp \
 	stree/compare.hpp \
 	stree/environment.hpp \
 	stree/eval.hpp \
@@ -34,6 +35,7 @@ SOURCE_FILES = \
 	$(HEADER_FILES) \
 	$(NODE_SOURCE_ONLY_FILES) \
 	src/algorithm.cpp \
+	src/builder.cpp \
 	src/compare.cpp \
 	src/environment.cpp \
 	src/eval.cpp \
@@ -63,7 +65,8 @@ TESTS = test_string1 \
 	test_copy2 \
 	test_common_region1 \
 	test_select1 \
-	test_exec1
+	test_exec1 \
+	test_builder1
 
 check_PROGRAMS = $(TESTS)
 
@@ -117,3 +120,6 @@ test_select1_LDADD = $(TEST_LIBS)
 
 test_exec1_SOURCES = tests/test_exec1.cpp $(TEST_SOURCES)
 test_exec1_LDADD = $(TEST_LIBS)
+
+test_builder1_SOURCES = tests/test_builder1.cpp $(TEST_SOURCES)
+test_builder1_LDADD = $(TEST_LIBS)

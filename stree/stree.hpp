@@ -3,6 +3,7 @@
 
 #include <stree/environment.hpp>
 #include <stree/algorithm.hpp>
+#include <stree/builder.hpp>
 #include <stree/compare.hpp>
 #include <stree/eval.hpp>
 #include <stree/exec.hpp>

@@ -208,6 +208,14 @@ const Symbol* Environment::nonterminal(unsigned n) const {
     return nonterminals_.at(n);
 }
 
+Id Environment::make_id(const std::string& name) {
+    const Symbol* smb = symbol(name);
+    if (!smb)
+        throw std::invalid_argument(
+            std::string("Symbol not found: `") + name + "'");
+    return make_id(smb);
+}
+
 Id Environment::make_id(const Symbol* symbol) {
     Id id = id::make(node_manager_, symbol->type(), symbol->arity());
     switch (symbol->type()) {

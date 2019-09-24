@@ -131,6 +131,7 @@ public:
     unsigned nonterminal_num() const;
     const Symbol* nonterminal(unsigned n) const;
 
+    Id make_id(const std::string& name);
     Id make_id(const Symbol* symbol);
     Id make_id(const Value& value);
 
