@@ -7,7 +7,7 @@ namespace stree {
 Builder::Builder(Environment& env)
     : env_(env)
 {
-    set_root(Id());
+    reset();
 }
 
 void Builder::set(const std::string& name) {
@@ -43,6 +43,12 @@ void Builder::down(unsigned n) {
 
     Id child_id = id::nth_argument(env_.node_manager(), id, n);
     stack_.emplace(child_id, n);
+}
+
+void Builder::reset() {
+    while (!stack_.empty())
+        stack_.pop();
+    set_root(Id());
 }
 
 bool Builder::is_valid() const {

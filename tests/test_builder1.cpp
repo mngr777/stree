@@ -28,7 +28,6 @@ int main() {
 */
     string answer("(+ (* (- c 1) a) (% b 2))");
 
-    // v1
     Builder b1(env);
     b1.set("+"); // set 0
     b1.down(0);  // select 1

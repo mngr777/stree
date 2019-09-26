@@ -17,10 +17,15 @@ public:
     void up(unsigned n = 1);
     void down(unsigned n);
 
+    void reset();
     bool is_valid() const;
 
     Id root() {
         return root_;
+    }
+
+    Environment& env() {
+        return env_;
     }
 
 private:

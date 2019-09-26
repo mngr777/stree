@@ -66,7 +66,8 @@ TESTS = test_string1 \
 	test_common_region1 \
 	test_select1 \
 	test_exec1 \
-	test_builder1
+	test_builder1 \
+	test_builder2
 
 check_PROGRAMS = $(TESTS)
 
@@ -123,3 +124,6 @@ test_exec1_LDADD = $(TEST_LIBS)
 
 test_builder1_SOURCES = tests/test_builder1.cpp $(TEST_SOURCES)
 test_builder1_LDADD = $(TEST_LIBS)
+
+test_builder2_SOURCES = tests/test_builder2.cpp $(TEST_SOURCES)
+test_builder2_LDADD = $(TEST_LIBS)
