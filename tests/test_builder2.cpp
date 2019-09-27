@@ -98,6 +98,7 @@ int main() {
         cout << "Generated tree (grow): " << t_grow1 << endl;
         if (!is_valid) {
             cerr << "Invalid tree!" << endl;
+            return -3;
         }
     }
     {
@@ -108,6 +109,7 @@ int main() {
         cout << "Generated tree (full): " << t_full1 << endl;
         if (!is_valid) {
             cerr << "Invalid tree!" << endl;
+            return -3;
         }
     }
 
