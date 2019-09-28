@@ -15,6 +15,9 @@ void Exec::run() {
 }
 
 void Exec::step() {
+    if (is_finished())
+        restart();
+
     Frame& current = stack_top();
     if (current.arguments.size() == current.id.arity()) {
         Value value = eval(env_, current.id, *params_, data_ptr_);
