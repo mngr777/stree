@@ -5,7 +5,7 @@ namespace stree {
 
 void Exec::init(Params* params, DataPtr data_ptr) {
     params_ = params;
-    data_ptr_ = data_ptr_;
+    data_ptr_ = data_ptr;
     restart();
 }
 
