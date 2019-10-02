@@ -1,4 +1,5 @@
 #include <stree/algorithm.hpp>
+#include <algorithm>
 #include <queue>
 
 namespace stree {
@@ -14,6 +15,12 @@ using NodeRefPairQueue = std::queue<NodeRefPair>;
 void CommonRegion::add(NodeNum n, NodeRef node1, NodeRef node2) {
     list_.emplace_back(n, node1, node2);
     map_.emplace(n, Item(n, node1, node2));
+    assert(node1.get().arity() == node2.get().arity());
+    if (node1.get().arity() > 0) {
+        terminal_num_list_.push_back(n);
+    } else{
+        nonterminal_num_list_.push_back(n);
+    }
 }
 
 const CommonRegion::Item& CommonRegion::get(NodeNum n) const {
@@ -34,6 +41,30 @@ CommonRegion::Item& CommonRegion::operator[](unsigned index) {
 
 NodeNum CommonRegion::size() const {
     return list_.size();
+}
+
+NodeNum CommonRegion::terminal_num() const {
+    return terminal_num_list_.size();
+}
+
+CommonRegion::Item& CommonRegion::nth_terminal(NodeNum n) {
+    return map_.at(terminal_num_list_.at(n));
+}
+
+const CommonRegion::Item& CommonRegion::nth_terminal(NodeNum n) const {
+    return map_.at(terminal_num_list_.at(n));
+}
+
+NodeNum CommonRegion::nonterminal_num() const {
+    return nonterminal_num_list_.size();
+}
+
+CommonRegion::Item& CommonRegion::nth_nonterminal(NodeNum n) {
+    return map_.at(nonterminal_num_list_.at(n));
+}
+
+const CommonRegion::Item& CommonRegion::nth_nonterminal(NodeNum n) const {
+    return map_.at(nonterminal_num_list_.at(n));
 }
 
 CommonRegion::ItemList::iterator CommonRegion::begin() {

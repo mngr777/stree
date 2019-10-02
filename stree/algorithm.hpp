@@ -35,6 +35,14 @@ public:
 
     NodeNum size() const;
 
+    NodeNum terminal_num() const;
+    Item& nth_terminal(NodeNum n);
+    const Item& nth_terminal(NodeNum n) const;
+
+    NodeNum nonterminal_num() const;
+    Item& nth_nonterminal(NodeNum n);
+    const Item& nth_nonterminal(NodeNum n) const;
+
     ItemList::iterator begin();
     ItemList::const_iterator begin() const;
 
@@ -43,8 +51,12 @@ public:
 
 
 private:
+    using NodeNumList = std::vector<NodeNum>;
+
     ItemList list_;
     std::unordered_map<NodeNum, Item> map_;
+    NodeNumList terminal_num_list_;
+    NodeNumList nonterminal_num_list_;
 };
 
 CommonRegion common_region(
