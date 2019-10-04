@@ -395,17 +395,18 @@ const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n, const NodeFil
         // next node from queue
         const Id& current = queue.front();
         queue.pop();
-        assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
         bool match = filter.match(current);
         if (n == 0 && match) {
             // found N-th node
             return current;
         } else if (filter.empty() && (n < queue.size() + 1 + current.arity())) {
+            assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
             // one of current node children is N-th node
             // we can be sure only if we don't filter nodes
             assert(n > queue.size());
             return id::nth_argument(nm, current, n - 1 - queue.size());
         } else {
+            assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
             // we don't know N-th node yet, add current node children to queue
             for (Arity i = 0; i < current.arity(); ++i)
                 queue.emplace(id::nth_argument(nm, current, i));
