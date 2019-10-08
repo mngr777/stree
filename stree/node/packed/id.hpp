@@ -6,14 +6,6 @@
 
 namespace stree {
 
-// Bit field widths
-const std::uint8_t TypeWidth = 2;
-const std::uint8_t ArityWidth = STREE_ARITY_WIDTH;
-static_assert(TypeWidth + ArityWidth < sizeof(Index) * 8);
-static_assert(ArityWidth < sizeof(FunctionIndex) * 8);
-constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth);
-
-
 class Tree;
 class Id;
 class NodeManager;
@@ -23,7 +15,17 @@ class Id {
     friend void id::destroy(NodeManager& nm, Id& id);
     friend Tree;
 
+public:
+    using Index = std::uint32_t;
+
 private:
+// Bit field widths
+    static const std::uint8_t TypeWidth = 2;
+    static constexpr std::uint8_t ArityWidth = STREE_ARITY_WIDTH;
+    static_assert(TypeWidth + ArityWidth < sizeof(Index) * 8);
+    static_assert(ArityWidth < sizeof(FunctionIndex) * 8);
+    static constexpr std::uint8_t IndexWidth = (sizeof(Index) * 8 - TypeWidth - ArityWidth);
+
     static constexpr Index DataMask = std::numeric_limits<Index>::max();
     static constexpr Index TypeMask = (DataMask >> (ArityWidth + IndexWidth)) << (ArityWidth + IndexWidth);
     static constexpr Index IndexMask = (DataMask << (TypeWidth + ArityWidth)) >> (TypeWidth + ArityWidth);

@@ -55,11 +55,11 @@ void Id::set_arity(Arity arity) {
     set(data_, ArityMask, IndexWidth, arity);
 }
 
-Index Id::index() const {
+Id::Index Id::index() const {
     return get<Index, Index>(data_, IndexMask, 0);
 }
 
-void Id::set_index(Index index) {
+void Id::set_index(Id::Index index) {
     set(data_, IndexMask, 0, index);
 }
 

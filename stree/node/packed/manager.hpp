@@ -97,9 +97,9 @@ public:
     NodePool(const NodePool& other) = delete;
     NodePool& operator=(const NodePool& other) = delete;
 
-    Index alloc() {
+    Id::Index alloc() {
         LockGuard lg(mtx_);
-        Index index = Id::NoIndex;
+        Id::Index index = Id::NoIndex;
         if (buffer_.empty()) {
             index = nodes_.size();
             nodes_.emplace_back(T());
@@ -111,21 +111,21 @@ public:
         return index;
     }
 
-    T& get(Index index) {
+    T& get(Id::Index index) {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
         LockGuard lg(mtx_);
         return nodes_[index];
     }
 
-    const T& get(Index index) const {
+    const T& get(Id::Index index) const {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
         LockGuard lg(mtx_);
         return nodes_[index];
     }
 
-    void free(Index index) {
+    void free(Id::Index index) {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
         LockGuard lg(mtx_);
@@ -134,7 +134,7 @@ public:
 
 private:
     std::vector<T> nodes_;
-    std::queue<Index> buffer_;
+    std::queue<Id::Index> buffer_;
     mutable std::mutex mtx_;
 };
 
@@ -159,16 +159,16 @@ public:
     NodeManager& operator=(const NodeManager& other) = delete;
 
     template<typename N, Type type>
-    Index alloc();
+    Id::Index alloc();
 
     template<typename N, Type type>
-    N& get(Index index);
+    N& get(Id::Index index);
 
     template<typename N, Type type>
-    const N& get(Index index) const;
+    const N& get(Id::Index index) const;
 
     template<typename N, Type type>
-    void free(Index index);
+    void free(Id::Index index);
 
     STREE_TMP_MEMBER_DECL(Position, pos)
     STREE_TMP_MEMBER_DECL(Value, val)

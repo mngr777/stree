@@ -11,7 +11,6 @@ namespace stree {
 // Basic types
 using TypeId = std::uint8_t;
 using Arity  = std::uint8_t;
-using Index  = std::uint32_t;
 using FunctionIndex       = std::uint8_t;
 using SelectFunctionIndex = std::uint8_t;
 using Position = std::uint8_t;
