@@ -1,5 +1,5 @@
-#ifndef STREE_ALGORITHM_
-#define STREE_ALGORITHM_
+#ifndef STREE_COMMON_REGION_
+#define STREE_COMMON_REGION_
 
 #include <functional>
 #include <unordered_set>

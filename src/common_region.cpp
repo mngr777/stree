@@ -1,4 +1,4 @@
-#include <stree/algorithm.hpp>
+#include <stree/common_region.hpp>
 #include <algorithm>
 #include <queue>
 

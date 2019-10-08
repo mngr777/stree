@@ -2,7 +2,7 @@
 #define STREE_STREE_HPP_
 
 #include <stree/environment.hpp>
-#include <stree/algorithm.hpp>
+#include <stree/common_region.hpp>
 #include <stree/builder.hpp>
 #include <stree/compare.hpp>
 #include <stree/eval.hpp>

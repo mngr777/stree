@@ -18,7 +18,7 @@ NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
 HEADER_FILES = \
 	$(NODE_HEADER_FILES) \
 	stree/stree.hpp \
-	stree/algorithm.hpp \
+	stree/common_region.hpp \
 	stree/builder.hpp \
 	stree/compare.hpp \
 	stree/environment.hpp \
@@ -34,7 +34,7 @@ HEADER_FILES = \
 SOURCE_FILES = \
 	$(HEADER_FILES) \
 	$(NODE_SOURCE_ONLY_FILES) \
-	src/algorithm.cpp \
+	src/common_region.cpp \
 	src/builder.cpp \
 	src/compare.cpp \
 	src/environment.cpp \
