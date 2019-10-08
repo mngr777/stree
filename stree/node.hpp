@@ -28,22 +28,10 @@ template<> struct hash<stree::Id> {
 
 namespace stree { namespace id {
 
-using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
-using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
-
-using _ConstNodeRefDepthPair = std::pair<const Id&, NodeNum>;
-using _ConstNodeRefDepthPairQueue = std::queue<_ConstNodeRefDepthPair>;
-
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
-using _NodeWidthMap = std::unordered_map<Id, NodeNum>;
-
 NodeNum subtree_width(const NodeManager& nm, const Id& id);
-NodeNum _subtree_width(
-    const NodeManager& nm,
-    const Id& id,
-    _NodeWidthMap& width_map);
 
 void destroy_subtree(NodeManager& nm, Id& root);
 

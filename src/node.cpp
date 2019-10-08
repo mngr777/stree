@@ -15,6 +15,13 @@ std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
 
 namespace stree { namespace id {
 
+using _NodeRefQueue = std::queue<std::reference_wrapper<Id>>;
+using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
+using _ConstNodeRefDepthPair = std::pair<const Id&, NodeNum>;
+using _ConstNodeRefDepthPairQueue = std::queue<_ConstNodeRefDepthPair>;
+using _NodeWidthMap = std::unordered_map<Id, NodeNum>;
+
+
 // TODO: use map (see subtree_width)
 NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     NodeNum size = 0;
@@ -26,11 +33,8 @@ NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     return size;
 }
 
-NodeNum subtree_width(const NodeManager& nm, const Id& id) {
-    _NodeWidthMap width_map;
-    return _subtree_width(nm, id, width_map);
-}
 
+namespace {
 NodeNum _subtree_width(
     const NodeManager& nm,
     const Id& id,
@@ -51,6 +55,12 @@ NodeNum _subtree_width(
     width_map[id] = width;
 
     return width;
+}
+} // empty namespace
+
+NodeNum subtree_width(const NodeManager& nm, const Id& id) {
+    _NodeWidthMap width_map;
+    return _subtree_width(nm, id, width_map);
 }
 
 
