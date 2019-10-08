@@ -41,6 +41,8 @@ public:
 
     Id() : data_(NoIndex) {}
     Id(Type type, Arity arity, Index index);
+    Id(const Id& other) = default;
+    ~Id() {}
 
     bool operator==(const Id& other) const;
     bool operator!=(const Id& other) const;
