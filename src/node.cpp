@@ -21,7 +21,7 @@ NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     if (!id.empty()) {
         ++size;
         for (NodeNum n = 0; n < id.arity(); ++n)
-            size += subtree_size(nm, id::nth_argument(nm, id, n));
+            size += subtree_size(nm, nth_argument(nm, id, n));
     }
     return size;
 }
@@ -260,16 +260,16 @@ const Id& nth_node(const NodeManager& nm, const Id& id, NodeNum n, const NodeFil
             // found N-th node
             return current;
         } else if (filter.empty() && (n < queue.size() + 1 + current.arity())) {
-            assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
+            assert(is_valid(nm, current) && "All nodes before N-th should be valid");
             // one of current node children is N-th node
             // we can be sure only if we don't filter nodes
             assert(n > queue.size());
-            return id::nth_argument(nm, current, n - 1 - queue.size());
+            return nth_argument(nm, current, n - 1 - queue.size());
         } else {
-            assert(id::is_valid(nm, current) && "All nodes before N-th should be valid");
+            assert(is_valid(nm, current) && "All nodes before N-th should be valid");
             // we don't know N-th node yet, add current node children to queue
             for (Arity i = 0; i < current.arity(); ++i)
-                queue.emplace(id::nth_argument(nm, current, i));
+                queue.emplace(nth_argument(nm, current, i));
             // decrement counter if current node matches filter
             if (match) --n;
         }
@@ -290,7 +290,7 @@ void for_each_node(
     const Id& id,
     std::function<bool(const Id&, NodeNum, NodeNum)> callback)
 {
-    assert(id::is_valid_subtree(nm, id) && "Subtree must be valid");
+    assert(is_valid_subtree(nm, id) && "Subtree must be valid");
     // Node number
     NodeNum current_num = 0;
     // Init queue
@@ -310,9 +310,9 @@ void for_each_node(
         for (Arity i = 0; i < current.arity(); ++i)
             queue.emplace(
                 _ConstNodeRefDepthPair(
-                    id::nth_argument(nm, current, i),
+                    nth_argument(nm, current, i),
                     current_depth + 1));
     }
 }
 
-}}
+}} // namespace id, stree

@@ -86,6 +86,6 @@ void for_each_node(
     const Id& id,
     std::function<bool(const Id&, NodeNum, NodeNum)> callback);
 
-}}
+}} // namespace id, stree
 
 #endif
