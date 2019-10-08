@@ -1,4 +1,4 @@
-#include <stree/node/packed/manager.hpp>
+#include <stree/node/impl/packed/manager.hpp>
 
 namespace stree {
 

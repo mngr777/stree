@@ -6,7 +6,7 @@
 #include <vector>
 #include <stree/types.hpp>
 #include <stree/macros.hpp>
-#include <stree/node/packed/id.hpp>
+#include "id.hpp"
 
 namespace stree {
 

@@ -1,4 +1,4 @@
-#include <stree/node.hpp>
+#include <stree/node/functions.hpp>
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
     os << '(';

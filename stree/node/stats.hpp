@@ -1,11 +1,14 @@
-#ifndef STREE_STATS_HPP_
-#define STREE_STATS_HPP_
+#ifndef STREE_NODE_STATS_HPP_
+#define STREE_NODE_STATS_HPP_
 
 #include <cstdlib>
 #include <ostream>
-#include <stree/node/packed/manager.hpp>
+#include <vector>
+#include <stree/types.hpp>
 
 namespace stree {
+
+class NodeManager;
 
 class NodeManagerStats {
 public:

@@ -1,6 +1,7 @@
-#include <stree/node/packed/stats.hpp>
+#include <stree/node/stats.hpp>
 #include <algorithm>
 #include <stree/macros.hpp>
+#include <stree/node.hpp>
 
 namespace stree {
 

@@ -3,14 +3,12 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
 NODE_PACKED_HEADER_FILES = \
-	stree/node/packed.hpp \
-	stree/node/packed/id.hpp \
-	stree/node/packed/manager.hpp \
-	stree/node/packed/stats.hpp
+	stree/node/impl/packed.hpp \
+	stree/node/impl/packed/id.hpp \
+	stree/node/impl/packed/manager.hpp
 NODE_PACKED_SOURCE_ONLY_FILES =  \
-	src/node/packed/id.cpp \
-	src/node/packed/manager.cpp \
-	src/node/packed/stats.cpp
+	src/node/impl/packed/id.cpp \
+	src/node/impl/packed/manager.cpp
 
 NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
 NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
@@ -26,6 +24,8 @@ HEADER_FILES = \
 	stree/exec.hpp \
 	stree/macros.hpp \
 	stree/node.hpp \
+	stree/node/functions.hpp \
+	stree/node/stats.hpp \
 	stree/parser.hpp \
 	stree/search.hpp \
 	stree/string.hpp \
@@ -40,7 +40,8 @@ SOURCE_FILES = \
 	src/environment.cpp \
 	src/eval.cpp \
 	src/exec.cpp \
-	src/node.cpp \
+	src/node/functions.cpp \
+	src/node/stats.cpp \
 	src/parser.cpp \
 	src/search.cpp \
 	src/string.cpp \
