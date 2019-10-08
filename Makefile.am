@@ -40,6 +40,7 @@ SOURCE_FILES = \
 	src/environment.cpp \
 	src/eval.cpp \
 	src/exec.cpp \
+	src/node.cpp \
 	src/parser.cpp \
 	src/search.cpp \
 	src/string.cpp \
