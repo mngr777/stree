@@ -34,7 +34,6 @@ using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
 using _ConstNodeRefDepthPair = std::pair<const Id&, NodeNum>;
 using _ConstNodeRefDepthPairQueue = std::queue<_ConstNodeRefDepthPair>;
 
-Id make(NodeManager& nm, Type type, Arity arity = 0);
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
@@ -46,7 +45,6 @@ NodeNum _subtree_width(
     const Id& id,
     _NodeWidthMap& width_map);
 
-void destroy(NodeManager& nm, Id& id);
 void destroy_subtree(NodeManager& nm, Id& root);
 
 bool is_valid(const NodeManager& nm, const Id& id);

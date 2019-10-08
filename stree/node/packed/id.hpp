@@ -9,7 +9,12 @@ namespace stree {
 class Tree;
 class Id;
 class NodeManager;
-namespace id { void destroy(NodeManager& nm, Id& id); }
+
+namespace id {
+Id make(NodeManager& nm, Type type, Arity arity = 0);
+void destroy(NodeManager& nm, Id& id);
+}
+
 
 class Id {
     friend void id::destroy(NodeManager& nm, Id& id);
