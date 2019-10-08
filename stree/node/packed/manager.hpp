@@ -2,7 +2,6 @@
 #define STREE_NODE_PACKED_NODE_MANAGER_HPP_
 
 #include <cassert>
-#include <mutex> // TODO: remove mutex
 #include <queue>
 #include <vector>
 #include <stree/types.hpp>
@@ -91,14 +90,12 @@ template<typename T>
 class NodePool {
 private:
     friend NodeManagerStats;
-    using LockGuard = std::lock_guard<std::mutex>;
 public:
     NodePool() {}
     NodePool(const NodePool& other) = delete;
     NodePool& operator=(const NodePool& other) = delete;
 
     Id::Index alloc() {
-        LockGuard lg(mtx_);
         Id::Index index = Id::NoIndex;
         if (buffer_.empty()) {
             index = nodes_.size();
@@ -114,28 +111,24 @@ public:
     T& get(Id::Index index) {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
-        LockGuard lg(mtx_);
         return nodes_[index];
     }
 
     const T& get(Id::Index index) const {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
-        LockGuard lg(mtx_);
         return nodes_[index];
     }
 
     void free(Id::Index index) {
         assert(index != Id::NoIndex);
         assert(0 <= index && index < nodes_.size());
-        LockGuard lg(mtx_);
         buffer_.push(index);
     }
 
 private:
     std::vector<T> nodes_;
     std::queue<Id::Index> buffer_;
-    mutable std::mutex mtx_;
 };
 
 
