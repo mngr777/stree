@@ -1,5 +1,5 @@
-#ifndef STREE_NODE_PACKED_
-#define STREE_NODE_PACKED_
+#ifndef STREE_NODE_IMPL_PACKED_
+#define STREE_NODE_IMPL_PACKED_
 
 #include <stree/node/impl/packed/id.hpp>
 #include <stree/node/impl/packed/manager.hpp>

@@ -1,5 +1,5 @@
-#ifndef STREE_NODE_PACKED_ID_HPP_
-#define STREE_NODE_PACKED_ID_HPP_
+#ifndef STREE_NODE_IMPL_PACKED_ID_HPP_
+#define STREE_NODE_IMPL_PACKED_ID_HPP_
 
 #include <stree/macros.hpp>
 #include <stree/types.hpp>
