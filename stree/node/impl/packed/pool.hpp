@@ -10,7 +10,45 @@
 
 namespace stree {
 
-// Function tree node
+// Positional argument node
+class PositionalNode {
+public:
+    PositionalNode(Position position = 0)
+        : position_(position) {}
+
+    Position position() const {
+        return position_;
+    }
+
+    void set_position(Position position) {
+        position_ = position;
+    }
+
+private:
+    Position position_;
+};
+
+
+// Constant value node
+class ConstNode {
+public:
+    ConstNode(Value value = Value())
+        : value_(std::move(value)) {}
+
+    const Value& value() const {
+        return value_;
+    }
+
+    void set_value(Value value) {
+        value_ = std::move(value);
+    }
+
+private:
+    Value value_;
+};
+
+
+// Function node
 template<Arity A>
 class FunctionNode {
 public:
@@ -46,6 +84,7 @@ private:
 };
 
 
+// Select node
 template<Arity A>
 class SelectNode {
 public:
