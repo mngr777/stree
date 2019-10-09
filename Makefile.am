@@ -5,10 +5,9 @@ AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 NODE_PACKED_HEADER_FILES = \
 	stree/node/impl/packed.hpp \
 	stree/node/impl/packed/id.hpp \
-	stree/node/impl/packed/manager.hpp
+	stree/node/impl/packed/pool.hpp
 NODE_PACKED_SOURCE_ONLY_FILES =  \
-	src/node/impl/packed/id.cpp \
-	src/node/impl/packed/manager.cpp
+	src/node/impl/packed/id.cpp
 
 NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
 NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
@@ -26,6 +25,7 @@ HEADER_FILES = \
 	stree/node.hpp \
 	stree/node/functions.hpp \
 	stree/node/stats.hpp \
+	stree/node/manager.hpp \
 	stree/parser.hpp \
 	stree/search.hpp \
 	stree/string.hpp \
@@ -42,6 +42,7 @@ SOURCE_FILES = \
 	src/exec.cpp \
 	src/node/functions.cpp \
 	src/node/stats.cpp \
+	src/node/manager.cpp \
 	src/parser.cpp \
 	src/search.cpp \
 	src/string.cpp \

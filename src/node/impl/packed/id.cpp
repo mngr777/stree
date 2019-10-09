@@ -1,6 +1,6 @@
 #include <cassert>
 #include <stree/node/impl/packed/id.hpp>
-#include <stree/node/impl/packed/manager.hpp>
+#include <stree/node/manager.hpp>
 
 namespace {
 

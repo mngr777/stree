@@ -3,6 +3,7 @@
 
 #include <stree/node/impl.hpp>
 #include <stree/node/functions.hpp>
+#include <stree/node/manager.hpp>
 #include <stree/node/stats.hpp>
 
 #endif

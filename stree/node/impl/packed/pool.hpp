@@ -14,9 +14,8 @@ namespace stree {
 template<Arity A>
 class FunctionNode {
 public:
-    FunctionNode() : FunctionNode(FunctionNoIndex) {}
-
-    FunctionNode(FunctionIndex fid) : fid_(fid) {}
+    FunctionNode(FunctionIndex fid = FunctionNoIndex)
+        : fid_(fid) {}
 
     FunctionIndex fid() const {
         return fid_;
@@ -88,8 +87,8 @@ class NodeManagerStats;
 // Pool of nodes of specific type
 template<typename T>
 class NodePool {
-private:
     friend NodeManagerStats;
+
 public:
     NodePool() {}
     NodePool(const NodePool& other) = delete;
@@ -104,7 +103,7 @@ public:
             index = buffer_.front();
             buffer_.pop();
         }
-        assert(Id::NoIndex);
+        assert(index != Id::NoIndex);
         return index;
     }
 
@@ -130,48 +129,6 @@ private:
     std::vector<T> nodes_;
     std::queue<Id::Index> buffer_;
 };
-
-
-// Node manager
-
-#define STREE_TMP_MEMBER_DECL(_Type, _member)   \
-    private:                                    \
-    NodePool<_Type> _member;                    \
-
-#define STREE_TMP_MEMBER_FUN_DECL(_arity)                       \
-    STREE_TMP_MEMBER_DECL(FunctionNode<_arity>, fun ## _arity);
-
-#define STREE_TMP_MEMBER_SELECT_DECL(_arity)                    \
-    STREE_TMP_MEMBER_DECL(SelectNode<_arity>, select ## _arity)
-
-class NodeManager {
-    friend NodeManagerStats;
-public:
-    NodeManager() {}
-    NodeManager(const NodeManager& other) = delete;
-    NodeManager& operator=(const NodeManager& other) = delete;
-
-    template<typename N, Type type>
-    Id::Index alloc();
-
-    template<typename N, Type type>
-    N& get(Id::Index index);
-
-    template<typename N, Type type>
-    const N& get(Id::Index index) const;
-
-    template<typename N, Type type>
-    void free(Id::Index index);
-
-    STREE_TMP_MEMBER_DECL(Position, pos)
-    STREE_TMP_MEMBER_DECL(Value, val)
-    STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_DECL)
-    STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MEMBER_SELECT_DECL)
-};
-
-#undef STREE_TMP_MEMBER_FUN_DECL
-#undef STREE_TMP_MEMBER_SELECT_DECL
-#undef STREE_TMP_MEMBER_DECL
 
 } // namespace stree
 

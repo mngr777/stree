@@ -10,7 +10,6 @@
 #include <stree/types.hpp>
 #include <stree/node/impl.hpp>
 
-
 std::ostream& operator<<(std::ostream& os, const stree::Id& id);
 
 namespace std {
