@@ -1,4 +1,5 @@
 #include <stree/node/functions.hpp>
+#include <stree/node/impl.hpp>
 #include <stree/node/manager.hpp>
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id) {
@@ -21,6 +22,82 @@ using _ConstNodeRefQueue = std::queue<std::reference_wrapper<const Id>>;
 using _ConstNodeRefDepthPair = std::pair<const Id&, NodeNum>;
 using _ConstNodeRefDepthPairQueue = std::queue<_ConstNodeRefDepthPair>;
 using _NodeWidthMap = std::unordered_map<Id, NodeNum>;
+
+
+#define STREE_TMP_MAKE_FUN_ARITY_CASE(_arity)                   \
+    else if (arity == _arity) {                                 \
+        index = nm.alloc<FunctionNode<_arity>, TypeFunction>(); \
+    }
+
+#define STREE_TMP_MAKE_SELECT_ARITY_CASE(_arity)            \
+    else if (arity == _arity) {                             \
+        index = nm.alloc<SelectNode<_arity>, TypeSelect>(); \
+    }
+
+Id make(NodeManager& nm, Type type, Arity arity) {
+    Id::Index index = Id::NoIndex;
+    switch (type) {
+    case TypeConst:
+        index = nm.alloc<Value, TypeConst>();
+        break;
+    case TypePositional:
+        index = nm.alloc<Position, TypePositional>();
+        break;
+    case TypeFunction:
+        if (false) {}
+        STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MAKE_FUN_ARITY_CASE)
+        else { assert(false && "Invalid function arity"); }
+        break;
+    case TypeSelect:
+        if (false) {}
+        STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MAKE_SELECT_ARITY_CASE)
+        else { assert(false && "Invalid select arity"); }
+        break;
+    }
+    assert(index != Id::NoIndex);
+    return Id(type, arity, index);
+}
+
+#undef STREE_TMP_MAKE_FUN_ARITY_CASE
+#undef STREE_TMP_MAKE_SELECT_ARITY_CASE
+
+
+#define STREE_TMP_DESTROY_FUN_ARITY_CASE(_arity)                    \
+    else if(id.arity() == _arity) {                                 \
+        nm.free<FunctionNode<_arity>, TypeFunction>(id.index());    \
+    }
+
+#define STREE_TMP_DESTROY_SELECT_ARITY_CASE(_arity)             \
+    else if (id.arity() == _arity) {                            \
+        nm.free<SelectNode<_arity>, TypeSelect>(id.index());    \
+    }
+
+void destroy(NodeManager& nm, Id& id) {
+    if (!id.empty()) {
+        switch (id.type()) {
+        case TypeConst:
+            nm.free<Value, TypeConst>(id.index());
+            break;
+        case TypePositional:
+            nm.free<Position, TypePositional>(id.index());
+            break;
+        case TypeFunction:
+            if (false) {}
+            STREE_FOR_EACH_FUN_ARITY(STREE_TMP_DESTROY_FUN_ARITY_CASE)
+            else { assert(false && "Invalid function arity"); }
+            break;
+        case TypeSelect:
+            if (false) {}
+            STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_DESTROY_SELECT_ARITY_CASE)
+            else { assert(false && "Invalid select arity"); }
+            break;
+        }
+        id.reset();
+    }
+}
+
+#undef STREE_TMP_DESTROY_FUN_ARITY_CASE
+#undef STREE_TMP_DESTROY_SELECT_ARITY_CASE
 
 
 // TODO: use map (see subtree_width)

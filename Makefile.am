@@ -2,15 +2,27 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 
+# packed node
 NODE_PACKED_HEADER_FILES = \
 	stree/node/impl/packed.hpp \
 	stree/node/impl/packed/id.hpp \
 	stree/node/impl/packed/pool.hpp
-NODE_PACKED_SOURCE_ONLY_FILES =  \
+NODE_PACKED_CPP_FILES =  \
 	src/node/impl/packed/id.cpp
 
-NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
-NODE_SOURCE_ONLY_FILES = $(NODE_PACKED_SOURCE_ONLY_FILES)
+# pointer node
+NODE_POINTER_HEADER_FILES = \
+	stree/node/impl/pointer.hpp \
+	stree/node/impl/pointer/id.hpp \
+	stree/node/impl/pointer/node.hpp \
+	stree/node/impl/pointer/pool.hpp
+NODE_PACKED_CPP_FILES = \
+	src/node/impl/pointer/id.cpp
+
+# NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)
+# NODE_CPP_FILES = $(NODE_PACKED_CPP_FILES)
+NODE_HEADER_FILES = $(NODE_POINTER_HEADER_FILES)
+NODE_CPP_FILES = $(NODE_POINTER_CPP_FILES)
 
 HEADER_FILES = \
 	$(NODE_HEADER_FILES) \
@@ -33,7 +45,7 @@ HEADER_FILES = \
 	stree/types.hpp
 SOURCE_FILES = \
 	$(HEADER_FILES) \
-	$(NODE_SOURCE_ONLY_FILES) \
+	$(NODE_CPP_FILES) \
 	src/common_region.cpp \
 	src/builder.cpp \
 	src/compare.cpp \

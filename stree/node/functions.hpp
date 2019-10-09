@@ -8,26 +8,19 @@
 #include <stree/macros.hpp>
 #include <stree/search.hpp>
 #include <stree/types.hpp>
-#include <stree/node/impl.hpp>
+
+namespace stree {
+class Id;
+class NodeManager;
+}
 
 std::ostream& operator<<(std::ostream& os, const stree::Id& id);
-
-namespace std {
-
-// ID hash function
-template<> struct hash<stree::Id> {
-    typedef stree::Id argument_type;
-    typedef std::size_t result_type;
-    result_type operator()(const argument_type& id) const {
-        return id.hash();
-    }
-};
-
-}
 
 
 namespace stree { namespace id {
 
+Id make(NodeManager& nm, Type type, Arity arity = 0);
+void destroy(NodeManager& nm, Id& id);
 
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 

@@ -1,20 +1,15 @@
 #ifndef STREE_NODE_IMPL_PACKED_ID_HPP_
 #define STREE_NODE_IMPL_PACKED_ID_HPP_
 
+#include <functional>
 #include <stree/macros.hpp>
+#include <stree/node/functions.hpp>
 #include <stree/types.hpp>
 
 namespace stree {
 
 class Tree;
-class Id;
 class NodeManager;
-
-namespace id {
-Id make(NodeManager& nm, Type type, Arity arity = 0);
-void destroy(NodeManager& nm, Id& id);
-}
-
 
 class Id {
     friend void id::destroy(NodeManager& nm, Id& id);
@@ -70,5 +65,15 @@ private:
 };
 
 } // namespace stree
+
+
+// ID hash function
+template<> struct std::hash<stree::Id> {
+    typedef stree::Id argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& id) const {
+        return id.hash();
+    }
+};
 
 #endif
