@@ -1,5 +1,6 @@
 #include <cassert>
 #include <stree/node/impl/pointer/id.hpp>
+#include <stree/node/impl/pointer/node.hpp>
 
 namespace stree {
 
@@ -12,21 +13,24 @@ bool Id::operator!=(const Id& other) const {
 }
 
 std::size_t Id::hash() const {
-    return static_cast<std::size_t>(index_);
+    return reinterpret_cast<std::size_t>(index_);
 }
 
 bool Id::empty() const {
-    return index_;
+    return !index_;
 }
 
 Type Id::type() const {
+    assert(index_);
+    return index_->type();
 }
 
 Arity Id::arity() const {
-
+    assert(index_);
+    return index_->arity();
 }
 
-Index Id::index() const {
+Id::Index Id::index() const {
     return index_;
 }
 

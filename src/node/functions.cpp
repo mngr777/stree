@@ -38,10 +38,10 @@ Id make(NodeManager& nm, Type type, Arity arity) {
     Id::Index index = Id::NoIndex;
     switch (type) {
     case TypeConst:
-        index = nm.alloc<Value, TypeConst>();
+        index = nm.alloc<ConstNode, TypeConst>();
         break;
     case TypePositional:
-        index = nm.alloc<Position, TypePositional>();
+        index = nm.alloc<PositionalNode, TypePositional>();
         break;
     case TypeFunction:
         if (false) {}
@@ -76,10 +76,10 @@ void destroy(NodeManager& nm, Id& id) {
     if (!id.empty()) {
         switch (id.type()) {
         case TypeConst:
-            nm.free<Value, TypeConst>(id.index());
+            nm.free<ConstNode, TypeConst>(id.index());
             break;
         case TypePositional:
-            nm.free<Position, TypePositional>(id.index());
+            nm.free<PositionalNode, TypePositional>(id.index());
             break;
         case TypeFunction:
             if (false) {}
@@ -242,22 +242,22 @@ Id copy_subtree(NodeManager& nm, const Id root) {
 
 Value value(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypeConst);
-    return nm.get<Value, TypeConst>(id.index());
+    return nm.get<ConstNode, TypeConst>(id.index()).value();
 }
 
 void set_value(NodeManager& nm, Id& id, Value value) {
     assert(id.type() == TypeConst);
-    nm.get<Value, TypeConst>(id.index()) = std::move(value);
+    nm.get<ConstNode, TypeConst>(id.index()).set_value(std::move(value));
 }
 
 Position position(const NodeManager& nm, const Id& id) {
     assert(id.type() == TypePositional);
-    return nm.get<Position, TypePositional>(id.index());
+    return nm.get<PositionalNode, TypePositional>(id.index()).position();
 }
 
 void set_position(NodeManager& nm, Id& id, Position position) {
     assert(id.type() == TypePositional);
-    nm.get<Position, TypePositional>(id.index()) = position;
+    nm.get<PositionalNode, TypePositional>(id.index()).set_position(position);
 }
 
 

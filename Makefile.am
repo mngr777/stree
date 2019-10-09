@@ -16,7 +16,7 @@ NODE_POINTER_HEADER_FILES = \
 	stree/node/impl/pointer/id.hpp \
 	stree/node/impl/pointer/node.hpp \
 	stree/node/impl/pointer/pool.hpp
-NODE_PACKED_CPP_FILES = \
+NODE_POINTER_CPP_FILES = \
 	src/node/impl/pointer/id.cpp
 
 # NODE_HEADER_FILES = $(NODE_PACKED_HEADER_FILES)

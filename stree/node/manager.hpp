@@ -35,8 +35,8 @@ public:
     template<typename N, Type type>
     void free(Id::Index index);
 
-    STREE_TMP_MEMBER_DECL(Position, pos)
-    STREE_TMP_MEMBER_DECL(Value, val)
+    STREE_TMP_MEMBER_DECL(PositionalNode, pos)
+    STREE_TMP_MEMBER_DECL(ConstNode, val)
     STREE_FOR_EACH_FUN_ARITY(STREE_TMP_MEMBER_FUN_DECL)
     STREE_FOR_EACH_SELECT_ARITY(STREE_TMP_MEMBER_SELECT_DECL)
 };

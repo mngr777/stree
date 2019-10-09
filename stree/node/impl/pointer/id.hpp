@@ -1,6 +1,7 @@
 #ifndef STREE_NODE_IMPL_POINTER_ID_HPP_
 #define STREE_NODE_IMPL_POINTER_ID_HPP_
 
+#include <cstddef>
 #include <stree/macros.hpp>
 #include <stree/types.hpp>
 #include <stree/node/functions.hpp>
