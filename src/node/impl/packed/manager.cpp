@@ -4,19 +4,19 @@ namespace stree {
 
 #define STREE_TMP_MEMBER_IMPL(_Node, _type, _member)                    \
     template<>                                                          \
-    Id::Index NodeManager::alloc<_Node, _type>() {                          \
+    Id::Index NodeManager::alloc<_Node, _type>() {                      \
         return _member.alloc();                                         \
     }                                                                   \
     template<>                                                          \
-    _Node& NodeManager::get<_Node, _type>(Id::Index index) {                \
+    _Node& NodeManager::get<_Node, _type>(Id::Index index) {            \
         return _member.get(index);                                      \
     }                                                                   \
     template<>                                                          \
-    const _Node& NodeManager::get<_Node, _type>(Id::Index index) const {    \
+    const _Node& NodeManager::get<_Node, _type>(Id::Index index) const { \
         return _member.get(index);                                      \
     }                                                                   \
     template<>                                                          \
-    void NodeManager::free<_Node, _type>(Id::Index index) {                 \
+    void NodeManager::free<_Node, _type>(Id::Index index) {             \
         _member.free(index);                                            \
     }
 
