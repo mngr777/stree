@@ -213,6 +213,10 @@ void Subtree::replace(Tree& tree) {
     swap(subtree);
 }
 
+void Subtree::replace(Tree&& tree) {
+    replace(tree);
+}
+
 Tree Subtree::copy() const {
     return Tree(env_, id::copy_subtree(env_->node_manager(), root_));
 }

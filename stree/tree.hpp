@@ -107,6 +107,7 @@ public:
 
     // NOTE: `tree' root will be replaced with empty node
     void replace(Tree& tree);
+    void replace(Tree&& tree);
 
     // Create tree from subtree copy
     Tree copy() const;
