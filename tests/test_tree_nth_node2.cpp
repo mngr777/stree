@@ -29,7 +29,7 @@ int main() {
       /  \
     (5)c (6)d
 */
-    // terminals:       0       3 4  1
+    // terminals:       0       2 3  1
     // non-terinals:  0    1  2
     std::string ts1("(+ a (- (* c d) b))");
     std::string answers_term[] = {"a", "b", "c", "d"};
