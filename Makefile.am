@@ -35,6 +35,7 @@ HEADER_FILES = \
 	stree/exec.hpp \
 	stree/macros.hpp \
 	stree/node.hpp \
+	stree/node/impl.hpp \
 	stree/node/functions.hpp \
 	stree/node/stats.hpp \
 	stree/node/manager.hpp \
