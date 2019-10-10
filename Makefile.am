@@ -6,6 +6,7 @@ AM_CXXFLAGS = -I $(srcdir)/stree -Wall
 NODE_PACKED_HEADER_FILES = \
 	stree/node/impl/packed.hpp \
 	stree/node/impl/packed/id.hpp \
+	stree/node/impl/packed/node.hpp \
 	stree/node/impl/packed/pool.hpp
 NODE_PACKED_CPP_FILES =  \
 	src/node/impl/packed/id.cpp
