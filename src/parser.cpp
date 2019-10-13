@@ -24,7 +24,17 @@ static bool is_numeric(const char c);
 static bool is_ident(const char c);
 static bool is_dot(const char c);
 
+
 namespace stree {
+
+ParserError::ParserError(const Parser& parser) {
+    what_ = std::string("")
+        + "Parser state: " + parser.state_string() + "\n"
+        + "Parser error: " + parser.error_message() + "\n"
+        + "Position: line " + std::to_string(parser.line_num())
+        + " char "  + std::to_string(parser.char_num());
+}
+
 
 Parser::Parser(Environment* env) : env_(env)
 {
@@ -47,14 +57,22 @@ Parser::~Parser() {
     }
 }
 
-std::string::size_type Parser::parse(const std::string& s) {
-    std::string::size_type pos = 0;
+std::size_t Parser::parse(const std::string& s) {
+    std::size_t pos = 0;
     for (; pos < s.size(); ++ pos) {
         consume(s[pos]);
         if (is_done() || is_error())
             break;
     }
     finish();
+    return pos;
+}
+
+std::size_t Parser::parse(std::istream& s) {
+    std::size_t pos = 0;
+    char c = '\0';
+    while (!is_done() && !is_error() && s.get(c))
+        consume(c);
     return pos;
 }
 

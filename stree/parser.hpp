@@ -2,6 +2,7 @@
 #define STREE_PARSER_HPP_
 
 #include <cstddef>
+#include <istream>
 #include <stack>
 #include <stdexcept>
 #include <string>
@@ -10,10 +11,11 @@
 
 namespace stree {
 
+class Parser;
+
 class ParserError : std::exception {
 public:
-    ParserError(const std::string& what)
-        : what_(what) {}
+    ParserError(const Parser& parser);
 
     virtual const char* what() const noexcept {
         return what_.c_str();
@@ -21,6 +23,7 @@ public:
 private:
     std::string what_;
 };
+
 
 class Parser {
 public:
@@ -58,7 +61,8 @@ public:
     Parser(Environment* env);
     ~Parser();
 
-    std::string::size_type parse(const std::string& s);
+    std::size_t parse(const std::string& s);
+    std::size_t parse(std::istream& s);
 
     void consume(const char c);
 
