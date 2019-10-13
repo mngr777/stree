@@ -38,6 +38,9 @@ public:
 
     bool is_valid() const;
 
+    void swap(TreeBase& other);
+    void swap(TreeBase&& other);
+
     // Replace root with ID for other symbol with same arity
     void set(const Symbol* symbol);
     void set(const std::string& name);
@@ -99,9 +102,6 @@ public:
         Id& root)
         : TreeBase(env, parent),
           root_(root) {}
-
-    void swap(Subtree& other);
-    void swap(Subtree&& other);
 
     void destroy();
 

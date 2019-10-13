@@ -40,6 +40,16 @@ bool TreeBase::is_valid() const {
     return id::is_valid_subtree(env_->node_manager(), root());
 }
 
+void TreeBase::swap(TreeBase& other) {
+    std::swap(root(), other.root());
+    reset_cache();
+    other.reset_cache();
+}
+
+void TreeBase::swap(TreeBase&& other) {
+    swap(other);
+}
+
 void TreeBase::set(const Symbol* symbol) {
     if (!symbol)
         throw std::invalid_argument("Empty symbol ptr");
@@ -191,16 +201,6 @@ void TreeBase::reset_width() {
 
 
 // Subtree class
-
-void Subtree::swap(Subtree& other) {
-    std::swap(root_, other.root_);
-    reset_cache();
-    other.reset_cache();
-}
-
-void Subtree::swap(Subtree&& other) {
-    swap(other);
-}
 
 void Subtree::destroy() {
     id::destroy_subtree(env_->node_manager(), root_);
