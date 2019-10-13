@@ -112,11 +112,11 @@ public:
     // Create tree from subtree copy
     Tree copy() const;
 
-    const Id& root() const {
+    virtual const Id& root() const {
         return root_;
     }
 
-    Id& root() {
+    virtual Id& root() {
         return root_;
     }
 
@@ -143,13 +143,13 @@ public:
     Tree& operator=(const Tree& other);
     Tree& operator=(Tree&& other);
 
-    ~Tree();
+    virtual ~Tree();
 
-    const Id& root() const {
+    virtual const Id& root() const {
         return root_;
     }
 
-    Id& root() {
+    virtual Id& root() {
         return root_;
     }
 
