@@ -20,69 +20,58 @@ void Exec::step() {
 
     Frame& current = stack_top();
     if (current.arguments.size() == current.argument_num) {
-        switch (current.id.type()) {
-            case TypeFunction: {
-                Value value = eval(env_, current.id, *params_, data_ptr_);
-                stack_pop();
-                if (stack_empty()) {
-                    // finished
-                    is_finished_ = true;
-                    result_ = value;
-                } else {
-                    // set parent argument to result
-                    Frame& parent = stack_top();
-                    parent.arguments.push_back(value);
-                }
-                break;
-            }
-            case TypeSelect: {
-                unsigned branch = call_select_function(
-                    env_, current.id, current.arguments, data_ptr_);
-                // pop conditional, push selected branch
-                stack_pop();
-                if (branch < current.arguments.size()) {
-                    // branch already evaluated as select function argument
-                    Value value = current.arguments[branch];
-                    if (stack_empty()) {
-                        // finished
-                        is_finished_ = true;
-                        result_ = value;
-                    } else {
-                        // set parent argument to result
-                        Frame& parent = stack_top();
-                        parent.arguments.push_back(value);
-                    }
-                } else {
-                    // push selected branch
-                    Id branch_id = id::nth_argument(
-                        env_.node_manager(), current.id, branch);
-                    stack_push(branch_id);
-                }
-                // evaluating conditional doesn't count as a step
-                step();
-                break;
-            }
-            default:
-                assert(false && "Invalid type");
-        }
-
+        // Arguments evaluated, evaluate top
+        eval_top();
     } else {
-        const Id& id = id::nth_argument(
-            env_.node_manager(),
-            current.id,
-            current.arguments.size());
-        if (id.arity() == 0) {
-            Value value = eval(env_, id, *params_, data_ptr_);
-            current.arguments.push_back(value);
-            // evaluating constants and positionals doesn't count as a step
-            if (id.type() == TypeConst || id.type() == TypePositional) {
-                step();
+        // Push next argument
+        push_argument();
+    }
+}
+
+void Exec::eval_top() {
+    Frame& current = stack_top();
+    switch (current.id.type()) {
+        case TypeConst:
+        case TypePositional: {
+            Value value = eval(env_, current.id, *params_, data_ptr_);
+            stack_return(value);
+            break;
+        }
+        case TypeFunction: {
+            Value value = call_function(
+                env_, current.id, current.arguments, data_ptr_);
+            stack_return(value);
+            break;
+        }
+        case TypeSelect: {
+            unsigned branch = call_select_function(
+                env_, current.id, current.arguments, data_ptr_);
+            if (branch < current.arguments.size()) {
+                // branch already evaluated as select function argument
+                Value value = current.arguments[branch];
+                stack_return(value);
+            } else {
+                // push selected branch
+                Id branch_id = id::nth_argument(
+                    env_.node_manager(), current.id, branch);
+                stack_pop();
+                stack_push(branch_id);
             }
-        } else {
-            stack_push(id);
+            // evaluating conditional doesn't count as a step
             step();
+            break;
         }
     }
+}
+
+void Exec::push_argument() {
+    Frame& current = stack_top();
+    const Id& id = id::nth_argument(
+        env_.node_manager(),
+        current.id,
+        current.arguments.size());
+    stack_push(id);
+    step();
 }
 
 void Exec::restart() {
@@ -96,13 +85,24 @@ void Exec::stack_clear() {
 }
 
 void Exec::stack_push(const Id& id) {
-    Arity argument_num = id.arity();
-    if (id.type() == TypeSelect) {
-        const Symbol* symbol = env_.symbol(id);
-        assert(symbol && "Select function symbol not found");
-        argument_num = symbol->sf_arity();
-    }
+    Arity argument_num = get_argument_num(env_, id);
     stack_.emplace_back(id, argument_num);
+}
+
+void Exec::stack_return(Value value) {
+    stack_pop();
+    if (stack_empty()) {
+        // finished
+        is_finished_ = true;
+        result_ = value;
+    } else {
+        // set next argument to result
+        Frame& current = stack_top();
+        assert(
+            current.arguments.size() < current.argument_num
+            && "Too many arguments");
+        current.arguments.push_back(value);
+    }
 }
 
 void Exec::stack_pop() {
@@ -160,8 +160,8 @@ std::ostream& ExecDebug::print_frame(
     }
 
     // Print <empty> for missing arguments
-    assert(frame.id.arity() >= frame.arguments.size());
-    for (unsigned i = 0; i < frame.id.arity() - frame.arguments.size(); ++i) {
+    assert(frame.argument_num >= frame.arguments.size());
+    for (unsigned i = 0; i < frame.argument_num - frame.arguments.size(); ++i) {
         os << "<empty> ";
     }
 

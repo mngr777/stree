@@ -8,11 +8,11 @@ namespace {
 Arguments eval_arguments(
     const Environment& env,
     const Id& id,
-    Arity arity,
     const Params& params, DataPtr data)
 {
-    Arguments arguments(arity);
-    for (Arity n = 0; n < arity; ++n)
+    Arity argument_num = get_argument_num(env, id);
+    Arguments arguments(argument_num);
+    for (Arity n = 0; n < argument_num; ++n)
         arguments[n] = eval(
             env,
             id::nth_argument(env.node_manager(), id, n),
@@ -42,14 +42,12 @@ Value eval(
         }
         case TypeFunction: {
             // eval arguments
-            Arguments args = eval_arguments(env, id, id.arity(), params, data);
+            Arguments args = eval_arguments(env, id, params, data);
             // apply function
-            return env.function(id::fid(env.node_manager(), id))(args, data);
+            return call_function(env, id, args, data);
         }
         case TypeSelect: {
-            const Symbol* symbol = env.symbol(id);
-            assert(symbol && "Select function symbol not found");
-            Arguments args = eval_arguments(env, id, symbol->sf_arity(), params, data);
+            Arguments args = eval_arguments(env, id, params, data);
             unsigned branch = call_select_function(env, id, args, data);
             assert(branch < id.arity() && "Invalid branch selected");
             return (branch < args.size())
@@ -67,6 +65,16 @@ Value eval(const Tree& tree, const Params& params, DataPtr data) {
     return eval(*tree.env(), tree.root(), params, data);
 }
 
+
+Arity get_argument_num(const Environment& env, const Id& id) {
+    Arity n = id.arity();
+    if (id.type() == TypeSelect) {
+        const Symbol* symbol = env.symbol(id);
+        assert(symbol && "Select symbol not found");
+        n = symbol->sf_arity();
+    }
+    return n;
+}
 
 Value call_function(
     const Environment& env,

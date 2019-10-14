@@ -16,6 +16,9 @@ Value eval(
 
 Value eval(const Tree& tree, const Params& params, DataPtr data = nullptr);
 
+
+Arity get_argument_num(const Environment& env, const Id& id);
+
 Value call_function(
     const Environment& env,
     const Id& id,

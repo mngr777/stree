@@ -45,15 +45,19 @@ private:
         Frame(const Id& id, Arity argument_num)
             : id(id), argument_num(argument_num) {}
 
-        const Id& id;
-        Arity argument_num;
+        const Id id;
+        const Arity argument_num;
         Arguments arguments;
     };
 
     using Stack = std::vector<Frame>;
 
+    void eval_top();
+    void push_argument();
+
     void stack_clear();
     void stack_push(const Id& id);
+    void stack_return(Value value);
     void stack_pop();
     Frame& stack_top();
     bool stack_empty() const;
