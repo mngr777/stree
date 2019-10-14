@@ -20,14 +20,35 @@ void Exec::step() {
 
     Frame& current = stack_top();
     if (current.arguments.size() == current.id.arity()) {
-        Value value = eval(env_, current.id, *params_, data_ptr_);
-        stack_pop();
-        if (stack_empty()) {
-            is_finished_ = true;
-            result_ = value;
-        } else {
-            Frame& parent = stack_top();
-            parent.arguments.push_back(value);
+        switch (current.id.type()) {
+            case TypeFunction: {
+                Value value = eval(env_, current.id, *params_, data_ptr_);
+                stack_pop();
+                if (stack_empty()) {
+                    // finished
+                    is_finished_ = true;
+                    result_ = value;
+                } else {
+                    // pop function, set parent argument to result
+                    Frame& parent = stack_top();
+                    parent.arguments.push_back(value);
+                }
+                break;
+            }
+            case TypeSelect: {
+                unsigned branch = call_select_function(
+                    env_, current.id, current.arguments, data_ptr_);
+                Id branch_id = id::nth_argument(
+                    env_.node_manager(), current.id, branch);
+                // pop conditional, push selected branch
+                stack_pop();
+                stack_push(branch_id);
+                // evaluating conditional doesn't count as a step
+                step();
+                break;
+            }
+            default:
+                assert(false && "Invalid type");
         }
 
     } else {
@@ -38,6 +59,10 @@ void Exec::step() {
         if (id.arity() == 0) {
             Value value = eval(env_, id, *params_, data_ptr_);
             current.arguments.push_back(value);
+            // evaluating constants and positionals doesn't count as a step
+            if (id.type() == TypeConst || id.type() == TypePositional) {
+                step();
+            }
         } else {
             stack_push(id);
             step();

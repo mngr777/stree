@@ -16,6 +16,18 @@ Value eval(
 
 Value eval(const Tree& tree, const Params& params, DataPtr data = nullptr);
 
+Value call_function(
+    const Environment& env,
+    const Id& id,
+    const Arguments& arguments,
+    DataPtr data = nullptr);
+
+unsigned call_select_function(
+    const Environment& env,
+    const Id& id,
+    const Arguments& arguments,
+    DataPtr data = nullptr);
+
 }
 
 #endif
