@@ -42,9 +42,11 @@ public:
 private:
     class Frame {
     public:
-        Frame(const Id& id) : id(id) {}
+        Frame(const Id& id, Arity argument_num)
+            : id(id), argument_num(argument_num) {}
 
         const Id& id;
+        Arity argument_num;
         Arguments arguments;
     };
 

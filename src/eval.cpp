@@ -31,37 +31,36 @@ Value eval(
         id::is_valid_subtree(env.node_manager(), id)
         && "Cannot eval invalid subtree");
     switch (id.type()) {
-        case TypeConst:
+        case TypeConst: {
             return id::value(env.node_manager(), id);
-
-        case TypePositional:
-            assert(id::position(env.node_manager(), id) < params.size());
+        }
+        case TypePositional: {
+            assert(
+                id::position(env.node_manager(), id) < params.size()
+                && "Invalid positional argument index");
             return params[id::position(env.node_manager(), id)];
-
+        }
         case TypeFunction: {
             // eval arguments
             Arguments args = eval_arguments(env, id, id.arity(), params, data);
             // apply function
             return env.function(id::fid(env.node_manager(), id))(args, data);
         }
-
         case TypeSelect: {
-            // eval conditional arguments
-            SelectFunctionIndex sfid = id::sfid(env.node_manager(), id);
-            Arity cond_arity = env.select_function_cond_arity(sfid);
-            Arguments args = eval_arguments(env, id, cond_arity, params, data);
-            // apply select function
-            unsigned branch = env.select_function(sfid)(args, data);
-            // eval selected branch
-            assert(branch < id.arity());
-            return eval(
-                env,
-                id::nth_argument(env.node_manager(), id, branch),
-                params, data);
-        }
+            const Symbol* symbol = env.symbol(id);
+            assert(symbol && "Select function symbol not found");
+            Arguments args = eval_arguments(env, id, symbol->sf_arity(), params, data);
+            unsigned branch = call_select_function(env, id, args, data);
+            assert(branch < id.arity() && "Invalid branch selected");
+            return (branch < args.size())
+                ? args[branch]
+                : eval(
+                    env, id::nth_argument(env.node_manager(), id, branch),
+                    params, data);
 
-        default: assert(false);
+        }
     }
+    assert(false);
 }
 
 Value eval(const Tree& tree, const Params& params, DataPtr data) {

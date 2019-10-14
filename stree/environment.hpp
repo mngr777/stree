@@ -69,6 +69,8 @@ public:
     // Select
     SelectFunctionIndex sfid() const;
     void set_sfid(SelectFunctionIndex sfid);
+    Arity sf_arity() const;
+    void set_sf_arity(Arity arity);
 
 private:
     std::string name_;
@@ -86,6 +88,7 @@ private:
         } function;
         struct {
             Arity arity;
+            Arity sf_arity;
             SelectFunctionIndex sfid;
         } select;
     } data_;

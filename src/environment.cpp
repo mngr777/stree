@@ -72,6 +72,16 @@ void Symbol::set_sfid(SelectFunctionIndex sfid) {
     data_.select.sfid = sfid;
 }
 
+Arity Symbol::sf_arity() const {
+    assert(type_ == TypeSelect);
+    return data_.select.sf_arity;
+}
+
+void Symbol::set_sf_arity(Arity arity) {
+    assert(type_ == TypeSelect);
+    data_.select.sf_arity = arity;
+}
+
 
 void Environment::add_function(
     const std::string& name,
@@ -96,14 +106,15 @@ Function Environment::function(FunctionIndex fid) const {
 void Environment::add_select_function(
         const std::string& name,
         Arity arity,
-        Arity cond_arity,
+        Arity sf_arity,
         SelectFunction select_function)
 {
     SelectFunctionIndex sfid = select_functions_.size();
-    select_functions_.emplace_back(select_function, cond_arity);
+    select_functions_.emplace_back(select_function, sf_arity);
     Symbol symbol(name, TypeSelect);
     symbol.set_arity(arity);
     symbol.set_sfid(sfid);
+    symbol.set_sf_arity(sf_arity);
     add_symbol(symbol);
 }
 

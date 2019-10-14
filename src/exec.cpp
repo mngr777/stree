@@ -19,7 +19,7 @@ void Exec::step() {
         restart();
 
     Frame& current = stack_top();
-    if (current.arguments.size() == current.id.arity()) {
+    if (current.arguments.size() == current.argument_num) {
         switch (current.id.type()) {
             case TypeFunction: {
                 Value value = eval(env_, current.id, *params_, data_ptr_);
@@ -29,7 +29,7 @@ void Exec::step() {
                     is_finished_ = true;
                     result_ = value;
                 } else {
-                    // pop function, set parent argument to result
+                    // set parent argument to result
                     Frame& parent = stack_top();
                     parent.arguments.push_back(value);
                 }
@@ -38,11 +38,26 @@ void Exec::step() {
             case TypeSelect: {
                 unsigned branch = call_select_function(
                     env_, current.id, current.arguments, data_ptr_);
-                Id branch_id = id::nth_argument(
-                    env_.node_manager(), current.id, branch);
                 // pop conditional, push selected branch
                 stack_pop();
-                stack_push(branch_id);
+                if (branch < current.arguments.size()) {
+                    // branch already evaluated as select function argument
+                    Value value = current.arguments[branch];
+                    if (stack_empty()) {
+                        // finished
+                        is_finished_ = true;
+                        result_ = value;
+                    } else {
+                        // set parent argument to result
+                        Frame& parent = stack_top();
+                        parent.arguments.push_back(value);
+                    }
+                } else {
+                    // push selected branch
+                    Id branch_id = id::nth_argument(
+                        env_.node_manager(), current.id, branch);
+                    stack_push(branch_id);
+                }
                 // evaluating conditional doesn't count as a step
                 step();
                 break;
@@ -81,7 +96,13 @@ void Exec::stack_clear() {
 }
 
 void Exec::stack_push(const Id& id) {
-    stack_.emplace_back(id);
+    Arity argument_num = id.arity();
+    if (id.type() == TypeSelect) {
+        const Symbol* symbol = env_.symbol(id);
+        assert(symbol && "Select function symbol not found");
+        argument_num = symbol->sf_arity();
+    }
+    stack_.emplace_back(id, argument_num);
 }
 
 void Exec::stack_pop() {
