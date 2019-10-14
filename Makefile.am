@@ -84,7 +84,8 @@ TESTS = test_string1 \
 	test_select1 \
 	test_exec1 \
 	test_builder1 \
-	test_builder2
+	test_builder2 \
+	test_parser_cleanup1
 
 check_PROGRAMS = $(TESTS)
 
@@ -144,3 +145,6 @@ test_builder1_LDADD = $(TEST_LIBS)
 
 test_builder2_SOURCES = tests/test_builder2.cpp $(TEST_SOURCES)
 test_builder2_LDADD = $(TEST_LIBS)
+
+test_parser_cleanup1_SOURCES = tests/test_parser_cleanup1.cpp $(TEST_SOURCES)
+test_parser_cleanup1_LDADD = $(TEST_LIBS)

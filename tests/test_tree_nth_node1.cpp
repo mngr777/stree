@@ -42,7 +42,7 @@ int main() {
     cout << ts1 << endl;
 
     // Get tree node by node number
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     for (NodeNum n = 0; n < answer_num; ++n) {
         cout << "[Node " << n << "] ";
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n);

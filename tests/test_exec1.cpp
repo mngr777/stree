@@ -27,10 +27,10 @@ int main() {
     Parser p1(&env);
     // Tree 1
     PARSE(p1, ts1);
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     // Tree 2
     PARSE(p1, ts2);
-    Tree t2(&env, p1.result());
+    Tree t2(&env, p1.move_result());
 
     // Exec
     Params params;

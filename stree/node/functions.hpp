@@ -22,6 +22,10 @@ namespace stree { namespace id {
 Id make(NodeManager& nm, Type type, Arity arity = 0);
 void destroy(NodeManager& nm, Id& id);
 
+// Return copy and reset original.
+// Example: moving result from parser, see parser.hpp
+Id move(Id& id);
+
 NodeNum subtree_size(const NodeManager& nm, const Id& id);
 
 NodeNum subtree_width(const NodeManager& nm, const Id& id);

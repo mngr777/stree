@@ -45,7 +45,7 @@ int main() {
     cout << ts1 << endl;
 
     // Make tree
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
 
     // Terminals
     cout << "Terminals" << endl;

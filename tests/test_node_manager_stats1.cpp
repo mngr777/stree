@@ -53,7 +53,7 @@ int main() {
 
     {
         // Make tree
-        Tree t1(&env, p1.result());
+        Tree t1(&env, p1.move_result());
         // Get subtree
         Subtree st1 = t1.sub(3);
         // Destroy subtree

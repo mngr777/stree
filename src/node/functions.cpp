@@ -100,6 +100,13 @@ void destroy(NodeManager& nm, Id& id) {
 #undef STREE_TMP_DESTROY_SELECT_ARITY_CASE
 
 
+Id move(Id& id) {
+    Id result(id);
+    id.reset();
+    return result;
+}
+
+
 // TODO: use map (see subtree_width)
 NodeNum subtree_size(const NodeManager& nm, const Id& id) {
     NodeNum size = 0;

@@ -52,9 +52,9 @@ int main() {
     // Parse and make trees
     Parser p1(&env);
     PARSE(p1, ts1);
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     PARSE(p1, ts2);
-    Tree t2(&env, p1.result());
+    Tree t2(&env, p1.move_result());
 
     // Make children tree
     Population children;

@@ -255,7 +255,7 @@ Tree& Tree::operator=(const Tree& other) {
 }
 
 Tree& Tree::operator=(Tree&& other) {
-    TreeBase::operator=(std::move(other));
+    TreeBase::operator=(other);
     copy(std::move(other));
     return *this;
 }

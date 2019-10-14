@@ -43,18 +43,7 @@ Parser::Parser(Environment* env) : env_(env)
 }
 
 Parser::~Parser() {
-    if (!root_.empty())
-        id::destroy_subtree(env_->node_manager(), root_);
-
-    while (!stack_.empty()) {
-        Frame& top = stack_.top();
-        for (Arity n = 0; n < stack_.top().child_num; ++n) {
-            id::destroy_subtree(
-                env_->node_manager(),
-                id::nth_argument(env_->node_manager(), top.id, n));
-        }
-        stack_.pop();
-    }
+    cleanup();
 }
 
 std::size_t Parser::parse(const std::string& s) {
@@ -131,15 +120,31 @@ void Parser::finish() {
     }
 }
 
+Id Parser::move_result() {
+    return id::move(root_);
+}
+
 void Parser::reset() {
-    // result_ = Tree();
+    cleanup();
     buffer_.clear();
-    while (!stack_.empty())
-        stack_.pop();
     state_ = StateReady;
     error_ = ErrorOk;
     line_num_ = 0;
     char_num_ = 0;
+}
+
+void Parser::cleanup() {
+    id::destroy_subtree(env_->node_manager(), root_);
+
+    while (!stack_.empty()) {
+        Frame& top = stack_.top();
+        for (Arity n = 0; n < stack_.top().child_num; ++n) {
+            id::destroy_subtree(
+                env_->node_manager(),
+                id::nth_argument(env_->node_manager(), top.id, n));
+        }
+        stack_.pop();
+    }
 }
 
 std::string Parser::state_string() const {

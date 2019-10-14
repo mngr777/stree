@@ -92,13 +92,13 @@ common region: 0, 1, 2, 3, 5, 6, 7, 8
      Parser p1(&env);
      // tree 1
      PARSE(p1, ts1);
-     Tree t1(&env, p1.result());
+     Tree t1(&env, p1.move_result());
      // tree 2
      PARSE(p1, ts2);
-     Tree t2(&env, p1.result());
+     Tree t2(&env, p1.move_result());
      // tree 3
      PARSE(p1, ts3);
-     Tree t3(&env, p1.result());
+     Tree t3(&env, p1.move_result());
 
      // Output trees 1, 2
      cout << t1 << endl;

@@ -59,7 +59,7 @@ int main() {
 
     {
         // Make tree
-        Tree t3(&env, p1.result());
+        Tree t3(&env, p1.move_result());
 
         // Copy tree
         t1 = t3;

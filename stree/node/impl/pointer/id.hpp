@@ -14,6 +14,7 @@ class Tree;
 
 class Id {
     friend void id::destroy(NodeManager& nm, Id& id);
+    friend Id id::move(Id& id);
     friend Tree;
 
 public:

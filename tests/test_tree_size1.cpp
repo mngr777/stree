@@ -25,7 +25,7 @@ int main() {
     cout << ts1 << endl;
 
     // Calc. tree size
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     cout << t1 << endl; // output tree
     NodeNum size = id::subtree_size(env.node_manager(), t1.root());
     cout << "Tree size: " << size << "; correct answer: " << size_answer << endl;

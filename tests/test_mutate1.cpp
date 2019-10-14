@@ -29,7 +29,7 @@ int main() {
     // Make tree
     string ts1("(+ a b)");
     PARSE(parser, ts1);
-    Tree t1(&env, parser.result());
+    Tree t1(&env, parser.move_result());
     cout << t1 << endl;
 
     // Mutate

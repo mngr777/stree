@@ -68,6 +68,8 @@ public:
 
     void finish();
 
+    Id move_result();
+
     Id result() const {
         return root_;
     }
@@ -108,6 +110,7 @@ private:
     typedef std::stack<Frame> Stack;
 
     void reset();
+    void cleanup();
     void count(char c);
 
     void space();

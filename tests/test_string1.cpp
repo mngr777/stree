@@ -29,7 +29,7 @@ int main() {
 
     cout << ts1 << endl;
     if (p1.is_done()) {
-        Tree t1(&env, p1.result());
+        Tree t1(&env, p1.move_result());
         cout << t1 << endl;
         Params params{2.0};
         Value result = eval(env, t1.root(), params);

@@ -34,7 +34,7 @@ int main() {
     PARSE(p1, ts1);
 
     // Make tree
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     // Output whole tree
     cout << "Tree: " << t1 << endl;
 

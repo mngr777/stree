@@ -44,10 +44,10 @@ int main() {
     Parser p1(&env);
     // tree 1
     PARSE(p1, ts1);
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     // tree 2
     PARSE(p1, ts2);
-    Tree t2(&env, p1.result());
+    Tree t2(&env, p1.move_result());
 
     // Output trees
     cout << t1 << endl;

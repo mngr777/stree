@@ -32,7 +32,7 @@ int main() {
     PARSE(p1, ts1);
 
     // Make tree
-    Tree t1(&env, p1.result());
+    Tree t1(&env, p1.move_result());
     cout << t1 << endl; // output tree
     // Calc. tree size
     auto t1_size = id::subtree_size(env.node_manager(), t1.root());
