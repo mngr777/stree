@@ -32,6 +32,7 @@ HEADER_FILES = \
 	stree/builder.hpp \
 	stree/compare.hpp \
 	stree/environment.hpp \
+	stree/environment/symbol.hpp \
 	stree/eval.hpp \
 	stree/exec.hpp \
 	stree/macros.hpp \
@@ -52,6 +53,7 @@ SOURCE_FILES = \
 	src/builder.cpp \
 	src/compare.cpp \
 	src/environment.cpp \
+	src/environment/symbol.cpp \
 	src/eval.cpp \
 	src/exec.cpp \
 	src/node/functions.cpp \

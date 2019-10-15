@@ -34,6 +34,10 @@
 # define STREE_VALUE_TYPE float;
 #endif
 
+// Data pointer type
+#ifndef STREE_DATA_PTR_TYPE
+# define STREE_DATA_PTR_TYPE void*
+#endif
 
 // Helper macros
 
