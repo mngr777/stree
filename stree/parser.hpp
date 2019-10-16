@@ -124,7 +124,7 @@ private:
     void complete_callable_symbol();
     void complete_callable();
     void complete_number();
-    void complete_symbol(const Symbol* symbol);
+    void complete_symbol(const SymbolPtr& symbol);
 
     Value string_to_number(const std::string& s);
 

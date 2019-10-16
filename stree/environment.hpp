@@ -1,11 +1,10 @@
 #ifndef STREE_ENVIRONMENT_HPP_
 #define STREE_ENVIRONMENT_HPP_
 
-#include <map>
 #include <string>
-#include <utility>
 #include <vector>
 #include <stree/environment/symbol.hpp>
+#include <stree/environment/symbol_table.hpp>
 #include <stree/macros.hpp>
 #include <stree/tree.hpp>
 
@@ -13,8 +12,6 @@ namespace stree {
 
 class Environment {
 public:
-    typedef std::vector<const Symbol*> SymbolList;
-
     Environment() {}
     Environment(const Environment& other) = delete;
     Environment& operator=(const Environment& other) = delete;
@@ -35,23 +32,23 @@ public:
     void add_constant(const std::string& name, const Value& value);
     void add_constant(const std::string& name);
 
-    const Symbol* symbol(const std::string& name) const;
-    const Symbol* symbol(const Id& id) const;
+    const SymbolPtr& symbol(const std::string& name) const;
+    const SymbolPtr& symbol(const Id& id) const;
 
     unsigned symbol_num() const;
-    const Symbol* symbol(unsigned n) const;
+    const SymbolPtr& symbol(unsigned n) const;
 
     unsigned symbol_by_arity_num(Arity arity) const;
-    const Symbol* symbol_by_arity(Arity arity, unsigned n) const;
+    const SymbolPtr& symbol_by_arity(Arity arity, unsigned n) const;
 
     unsigned terminal_num() const;
-    const Symbol* terminal(unsigned n) const;
+    const SymbolPtr& terminal(unsigned n) const;
 
     unsigned nonterminal_num() const;
-    const Symbol* nonterminal(unsigned n) const;
+    const SymbolPtr& nonterminal(unsigned n) const;
 
     Id make_id(const std::string& name);
-    Id make_id(const Symbol* symbol);
+    Id make_id(const SymbolPtr& symbol);
     Id make_id(const Value& value);
 
     const NodeManager& node_manager() const {
@@ -63,19 +60,12 @@ public:
     }
 
 private:
-    using SymbolMap = std::map<std::string, Symbol>;
-    using SymbolListArityMap = std::map<Arity, SymbolList>;
-    using SelectFunctionItem = std::pair<SelectFunction, Arity>;
+    void add_symbol(const SymbolPtr& symbol);
 
-    void add_symbol(Symbol symbol);
-    void add_symbol_to_arity_lists(const Symbol* symbol);
-
-    SymbolMap symbol_map_;
-    SymbolListArityMap symbol_list_arity_map_;
-    SymbolList symbols_;
-    SymbolList nonterminals_;
     std::vector<Function> functions_;
-    std::vector<SelectFunctionItem> select_functions_;
+    std::vector<SelectFunction> select_functions_;
+
+    SymbolTable symbol_table_;
     NodeManager node_manager_;
 };
 

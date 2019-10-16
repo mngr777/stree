@@ -445,13 +445,14 @@ void Parser::complete_number() {
     }
     buffer_.clear();
 
-    Symbol symbol("", TypeConst);
-    symbol.set_value(number);
-    complete_symbol(&symbol);
+    // TODO: refactoring
+    SymbolPtr symbol = make_symbol("", TypeConst);
+    symbol->set_value(number);
+    complete_symbol(symbol);
 }
 
 
-void Parser::complete_symbol(const Symbol* symbol) {
+void Parser::complete_symbol(const SymbolPtr& symbol) {
     Id id = env_->make_id(symbol);
     if (stack_.empty()) {
         // Empty stack

@@ -3,6 +3,10 @@
 
 namespace stree {
 
+SymbolPtr make_symbol(std::string name, Type type) {
+    return std::make_shared<Symbol>(std::move(name), type);
+}
+
 bool Symbol::operator==(const Symbol& other) const {
     // TODO: compare by type and value
     return name() == other.name();

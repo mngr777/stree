@@ -45,6 +45,7 @@
     }
 
 // Check if symbol exists (by ID or name)
+// NOTE: symbol existance check is no longer required, TODO: remove
 #define GET_SYMBOL(result, env, search)                             \
     result = env.symbol(search);                                    \
     if (!result) {                                                  \

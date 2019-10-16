@@ -1,29 +1,32 @@
 #include <stree/environment.hpp>
-#include <cassert>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
 #include <utility>
 
 namespace stree {
+
+// TODO: check if arity is valid when adding functions/selects
 
 void Environment::add_function(
     const std::string& name,
     Arity arity,
     Function function)
 {
-    // TODO: check if arity is valid
+    // Add function
     FunctionIndex fid = functions_.size();
     functions_.push_back(function);
-    Symbol symbol(name, TypeFunction);
-    symbol.set_arity(arity);
-    symbol.set_fid(fid);
+
+    // Add symbol
+    SymbolPtr symbol = make_symbol(name, TypeFunction);
+    symbol->set_arity(arity);
+    symbol->set_fid(fid);
     add_symbol(symbol);
 }
 
 Function Environment::function(FunctionIndex fid) const {
-    assert(fid < functions_.size());
-    return functions_[fid];
+    return functions_.at(fid);
 }
-
 
 void Environment::add_select_function(
         const std::string& name,
@@ -31,37 +34,37 @@ void Environment::add_select_function(
         Arity sf_arity,
         SelectFunction select_function)
 {
+    // Add select function
     SelectFunctionIndex sfid = select_functions_.size();
-    select_functions_.emplace_back(select_function, sf_arity);
-    Symbol symbol(name, TypeSelect);
-    symbol.set_arity(arity);
-    symbol.set_sfid(sfid);
-    symbol.set_sf_arity(sf_arity);
+    select_functions_.push_back(select_function);
+
+    // Add symbol
+    SymbolPtr symbol = make_symbol(name, TypeSelect);
+    symbol->set_arity(arity);
+    symbol->set_sfid(sfid);
+    symbol->set_sf_arity(sf_arity);
     add_symbol(symbol);
 }
 
 SelectFunction Environment::select_function(SelectFunctionIndex sfid) const {
-    assert(sfid < select_functions_.size());
-    return select_functions_[sfid].first;
+    return select_functions_.at(sfid);
 }
 
-// TODO: after symbol(const Id&) is constant time, move cond_arity to symbol,
-// use symbol to get cond_arity in eval.
+// TODO: remove
 Arity Environment::select_function_cond_arity(SelectFunctionIndex sfid) const {
-    assert(sfid < select_functions_.size());
-    return select_functions_[sfid].second;
+    return symbol_table_.by_sfid(sfid)->sf_arity();
 }
 
 
 void Environment::add_positional(const std::string& name, Position position) {
-    Symbol symbol(name, TypePositional);
-    symbol.set_position(position);
+    SymbolPtr symbol = make_symbol(name, TypePositional);
+    symbol->set_position(position);
     add_symbol(symbol);
 }
 
 void Environment::add_constant(const std::string& name, const Value& value) {
-    Symbol symbol(name, TypeConst);
-    symbol.set_value(value);
+    SymbolPtr symbol = make_symbol(name, TypeConst);
+    symbol->set_value(value);
     add_symbol(symbol);
 }
 
@@ -70,86 +73,70 @@ void Environment::add_constant(const std::string& name) {
     add_constant(name, value);
 }
 
-const Symbol* Environment::symbol(const std::string& name) const {
-    auto it = symbol_map_.find(name);
-    return (it != symbol_map_.end()) ? &(*it).second : nullptr;
+const SymbolPtr& Environment::symbol(const std::string& name) const {
+    return symbol_table_.by_name(name);
 }
 
-// TODO: return functions_[id.fid()] etc.
-// change add_positional to assign position automatically (no position argument)
-const Symbol* Environment::symbol(const Id& id) const {
-    for (const auto& item : symbol_map_) {
-        const Symbol& symbol = item.second;
-        if (id.type() == symbol.type()) {
-            switch(id.type()) {
-                case TypeConst:
-                    break; // never resolve constant values
-                case TypePositional:
-                    if (id::position(node_manager_, id) == symbol.position())
-                        return &symbol;
-                    break;
-                case TypeFunction:
-                    if (id::fid(node_manager_, id) == symbol.fid())
-                        return &symbol;
-                    break;
-                case TypeSelect:
-                    if (id::sfid(node_manager_, id) == symbol.sfid())
-                        return &symbol;
-                    break;
-            }
+const SymbolPtr& Environment::symbol(const Id& id) const {
+    switch (id.type()) {
+        case TypeConst:
+            throw std::invalid_argument("Cannot find symbol for constant");
+
+        case TypePositional: {
+            Position position = id::position(node_manager_, id);
+            return symbol_table_.by_position(position);
+        }
+        case TypeFunction: {
+            FunctionIndex fid = id::fid(node_manager_, id);
+            return symbol_table_.by_fid(fid);
+        }
+        case TypeSelect: {
+            SelectFunctionIndex sfid = id::sfid(node_manager_, id);
+            return symbol_table_.by_sfid(sfid);
         }
     }
-    return nullptr;
+    assert(false);
+}
+
+const SymbolPtr& Environment::symbol(unsigned n) const {
+    return symbol_table_[n];
 }
 
 unsigned Environment::symbol_num() const {
-    return symbols_.size();
-}
-
-const Symbol* Environment::symbol(unsigned n) const {
-    return symbols_[n];
+    return symbol_table_.size();
 }
 
 
 unsigned Environment::symbol_by_arity_num(Arity arity) const {
-    auto it = symbol_list_arity_map_.find(arity);
-    return it != symbol_list_arity_map_.end()
-        ? it->second.size()
-        : 0;
+    return symbol_table_.list_by_arity(arity).size();
 }
 
-const Symbol* Environment::symbol_by_arity(Arity arity, unsigned n) const {
-    auto it = symbol_list_arity_map_.find(arity);
-    return it != symbol_list_arity_map_.end()
-        ? it->second.at(n)
-        : nullptr;
+const SymbolPtr& Environment::symbol_by_arity(Arity arity, unsigned n) const {
+    return symbol_table_.list_by_arity(arity).at(n);
 }
 
 unsigned Environment::terminal_num() const {
-    return symbol_by_arity_num(0);
+    return symbol_table_.terminals().size();
 }
 
-const Symbol* Environment::terminal(unsigned n) const {
-    return symbol_by_arity(0, n);
+const SymbolPtr& Environment::terminal(unsigned n) const {
+    return symbol_table_.terminals().at(n);
 }
 
 unsigned Environment::nonterminal_num() const {
-    return nonterminals_.size();
+    return symbol_table_.nonterminals().size();
 }
 
-const Symbol* Environment::nonterminal(unsigned n) const {
-    return nonterminals_.at(n);
+const SymbolPtr& Environment::nonterminal(unsigned n) const {
+    return symbol_table_.nonterminals().at(n);
 }
 
+// TODO: rename to allow for using Value = std::string
 Id Environment::make_id(const std::string& name) {
-    const Symbol* smb = symbol(name);
-    if (!smb)
-        throw std::invalid_argument(
-            std::string("Symbol not found: `") + name + "'");
-    return make_id(smb);
+    return make_id(symbol(name));
 }
 
-Id Environment::make_id(const Symbol* symbol) {
+Id Environment::make_id(const SymbolPtr& symbol) {
     Id id = id::make(node_manager_, symbol->type(), symbol->arity());
     switch (symbol->type()) {
         case TypeConst:
@@ -174,29 +161,8 @@ Id Environment::make_id(const Value& value) {
     return id;
 }
 
-void Environment::add_symbol(Symbol smb) {
-    if (symbol_map_.find(smb.name()) != symbol_map_.end())
-        throw std::invalid_argument(
-            std::string("Symbol already exists: ") + smb.name());
-    symbol_map_.emplace(smb.name(), smb);
-
-    const Symbol* smb_ptr = symbol(smb.name());
-    assert(smb_ptr && "Cannot find added symbol");
-    symbols_.push_back(smb_ptr);
-    add_symbol_to_arity_lists(smb_ptr);
-}
-
-void Environment::add_symbol_to_arity_lists(const Symbol* symbol) {
-    assert(symbol);
-    Arity arity = symbol->arity();
-
-    // add to nonterminal list
-    if (arity > 0) {
-        nonterminals_.push_back(symbol);
-    }
-
-    // add to lists by arity
-    symbol_list_arity_map_[arity].push_back(symbol);
+void Environment::add_symbol(const SymbolPtr& symbol) {
+    symbol_table_.add(symbol);
 }
 
 } // namespace stree {

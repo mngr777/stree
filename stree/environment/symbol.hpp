@@ -2,6 +2,7 @@
 #define STREE_ENVIRONMENT_SYMBOL_HPP_
 
 #include <functional>
+#include <memory>
 #include <vector>
 #include <stree/macros.hpp>
 #include <stree/types.hpp>
@@ -13,14 +14,24 @@ using DataPtr = STREE_DATA_PTR_TYPE;
 using Function = std::function<Value(const Arguments&, DataPtr)>;
 using SelectFunction = std::function<unsigned(const Arguments&, DataPtr)>;
 
+class Symbol;
+using SymbolPtr = std::shared_ptr<Symbol>;
+using SymbolPtrList = std::vector<SymbolPtr>; // NOTE: no const
+
+SymbolPtr make_symbol(std::string name, Type type);
+
 class Symbol {
 public:
     Symbol(std::string name, Type type)
-        : name_(name),
+        : name_(std::move(name)),
           type_(type) {}
 
     bool operator==(const Symbol& other) const;
     bool operator!=(const Symbol& other) const;
+
+    bool is_terminal() const {
+        return arity() == 0;
+    }
 
     bool is_callable() const {
         return type_ == TypeFunction || type_ == TypeSelect;
@@ -38,7 +49,6 @@ public:
         return name_;
     }
 
-    // Common
     Type type() const {
         return type_;
     }

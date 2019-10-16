@@ -54,12 +54,12 @@ int main() {
     for (NodeNum n = 0; n < t1_size; ++n) {
         // Original
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n);
-        const Symbol* symbol = nullptr;
+        SymbolPtr symbol;
         GET_SYMBOL(symbol, env, id);
 
         // Copy
         const Id& copy_id = id::nth_node(env.node_manager(), t2.root(), n);
-        const Symbol* copy_symbol = env.symbol(copy_id);
+        SymbolPtr copy_symbol;
         GET_SYMBOL(copy_symbol, env, copy_id);
 
         // Output

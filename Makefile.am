@@ -33,6 +33,7 @@ HEADER_FILES = \
 	stree/compare.hpp \
 	stree/environment.hpp \
 	stree/environment/symbol.hpp \
+	stree/environment/symbol_table.hpp \
 	stree/eval.hpp \
 	stree/exec.hpp \
 	stree/macros.hpp \
@@ -54,6 +55,7 @@ SOURCE_FILES = \
 	src/compare.cpp \
 	src/environment.cpp \
 	src/environment/symbol.cpp \
+	src/environment/symbol_table.cpp \
 	src/eval.cpp \
 	src/exec.cpp \
 	src/node/functions.cpp \
@@ -94,10 +96,10 @@ check_PROGRAMS = $(TESTS)
 TEST_SOURCES = tests/macros.hpp
 TEST_LIBS = libstree.la
 
-test_string1_SOURCES = tests/test_string1.cpp
+test_string1_SOURCES = tests/test_string1.cpp $(TEST_SOURCES)
 test_string1_LDADD = $(TEST_LIBS)
 
-test_grow1_SOURCES = tests/test_grow1.cpp
+test_grow1_SOURCES = tests/test_grow1.cpp $(TEST_SOURCES)
 test_grow1_LDADD = $(TEST_LIBS)
 
 test_tree_size1_SOURCES = tests/test_tree_size1.cpp $(TEST_SOURCES)

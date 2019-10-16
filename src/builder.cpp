@@ -15,7 +15,7 @@ void Builder::set(const std::string& name) {
     set_id(id);
 }
 
-void Builder::set(const Symbol* symbol) {
+void Builder::set(const SymbolPtr& symbol) {
     if (!symbol)
         throw std::invalid_argument("Symbol pointer is empty");
     Id id = env_.make_id(symbol);

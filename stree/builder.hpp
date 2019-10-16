@@ -12,7 +12,7 @@ public:
     Builder(Environment& env);
 
     void set(const std::string& name);
-    void set(const Symbol* symbol);
+    void set(const SymbolPtr& symbol);
     void set(const Value& value);
     void up(unsigned n = 1);
     void down(unsigned n);

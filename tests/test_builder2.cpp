@@ -12,7 +12,7 @@ using namespace stree;
 // TODO: move selecting random symbol to environment (with prng as argument)
 
 template<typename R>
-const Symbol* random_term(Environment& env, R& prng) {
+const SymbolPtr& random_term(Environment& env, R& prng) {
     unsigned term_num = env.terminal_num();
     assert(term_num > 1);
     std::uniform_int_distribution<unsigned> dist(0, term_num - 1);
@@ -20,7 +20,7 @@ const Symbol* random_term(Environment& env, R& prng) {
 }
 
 template<typename R>
-const Symbol* random_nonterm(Environment& env, R& prng) {
+const SymbolPtr& random_nonterm(Environment& env, R& prng) {
     unsigned nonterm_num = env.nonterminal_num();
     assert(nonterm_num > 1);
     std::uniform_int_distribution<unsigned> dist(0, nonterm_num - 1);
@@ -37,7 +37,7 @@ template<typename R>
 void grow(Builder& builder, unsigned depth, R& prng, float p_term = 0.2) {
     if (depth > 1 && !cointoss(prng, p_term)) {
         // Set random nonterminal
-        const Symbol* symbol = random_nonterm(builder.env(), prng);
+        const SymbolPtr& symbol = random_nonterm(builder.env(), prng);
         assert(symbol);
         builder.set(symbol);
         // Grow argument subtrees
@@ -57,7 +57,7 @@ void full(Builder& builder, unsigned depth, R& prng) {
     unsigned nonterm_num = builder.env().nonterminal_num();
     if (depth > 1 && nonterm_num > 1) {
         // Set random nonterminal
-        const Symbol* symbol = random_nonterm(builder.env(), prng);
+        const SymbolPtr& symbol = random_nonterm(builder.env(), prng);
         assert(symbol);
         builder.set(symbol);
         // Build children

@@ -69,7 +69,7 @@ Value eval(const Tree& tree, const Params& params, DataPtr data) {
 Arity get_argument_num(const Environment& env, const Id& id) {
     Arity n = id.arity();
     if (id.type() == TypeSelect) {
-        const Symbol* symbol = env.symbol(id);
+        const SymbolPtr& symbol = env.symbol(id);
         assert(symbol && "Select symbol not found");
         n = symbol->sf_arity();
     }

@@ -2,6 +2,7 @@
 #define STREE_TREE_HPP_
 
 #include <string>
+#include <stree/environment/symbol.hpp>
 #include <stree/macros.hpp>
 #include <stree/types.hpp>
 #include <stree/search.hpp>
@@ -24,7 +25,6 @@ public:
 };
 
 class Environment;
-class Symbol;
 class Tree;
 class Subtree;
 
@@ -42,7 +42,7 @@ public:
     void swap(TreeBase&& other);
 
     // Replace root with ID for other symbol with same arity
-    void set(const Symbol* symbol);
+    void set(const SymbolPtr& symbol);
     void set(const std::string& name);
     void set(Value value);
 
@@ -134,7 +134,7 @@ public:
         : TreeBase(env, nullptr),
           root_(root) {}
 
-    Tree(Environment* env, const Symbol* symbol);
+    Tree(Environment* env, const SymbolPtr& symbol);
     Tree(Environment* env, const Value& value);
 
     Tree(const Tree& other);

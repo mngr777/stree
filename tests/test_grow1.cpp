@@ -10,13 +10,13 @@ static stree::Value plus(const stree::Arguments& args, stree::DataPtr) {
     return args[0] + args[1];
 }
 
-const stree::Symbol* random_terminal(stree::Environment& env, std::random_device& rd) {
+const stree::SymbolPtr& random_terminal(stree::Environment& env, std::random_device& rd) {
     assert(env.terminal_num() > 0);
     std::uniform_int_distribution<unsigned> dist(0, env.terminal_num() - 1);
     return env.terminal(dist(rd));
 }
 
-const stree::Symbol* random_nonterminal(stree::Environment& env, std::random_device& rd) {
+const stree::SymbolPtr& random_nonterminal(stree::Environment& env, std::random_device& rd) {
     assert(env.nonterminal_num() > 0);
     std::uniform_int_distribution<unsigned> dist(0, env.nonterminal_num() - 1);
     return env.nonterminal(dist(rd));
@@ -31,7 +31,7 @@ stree::Id grow(
     assert(env.terminal_num() > 0 && "Cannot grow a tree without terminals");
     std::uniform_real_distribution<float> dist(0, 1.0);
 
-    const stree::Symbol* symbol = nullptr;
+    stree::SymbolPtr symbol;
     if (depth == 1 || dist(rd) < p_term || env.nonterminal_num() == 0) {
         symbol = random_terminal(env, rd);
         assert(symbol->arity() == 0);

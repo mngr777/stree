@@ -50,7 +50,7 @@ void TreeBase::swap(TreeBase&& other) {
     swap(other);
 }
 
-void TreeBase::set(const Symbol* symbol) {
+void TreeBase::set(const SymbolPtr& symbol) {
     if (!symbol)
         throw std::invalid_argument("Empty symbol ptr");
     if (!root().empty() && symbol->arity() != root().arity())
@@ -75,9 +75,9 @@ void TreeBase::set(const std::string& name) {
 }
 
 void TreeBase::set(Value value) {
-    Symbol symbol("", TypeConst);
-    symbol.set_value(std::move(value));
-    set(&symbol);
+    SymbolPtr symbol = make_symbol("", TypeConst);
+    symbol->set_value(std::move(value));
+    set(symbol);
 }
 
 const Subtree TreeBase::sub(NodeNum n) const {
@@ -224,7 +224,7 @@ Tree Subtree::copy() const {
 
 // Tree class
 
-Tree::Tree(Environment* env, const Symbol* symbol)
+Tree::Tree(Environment* env, const SymbolPtr& symbol)
     : TreeBase(env),
       root_(env->make_id(symbol)) {}
 

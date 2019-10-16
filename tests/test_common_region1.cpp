@@ -20,9 +20,9 @@ int main() {
     env.add_positional("a", 0);
     env.add_positional("b", 1);
     env.add_positional("c", 2);
-    env.add_positional("d", 0);
-    env.add_positional("e", 1);
-    env.add_positional("f", 2);
+    env.add_positional("d", 3);
+    env.add_positional("e", 4);
+    env.add_positional("f", 5);
 
 
 // Printing region
