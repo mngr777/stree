@@ -54,13 +54,11 @@ int main() {
     for (NodeNum n = 0; n < t1_size; ++n) {
         // Original
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n);
-        SymbolPtr symbol;
-        GET_SYMBOL(symbol, env, id);
+        const SymbolPtr& symbol = env.symbols().by_id(id);
 
         // Copy
         const Id& copy_id = id::nth_node(env.node_manager(), t2.root(), n);
-        SymbolPtr copy_symbol;
-        GET_SYMBOL(copy_symbol, env, copy_id);
+        const SymbolPtr& copy_symbol = env.symbols().by_id(copy_id);
 
         // Output
         cout << "[Node " << n << "] "

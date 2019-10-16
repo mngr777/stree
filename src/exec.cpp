@@ -151,7 +151,7 @@ std::ostream& ExecDebug::print_frame(
         os << frame.id << " ";
 
     // Print symbol name
-    os << exec_.env_.symbol(frame.id)->name();
+    os << exec_.env_.symbols().by_id(frame.id)->name();
 
     // Print arguments
     os << " : ";

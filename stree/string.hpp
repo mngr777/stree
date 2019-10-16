@@ -25,7 +25,7 @@ S& subtree_to_stream(S& stream, const Id& id, const Environment& env) {
     } else if (id.type() == TypeConst) {
         stream << id::value(env.node_manager(), id);
     } else {
-        auto symbol = env.symbol(id);
+        auto symbol = env.symbols().by_id(id);
         if (!symbol)
             throw std::invalid_argument(
                 std::string("Symbol not found, id: ") + to_string(id));

@@ -15,7 +15,8 @@ bool NodeCompare::match_arity(const Id& id1, const Id& id2) const {
 }
 
 bool NodeCompare::match_symbols(const Id& id1, const Id& id2) const {
-    return !compare_symbols_ || (env_->symbol(id1) == env_->symbol(id2));
+    return !compare_symbols_
+        || (env_->symbols().by_id(id1) == env_->symbols().by_id(id2));
 }
 
 } // namespace stree

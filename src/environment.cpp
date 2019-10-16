@@ -73,67 +73,10 @@ void Environment::add_constant(const std::string& name) {
     add_constant(name, value);
 }
 
-const SymbolPtr& Environment::symbol(const std::string& name) const {
-    return symbol_table_.by_name(name);
-}
-
-const SymbolPtr& Environment::symbol(const Id& id) const {
-    switch (id.type()) {
-        case TypeConst:
-            throw std::invalid_argument("Cannot find symbol for constant");
-
-        case TypePositional: {
-            Position position = id::position(node_manager_, id);
-            return symbol_table_.by_position(position);
-        }
-        case TypeFunction: {
-            FunctionIndex fid = id::fid(node_manager_, id);
-            return symbol_table_.by_fid(fid);
-        }
-        case TypeSelect: {
-            SelectFunctionIndex sfid = id::sfid(node_manager_, id);
-            return symbol_table_.by_sfid(sfid);
-        }
-    }
-    assert(false);
-}
-
-const SymbolPtr& Environment::symbol(unsigned n) const {
-    return symbol_table_[n];
-}
-
-unsigned Environment::symbol_num() const {
-    return symbol_table_.size();
-}
-
-
-unsigned Environment::symbol_by_arity_num(Arity arity) const {
-    return symbol_table_.list_by_arity(arity).size();
-}
-
-const SymbolPtr& Environment::symbol_by_arity(Arity arity, unsigned n) const {
-    return symbol_table_.list_by_arity(arity).at(n);
-}
-
-unsigned Environment::terminal_num() const {
-    return symbol_table_.terminals().size();
-}
-
-const SymbolPtr& Environment::terminal(unsigned n) const {
-    return symbol_table_.terminals().at(n);
-}
-
-unsigned Environment::nonterminal_num() const {
-    return symbol_table_.nonterminals().size();
-}
-
-const SymbolPtr& Environment::nonterminal(unsigned n) const {
-    return symbol_table_.nonterminals().at(n);
-}
-
 // TODO: rename to allow for using Value = std::string
 Id Environment::make_id(const std::string& name) {
-    return make_id(symbol(name));
+    const SymbolPtr& symbol = symbol_table_.by_name(name);
+    return make_id(symbol);
 }
 
 Id Environment::make_id(const SymbolPtr& symbol) {

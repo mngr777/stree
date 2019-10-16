@@ -71,7 +71,7 @@ void TreeBase::set(const SymbolPtr& symbol) {
 }
 
 void TreeBase::set(const std::string& name) {
-    set(env_->symbol(name));
+    set(env_->symbols().by_name(name));
 }
 
 void TreeBase::set(Value value) {

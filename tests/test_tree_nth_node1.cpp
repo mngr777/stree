@@ -46,8 +46,7 @@ int main() {
     for (NodeNum n = 0; n < answer_num; ++n) {
         cout << "[Node " << n << "] ";
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n);
-        SymbolPtr symbol;
-        GET_SYMBOL(symbol, env, id);
+        const SymbolPtr& symbol = env.symbols().by_id(id);
         if (symbol->name() != answers[n]) {
             cout << "Primitive name `" << symbol->name() << "' doesn't match "
                  << "expected name `" << answers[n] << "'" << endl;

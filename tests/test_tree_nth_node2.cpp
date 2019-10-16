@@ -54,8 +54,7 @@ int main() {
         NodeFilter filter;
         filter.is_terminal = IsTerminalYes;
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n, filter);
-        SymbolPtr symbol;
-        GET_SYMBOL(symbol, env, id);
+        const SymbolPtr& symbol = env.symbols().by_id(id);
         if (symbol->name() != answers_term[n]) {
             cout << "Terminal name `" << symbol->name() << "' doesn't match "
                  << "expected name `" << answers_term[n] << "'" << endl;
@@ -72,8 +71,7 @@ int main() {
         NodeFilter filter;
         filter.is_terminal = IsTerminalNo;
         const Id& id = id::nth_node(env.node_manager(), t1.root(), n, filter);
-        SymbolPtr symbol;
-        GET_SYMBOL(symbol, env, id);
+        const SymbolPtr& symbol = env.symbols().by_id(id);
         if (symbol->name() != answers_nonterm[n]) {
             cout << "Non-terminal name `" << symbol->name() << "' doesn't match "
                  << "expected name `" << answers_nonterm[n] << "'" << endl;

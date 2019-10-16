@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <random>
@@ -11,15 +12,17 @@ static stree::Value plus(const stree::Arguments& args, stree::DataPtr) {
 }
 
 const stree::SymbolPtr& random_terminal(stree::Environment& env, std::random_device& rd) {
-    assert(env.terminal_num() > 0);
-    std::uniform_int_distribution<unsigned> dist(0, env.terminal_num() - 1);
-    return env.terminal(dist(rd));
+    auto term_num = env.symbols().terminals().size();
+    assert(term_num > 0);
+    std::uniform_int_distribution<unsigned> dist(0, term_num - 1);
+    return env.symbols().terminals()[dist(rd)];
 }
 
 const stree::SymbolPtr& random_nonterminal(stree::Environment& env, std::random_device& rd) {
-    assert(env.nonterminal_num() > 0);
-    std::uniform_int_distribution<unsigned> dist(0, env.nonterminal_num() - 1);
-    return env.nonterminal(dist(rd));
+    auto nonterm_num = env.symbols().nonterminals().size();
+    assert(nonterm_num > 0);
+    std::uniform_int_distribution<unsigned> dist(0, nonterm_num - 1);
+    return env.symbols().nonterminals()[dist(rd)];
 }
 
 stree::Id grow(
@@ -28,11 +31,11 @@ stree::Id grow(
     std::random_device& rd, float p_term = 0.2)
 {
     assert(depth > 0 && "Tree depth should be > 0");
-    assert(env.terminal_num() > 0 && "Cannot grow a tree without terminals");
+    assert(env.symbols().terminals().size() > 0 && "Cannot grow a tree without terminals");
     std::uniform_real_distribution<float> dist(0, 1.0);
 
     stree::SymbolPtr symbol;
-    if (depth == 1 || dist(rd) < p_term || env.nonterminal_num() == 0) {
+    if (depth == 1 || dist(rd) < p_term || env.symbols().nonterminals().size() == 0) {
         symbol = random_terminal(env, rd);
         assert(symbol->arity() == 0);
     } else {

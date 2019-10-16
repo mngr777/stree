@@ -13,18 +13,18 @@ using namespace stree;
 
 template<typename R>
 const SymbolPtr& random_term(Environment& env, R& prng) {
-    unsigned term_num = env.terminal_num();
+    unsigned term_num = env.symbols().terminals().size();
     assert(term_num > 1);
     std::uniform_int_distribution<unsigned> dist(0, term_num - 1);
-    return env.terminal(dist(prng));
+    return env.symbols().terminals()[dist(prng)];
 }
 
 template<typename R>
 const SymbolPtr& random_nonterm(Environment& env, R& prng) {
-    unsigned nonterm_num = env.nonterminal_num();
+    unsigned nonterm_num = env.symbols().nonterminals().size();
     assert(nonterm_num > 1);
     std::uniform_int_distribution<unsigned> dist(0, nonterm_num - 1);
-    return env.nonterminal(dist(prng));
+    return env.symbols().nonterminals()[dist(prng)];
 }
 
 template<typename R>
@@ -54,7 +54,7 @@ void grow(Builder& builder, unsigned depth, R& prng, float p_term = 0.2) {
 
 template<typename R>
 void full(Builder& builder, unsigned depth, R& prng) {
-    unsigned nonterm_num = builder.env().nonterminal_num();
+    unsigned nonterm_num = builder.env().symbols().nonterminals().size();
     if (depth > 1 && nonterm_num > 1) {
         // Set random nonterminal
         const SymbolPtr& symbol = random_nonterm(builder.env(), prng);

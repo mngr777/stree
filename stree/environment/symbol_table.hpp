@@ -10,13 +10,20 @@
 
 namespace stree {
 
+class Id;
+class Environment;
+
 class SymbolTable {
 public:
+    SymbolTable(const Environment* env)
+        : env_(env) {}
+
     void add(const SymbolPtr& symbol);
 
     const SymbolPtr& operator[](std::size_t n) const;
     std::size_t size() const;
 
+    const SymbolPtr& by_id(const Id& id) const;
     const SymbolPtr& by_name(const std::string& name) const;
     const SymbolPtrList& list_by_arity(const Arity arity) const;
 
@@ -48,6 +55,8 @@ private:
     void add_to_positional_map(const SymbolPtr& symbol);
     void add_to_function_map(const SymbolPtr& symbol);
     void add_to_select_function_map(const SymbolPtr& symbol);
+
+    const Environment* env_;
 
     SymbolPtrList list_;
     SymbolPtrMap map_;

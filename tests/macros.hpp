@@ -44,15 +44,6 @@
         std::exit(EXIT_FAILURE);                                        \
     }
 
-// Check if symbol exists (by ID or name)
-// NOTE: symbol existance check is no longer required, TODO: remove
-#define GET_SYMBOL(result, env, search)                             \
-    result = env.symbol(search);                                    \
-    if (!result) {                                                  \
-        std::cerr << "Symbol not found: " << search << std::endl;   \
-        std::exit(EXIT_FAILURE);                                    \
-    }
-
 // Check if nth subtree converted to string matches answer
 #define CHECK_SUBTREE_STR(tree, n, answer)                  \
     {                                                       \

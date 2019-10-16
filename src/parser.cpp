@@ -382,7 +382,7 @@ void Parser::ident(const char c) {
 }
 
 void Parser::complete_variable() {
-    auto symbol = env_->symbol(buffer_);
+    auto symbol = env_->symbols().by_name(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);
@@ -394,7 +394,7 @@ void Parser::complete_variable() {
 }
 
 void Parser::complete_callable_symbol() {
-    auto symbol = env_->symbol(buffer_);
+    auto symbol = env_->symbols().by_name(buffer_);
     buffer_.clear();
     if (!symbol) {
         set_error(ErrorSymbolNotFound);

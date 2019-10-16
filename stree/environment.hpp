@@ -6,13 +6,14 @@
 #include <stree/environment/symbol.hpp>
 #include <stree/environment/symbol_table.hpp>
 #include <stree/macros.hpp>
-#include <stree/tree.hpp>
+#include <stree/node.hpp>
 
 namespace stree {
 
 class Environment {
 public:
-    Environment() {}
+    Environment()
+        : symbol_table_(this) {}
     Environment(const Environment& other) = delete;
     Environment& operator=(const Environment& other) = delete;
     
@@ -32,21 +33,6 @@ public:
     void add_constant(const std::string& name, const Value& value);
     void add_constant(const std::string& name);
 
-    const SymbolPtr& symbol(const std::string& name) const;
-    const SymbolPtr& symbol(const Id& id) const;
-
-    unsigned symbol_num() const;
-    const SymbolPtr& symbol(unsigned n) const;
-
-    unsigned symbol_by_arity_num(Arity arity) const;
-    const SymbolPtr& symbol_by_arity(Arity arity, unsigned n) const;
-
-    unsigned terminal_num() const;
-    const SymbolPtr& terminal(unsigned n) const;
-
-    unsigned nonterminal_num() const;
-    const SymbolPtr& nonterminal(unsigned n) const;
-
     Id make_id(const std::string& name);
     Id make_id(const SymbolPtr& symbol);
     Id make_id(const Value& value);
@@ -57,6 +43,10 @@ public:
 
     NodeManager& node_manager() {
         return node_manager_;
+    }
+
+    const SymbolTable& symbols() const {
+        return symbol_table_;
     }
 
 private:

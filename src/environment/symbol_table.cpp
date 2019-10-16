@@ -1,6 +1,8 @@
 #include <stree/environment/symbol_table.hpp>
 #include <stdexcept>
 #include <cassert>
+#include <stree/node.hpp>
+#include <stree/environment.hpp>
 
 namespace stree {
 
@@ -26,6 +28,27 @@ const SymbolPtr& SymbolTable::operator[](std::size_t n) const {
 
 std::size_t SymbolTable::size() const {
     return list_.size();
+}
+
+const SymbolPtr& SymbolTable::by_id(const Id& id) const {
+    switch (id.type()) {
+        case TypeConst:
+            throw std::invalid_argument("Cannot find symbol for constant");
+
+        case TypePositional: {
+            Position position = id::position(env_->node_manager(), id);
+            return by_position(position);
+        }
+        case TypeFunction: {
+            FunctionIndex fid = id::fid(env_->node_manager(), id);
+            return by_fid(fid);
+        }
+        case TypeSelect: {
+            SelectFunctionIndex sfid = id::sfid(env_->node_manager(), id);
+            return by_sfid(sfid);
+        }
+    }
+    assert(false);
 }
 
 const SymbolPtr& SymbolTable::by_name(const std::string& name) const {
