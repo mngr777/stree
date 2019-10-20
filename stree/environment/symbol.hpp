@@ -9,11 +9,6 @@
 
 namespace stree {
 
-using Arguments = std::vector<Value>;
-using DataPtr = STREE_DATA_PTR_TYPE;
-using Function = std::function<Value(const Arguments&, DataPtr)>;
-using SelectFunction = std::function<unsigned(const Arguments&, DataPtr)>;
-
 class Symbol;
 using SymbolPtr = std::shared_ptr<Symbol>;
 using SymbolPtrList = std::vector<SymbolPtr>; // NOTE: no const
@@ -24,7 +19,8 @@ class Symbol {
 public:
     Symbol(std::string name, Type type)
         : name_(std::move(name)),
-          type_(type) {}
+          type_(type),
+          cost_(0) {}
 
     bool operator==(const Symbol& other) const;
     bool operator!=(const Symbol& other) const;
@@ -52,6 +48,15 @@ public:
     Type type() const {
         return type_;
     }
+
+    Cost cost() const {
+        return cost_;
+    }
+
+    void set_cost(Cost cost) {
+        cost_ = cost;
+    }
+
     Arity arity() const;
 
     // Const
@@ -78,6 +83,7 @@ public:
 private:
     std::string name_;
     Type type_;
+    Cost cost_;
     union {
         struct {
             Value value;

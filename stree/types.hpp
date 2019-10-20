@@ -3,7 +3,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <limits>
+#include <vector>
 #include <stree/macros.hpp>
 
 namespace stree {
@@ -21,6 +23,13 @@ const FunctionIndex FunctionNoIndex =
     std::numeric_limits<FunctionIndex>::max();
 const SelectFunctionIndex SelectFunctionNoIndex =
     std::numeric_limits<SelectFunctionIndex>::max();
+
+// evaluation
+using Arguments = std::vector<Value>;
+using DataPtr = STREE_DATA_PTR_TYPE;
+using Function = std::function<Value(const Arguments&, DataPtr)>;
+using SelectFunction = std::function<unsigned(const Arguments&, DataPtr)>;
+using Cost = float;
 
 
 // Type enum and conversions

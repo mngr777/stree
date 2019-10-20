@@ -33,6 +33,7 @@ std::size_t SymbolTable::size() const {
 const SymbolPtr& SymbolTable::by_id(const Id& id) const {
     switch (id.type()) {
         case TypeConst:
+            // ?? or just return empty ptr?
             throw std::invalid_argument("Cannot find symbol for constant");
 
         case TypePositional: {

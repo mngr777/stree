@@ -37,7 +37,7 @@ int main() {
 
     // Tree 1
     cout << t1 << endl;
-    Exec exec1(t1);
+    Exec exec1(t1, Exec::FlagStopOnFunctions);
     ExecDebug debug1(exec1);
     exec1.init(&params);
     while (!exec1.is_finished()) {
@@ -51,7 +51,7 @@ int main() {
 
     // Tree 2
     cout << t2 << endl;
-    Exec exec2(t2);
+    Exec exec2(t2, Exec::FlagStopOnFunctions);
     ExecDebug debug2(exec2);
     exec1.init(&params);
     while (!exec1.is_finished()) {

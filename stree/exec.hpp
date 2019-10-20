@@ -1,7 +1,9 @@
 #ifndef STREE_EXEC_HPP_
 #define STREE_EXEC_HPP_
 
+#include <cstdint>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <stree/environment.hpp>
@@ -10,18 +12,36 @@
 
 namespace stree {
 
+class ExecCostLimitExceeded : public std::exception {
+    const char* what() const noexcept;
+};
+
+
 class ExecDebug;
 
 class Exec {
     friend ExecDebug;
 public:
-    Exec(const TreeBase& tree)
-        : Exec(*tree.env(), tree.root()) {}
+    using Flag = std::uint8_t;
+    const static Flag NoFlags               = 0;
+    const static Flag FlagRunLoop           = 1;
+    const static Flag FlagStopOnFinished    = 2;
+    const static Flag FlagStopIfCostNotZero = 4;
+    const static Flag FlagStopOnFunctions   = 8;
+    const static Flag FlagStopOnSelects     = 16;
+    const static Flag DefaultFlags          = NoFlags; // FlagStopOnFinished;
+    const static Flag AllFlags              = -1;
 
-    Exec(const Environment& env, const Id& root)
+    Exec(const TreeBase& tree, Flag flags = DefaultFlags)
+        : Exec(*tree.env(), tree.root(), flags) {}
+
+    Exec(const Environment& env, const Id& root, Flag flags = DefaultFlags)
         : env_(env),
           root_(root),
           params_(nullptr),
+          flags_(flags),
+          cost_limit_(-1),
+          cost_used_(0),
           data_ptr_(nullptr),
           is_finished_(false),
           result_(Value{}) {}
@@ -30,6 +50,34 @@ public:
     void run();
     void step();
     void restart();
+
+    void set_flag(Flag flag) {
+        flags_ |= flag;
+    }
+
+    void unset_flag(Flag flag) {
+        flags_ &= ~flag;
+    }
+
+    bool has_flag(Flag flag) {
+        return flags_ & flag;
+    }
+
+    void set_cost_limit(Cost cost) {
+        cost_limit_ = cost;
+    }
+
+    const Cost cost_limit() const {
+        return cost_limit_;
+    }
+
+    const bool has_cost_limit() const {
+        return cost_limit_ > 0;
+    }
+
+    const Cost cost_used() const {
+        return cost_used_;
+    }
 
     const bool is_finished() const {
         return is_finished_;
@@ -69,6 +117,9 @@ private:
     const Environment& env_;
     const Id& root_;
     Params* params_;
+    Flag flags_;
+    Cost cost_limit_;
+    Cost cost_used_;
     DataPtr data_ptr_;
     Stack stack_;
 
@@ -79,7 +130,7 @@ private:
 
 class ExecDebug {
 public:
-    using PrintFlags = char;
+    using PrintFlags = std::uint8_t;
     static const PrintFlags NoPrintFlags = 0;
     static const PrintFlags PrintIds     = 1;
 

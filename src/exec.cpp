@@ -3,6 +3,11 @@
 
 namespace stree {
 
+const char* ExecCostLimitExceeded::what() const noexcept {
+    return "Cost limit exceeded";
+}
+
+
 void Exec::init(Params* params, DataPtr data_ptr) {
     params_ = params;
     data_ptr_ = data_ptr;
@@ -10,7 +15,8 @@ void Exec::init(Params* params, DataPtr data_ptr) {
 }
 
 void Exec::run() {
-    while (!is_finished())
+    bool loop = has_flag(FlagRunLoop);
+    while (loop || !is_finished())
         step();
 }
 
@@ -30,6 +36,18 @@ void Exec::step() {
 
 void Exec::eval_top() {
     Frame& current = stack_top();
+
+    // Check cost
+    Cost cost = 0;
+    SymbolPtr symbol;
+    if (current.id.type() != TypeConst) {
+        symbol = env_.symbols().by_id(current.id);
+        cost = symbol->cost();
+    }
+    if (has_cost_limit() && (cost_used_ + cost) > cost_limit_) {
+        throw ExecCostLimitExceeded();
+    }
+
     switch (current.id.type()) {
         case TypeConst:
         case TypePositional: {
@@ -57,11 +75,22 @@ void Exec::eval_top() {
                 stack_pop();
                 stack_push(branch_id);
             }
-            // evaluating conditional doesn't count as a step
-            step();
             break;
         }
     }
+
+    // Update cost counter
+    cost_used_ += cost;
+
+    // Check if need to stop
+    bool stop = false;
+    stop |= (is_finished() && has_flag(FlagStopOnFinished));
+    stop |= (cost > 0 && has_flag(FlagStopIfCostNotZero));
+    if (symbol) {
+        stop |= (symbol->type() == TypeFunction && has_flag(FlagStopOnFunctions));
+        stop |= (symbol->type() == TypeSelect && has_flag(FlagStopOnSelects));
+    }
+    if (!stop) step();
 }
 
 void Exec::push_argument() {
@@ -78,6 +107,7 @@ void Exec::restart() {
     stack_clear();
     stack_push(root_);
     is_finished_ = false;
+    cost_used_ = 0.0;
 }
 
 void Exec::stack_clear() {

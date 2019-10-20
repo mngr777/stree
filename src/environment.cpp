@@ -11,7 +11,8 @@ namespace stree {
 void Environment::add_function(
     const std::string& name,
     Arity arity,
-    Function function)
+    Function function,
+    Cost cost)
 {
     // Add function
     FunctionIndex fid = functions_.size();
@@ -20,6 +21,7 @@ void Environment::add_function(
     // Add symbol
     SymbolPtr symbol = make_symbol(name, TypeFunction);
     symbol->set_arity(arity);
+    symbol->set_cost(cost);
     symbol->set_fid(fid);
     add_symbol(symbol);
 }
@@ -32,7 +34,8 @@ void Environment::add_select_function(
         const std::string& name,
         Arity arity,
         Arity sf_arity,
-        SelectFunction select_function)
+        SelectFunction select_function,
+        Cost cost)
 {
     // Add select function
     SelectFunctionIndex sfid = select_functions_.size();
@@ -41,6 +44,7 @@ void Environment::add_select_function(
     // Add symbol
     SymbolPtr symbol = make_symbol(name, TypeSelect);
     symbol->set_arity(arity);
+    symbol->set_cost(cost);
     symbol->set_sfid(sfid);
     symbol->set_sf_arity(sf_arity);
     add_symbol(symbol);
@@ -49,12 +53,6 @@ void Environment::add_select_function(
 SelectFunction Environment::select_function(SelectFunctionIndex sfid) const {
     return select_functions_.at(sfid);
 }
-
-// TODO: remove
-Arity Environment::select_function_cond_arity(SelectFunctionIndex sfid) const {
-    return symbol_table_.by_sfid(sfid)->sf_arity();
-}
-
 
 void Environment::add_positional(const std::string& name, Position position) {
     SymbolPtr symbol = make_symbol(name, TypePositional);

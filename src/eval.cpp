@@ -94,7 +94,7 @@ unsigned call_select_function(
 {
     SelectFunctionIndex sfid = id::sfid(env.node_manager(), id);
     assert(
-        env.select_function_cond_arity(sfid) == arguments.size()
+        env.symbols().by_sfid(sfid)->sf_arity() == arguments.size()
         && "Invalid argument number");
     unsigned branch = env.select_function(sfid)(arguments, data);
     assert(branch < id.arity() && "Invalid branch selected");
