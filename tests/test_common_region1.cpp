@@ -68,11 +68,11 @@ int main() {
   /   \     /   \
 (b)3  (a)4 (b)5 (c)6
 
-common region: 0, 1, 2, 4, 5, 6
+common region: 0, 1, 2, 3, 4, 5, 6
 */
 
      string ts2("(+ (* b a) (% b c))");
-     std::vector<NodeNum> cr2_answer({0, 1, 2, 4, 5, 6});
+     std::vector<NodeNum> cr2_answer({0, 1, 2, 3, 4, 5, 6});
 
 /*
                 (+)0
@@ -83,10 +83,10 @@ common region: 0, 1, 2, 4, 5, 6
   /  \      /  \
 (e)7 (d)8 (b)9 (f)10
 
-common region: 0, 1, 2, 3, 5, 6, 7, 8
+common region: 0, 1, 2, 3, 4, 5, 6, 7, 8
  */
      string ts3("(+ (* (- e d) (+ b f)) (% a c))");
-     std::vector<NodeNum> cr3_answer({0, 1, 2, 3, 5, 6, 7, 8});
+     std::vector<NodeNum> cr3_answer({0, 1, 2, 3, 4, 5, 6, 7, 8});
 
      // Parse
      Parser p1(&env);

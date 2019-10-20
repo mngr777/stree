@@ -15,7 +15,6 @@ using NodeRefPairQueue = std::queue<NodeRefPair>;
 void CommonRegion::add(NodeNum n, NodeRef node1, NodeRef node2) {
     list_.emplace_back(n, node1, node2);
     map_.emplace(n, Item(n, node1, node2));
-    assert(node1.get().arity() == node2.get().arity());
     if (node1.get().arity() > 0) {
         terminal_num_list_.push_back(n);
     } else{
@@ -118,10 +117,11 @@ CommonRegion common_region(
             if (compare.equal(child1, child2)) {
                 // Add equal nodes to queue
                 queue.emplace(child1, child2);
-                // Add node num to result
-                // result.push_back(current_node_num);
-                result.add(current_node_num, child1, child2);
             }
+            // Add node num to result
+            // NOTE: non-matching fringe nodes are added
+            // (links still belong to common region)
+            result.add(current_node_num, child1, child2);
             // Increment node counter
             ++current_node_num;
         }
