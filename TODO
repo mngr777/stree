@@ -1,3 +1,1 @@
 * ./configure switch for node implementation
-* eval/exec refactoring
-* common region should include non-matching (fringe) child nodes
