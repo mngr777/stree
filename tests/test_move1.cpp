@@ -83,15 +83,16 @@ int main() {
             cerr << "Stats do not match" << endl;
             return -4;
         }
-
-        // Output stats
-        nms1.update(env.node_manager());
-        cout << "Stats after moved object destruction" << endl;
-        cout << nms1 << endl;
-        if (nms1 != nms2) {
-            cerr << "Stats do not match" << endl;
-            return -5;
-        }
     }
+
+    // Output stats
+    nms1.update(env.node_manager());
+    cout << "Stats after moved object destruction" << endl;
+    cout << nms1 << endl;
+    if (nms1 != nms2) {
+        cerr << "Stats do not match" << endl;
+        return -5;
+    }
+
     return 0;
 }
