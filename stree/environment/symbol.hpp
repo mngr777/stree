@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 #include <stree/macros.hpp>
 #include <stree/types.hpp>
