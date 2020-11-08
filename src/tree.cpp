@@ -40,16 +40,6 @@ bool TreeBase::is_valid() const {
     return id::is_valid_subtree(env_->node_manager(), root());
 }
 
-void TreeBase::swap(TreeBase& other) {
-    std::swap(root(), other.root());
-    reset_cache();
-    other.reset_cache();
-}
-
-void TreeBase::swap(TreeBase&& other) {
-    swap(other);
-}
-
 void TreeBase::set(const SymbolPtr& symbol) {
     if (!symbol)
         throw std::invalid_argument("Empty symbol ptr");
@@ -207,10 +197,20 @@ void Subtree::destroy() {
     reset_cache();
 }
 
+void Subtree::swap(Subtree& other) {
+    std::swap(root_, other.root_);
+    reset_cache();
+    other.reset_cache();
+}
+
+void Subtree::swap(Subtree&& other) {
+    swap(other);
+}
+
 void Subtree::replace(Tree& tree) {
-    destroy();
     Subtree subtree = tree.sub(0);
     swap(subtree);
+    tree.sub(0).destroy();
 }
 
 void Subtree::replace(Tree&& tree) {
@@ -233,13 +233,13 @@ Tree::Tree(Environment* env, const Value& value)
       root_(env->make_id(value)) {}
 
 Tree::Tree(const Tree& other)
-    : TreeBase(other)
+    : TreeBase(other.env_)
 {
     copy(other);
 }
 
 Tree::Tree(Tree&& other)
-    : TreeBase(std::move(other))
+    : TreeBase(other.env_)
 {
     copy(std::move(other));
 }
@@ -249,13 +249,13 @@ Tree::~Tree() {
 }
 
 Tree& Tree::operator=(const Tree& other) {
-    TreeBase::operator=(other);
+    // TreeBase::operator=(other);
     copy(other);
     return *this;
 }
 
 Tree& Tree::operator=(Tree&& other) {
-    TreeBase::operator=(other);
+    // TreeBase::operator=(other);
     copy(std::move(other));
     return *this;
 }
@@ -270,5 +270,14 @@ void Tree::copy(Tree&& other) {
     root_ = id::move(other.root_);
 }
 
+void Tree::swap(Tree& other) {
+    std::swap(root_, other.root_);
+    reset_cache();
+    other.reset_cache();
+}
+
+void Tree::swap(Tree&& other) {
+    swap(other);
+}
 
 } // namespace stree

@@ -38,9 +38,6 @@ public:
 
     bool is_valid() const;
 
-    void swap(TreeBase& other);
-    void swap(TreeBase&& other);
-
     // Replace root with ID for other symbol with same arity
     void set(const SymbolPtr& symbol);
     void set(const std::string& name);
@@ -120,6 +117,9 @@ public:
         return root_;
     }
 
+    void swap(Subtree& other);
+    void swap(Subtree&& other);
+
 private:
     Id& root_;
 };
@@ -152,6 +152,9 @@ public:
     virtual Id& root() {
         return root_;
     }
+
+    void swap(Tree& other);
+    void swap(Tree&& other);
 
 private:
     Id root_;
