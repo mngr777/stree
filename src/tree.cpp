@@ -267,8 +267,7 @@ void Tree::copy(const Tree& other) {
 
 void Tree::copy(Tree&& other) {
     id::destroy_subtree(env_->node_manager(), root_);
-    root_ = other.root_;
-    other.root_.reset();
+    root_ = id::move(other.root_);
 }
 
 
