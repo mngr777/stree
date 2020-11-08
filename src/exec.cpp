@@ -107,7 +107,6 @@ void Exec::restart() {
     stack_clear();
     stack_push(root_);
     is_finished_ = false;
-    cost_used_ = 0.0;
 }
 
 void Exec::stack_clear() {
