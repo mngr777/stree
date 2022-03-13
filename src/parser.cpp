@@ -1,5 +1,4 @@
 #include <stree/parser.hpp>
-#include <cassert>
 #include <cstring>
 #include <memory>
 #include <utility>
@@ -121,7 +120,9 @@ void Parser::finish() {
 }
 
 Id Parser::move_result() {
-    return id::move(root_);
+    Id id = id::move(root_);
+    reset();
+    return id;
 }
 
 void Parser::reset() {
@@ -129,8 +130,8 @@ void Parser::reset() {
     buffer_.clear();
     state_ = StateReady;
     error_ = ErrorOk;
-    line_num_ = 0;
-    char_num_ = 0;
+    // line_num_ = 0;
+    // char_num_ = 0;
 }
 
 void Parser::cleanup() {

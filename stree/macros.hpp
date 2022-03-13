@@ -1,6 +1,7 @@
 #ifndef STREE_MACROS_HPP_
 #define STREE_MACROS_HPP_
 
+#include <stree/config.hpp>
 #include <boost/preprocessor/list/for_each.hpp>
 #include <boost/preprocessor/tuple/to_list.hpp>
 
@@ -24,7 +25,7 @@
 # define STREE_SELECT_ARITY_TUPLE (0, 1, 2)
 #endif
 
-// Arity width in bits
+// Arity width in bits (packed node)
 #ifndef STREE_ARITY_WIDTH
 # define STREE_ARITY_WIDTH (3)
 #endif

@@ -17,7 +17,7 @@ public:
         : symbol_table_(this) {}
     Environment(const Environment& other) = delete;
     Environment& operator=(const Environment& other) = delete;
-    
+
     void add_function(
         const std::string& name,
         Arity arity,

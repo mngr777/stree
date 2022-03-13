@@ -20,7 +20,7 @@
         return args[0];                                                 \
     }
 
-// Defie progn function (return last argument or zero)
+// Define progn function (return last argument or zero)
 #define DEFUN_PROGN(func)                                               \
     static stree::Value func(const stree::Arguments& args, stree::DataPtr) { \
         return !args.empty()                                            \
@@ -42,6 +42,14 @@
                   << ", Pos: " << parser.char_num() << std::endl        \
                   << ", Buffer: " << parser.buffer() << std::endl;      \
         std::exit(EXIT_FAILURE);                                        \
+    }
+
+#define CHECK_TREE_STR(tree, answer)                                \
+    {                                                               \
+        std::string st = stree::to_string(tree);                    \
+        cout << "Tree: " << st << ", answer: " << answer << endl;   \
+        if (st != answer)                                           \
+            std::exit(EXIT_FAILURE);                                \
     }
 
 // Check if nth subtree converted to string matches answer

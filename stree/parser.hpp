@@ -1,6 +1,7 @@
 #ifndef STREE_PARSER_HPP_
 #define STREE_PARSER_HPP_
 
+#include <cassert>
 #include <cstddef>
 #include <istream>
 #include <stack>
@@ -72,6 +73,10 @@ public:
 
     Id result() const {
         return root_;
+    }
+
+    bool is_ready() const {
+        return state_ == StateReady;
     }
 
     bool is_done() const {
